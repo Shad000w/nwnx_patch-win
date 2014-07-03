@@ -1,0 +1,495 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project ToolsVersion="4.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <ItemGroup>
+    <Filter Include="Source Files">
+      <UniqueIdentifier>{4FC737F1-C7A5-4376-A066-2A32D752A2FF}</UniqueIdentifier>
+      <Extensions>cpp;c;cc;cxx;def;odl;idl;hpj;bat;asm;asmx</Extensions>
+    </Filter>
+    <Filter Include="Source Files\nwn_internals">
+      <UniqueIdentifier>{a9c2168b-141e-44e4-8cc7-c2182fdfa732}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Header Files">
+      <UniqueIdentifier>{93995380-89BD-4b04-88EB-625FBE52EBFB}</UniqueIdentifier>
+      <Extensions>h;hpp;hxx;hm;inl;inc;xsd</Extensions>
+    </Filter>
+    <Filter Include="Resource Files">
+      <UniqueIdentifier>{67DA6AB6-F800-4c08-8B7A-83BB121AAD01}</UniqueIdentifier>
+      <Extensions>rc;ico;cur;bmp;dlg;rc2;rct;bin;rgs;gif;jpg;jpeg;jpe;resx;tiff;tif;png;wav</Extensions>
+    </Filter>
+  </ItemGroup>
+  <ItemGroup>
+    <ClCompile Include="CNWNHooks.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="nwn_internals.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="..\NWNXdll\NWNXBase.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="..\nwn_internals\C2DA.cpp">
+      <Filter>Source Files\nwn_internals</Filter>
+    </ClCompile>
+    <ClCompile Include="..\nwn_internals\CAutoMap.cpp">
+      <Filter>Source Files\nwn_internals</Filter>
+    </ClCompile>
+    <ClCompile Include="..\nwn_internals\CExoLinkedList.cpp">
+      <Filter>Source Files\nwn_internals</Filter>
+    </ClCompile>
+    <ClCompile Include="..\nwn_internals\CExoResMan.cpp">
+      <Filter>Source Files\nwn_internals</Filter>
+    </ClCompile>
+    <ClCompile Include="..\nwn_internals\CExoString.cpp">
+      <Filter>Source Files\nwn_internals</Filter>
+    </ClCompile>
+    <ClCompile Include="..\nwn_internals\CFactionManager.cpp">
+      <Filter>Source Files\nwn_internals</Filter>
+    </ClCompile>
+    <ClCompile Include="..\nwn_internals\CGameEffect.cpp">
+      <Filter>Source Files\nwn_internals</Filter>
+    </ClCompile>
+    <ClCompile Include="..\nwn_internals\CGameObjectArray.cpp">
+      <Filter>Source Files\nwn_internals</Filter>
+    </ClCompile>
+    <ClCompile Include="..\nwn_internals\CNetLayer.cpp">
+      <Filter>Source Files\nwn_internals</Filter>
+    </ClCompile>
+    <ClCompile Include="..\nwn_internals\CNWBaseItemArray.cpp">
+      <Filter>Source Files\nwn_internals</Filter>
+    </ClCompile>
+    <ClCompile Include="..\nwn_internals\CNWCCMessageData.cpp">
+      <Filter>Source Files\nwn_internals</Filter>
+    </ClCompile>
+    <ClCompile Include="..\nwn_internals\CNWClass.cpp">
+      <Filter>Source Files\nwn_internals</Filter>
+    </ClCompile>
+    <ClCompile Include="..\nwn_internals\CNWMessage.cpp">
+      <Filter>Source Files\nwn_internals</Filter>
+    </ClCompile>
+    <ClCompile Include="..\nwn_internals\CNWRules.cpp">
+      <Filter>Source Files\nwn_internals</Filter>
+    </ClCompile>
+    <ClCompile Include="..\nwn_internals\CNWSArea.cpp">
+      <Filter>Source Files\nwn_internals</Filter>
+    </ClCompile>
+    <ClCompile Include="..\nwn_internals\CNWSAreaOfEffectObject.cpp">
+      <Filter>Source Files\nwn_internals</Filter>
+    </ClCompile>
+    <ClCompile Include="..\nwn_internals\CNWSCombatRound.cpp">
+      <Filter>Source Files\nwn_internals</Filter>
+    </ClCompile>
+    <ClCompile Include="..\nwn_internals\CNWSCreature.cpp">
+      <Filter>Source Files\nwn_internals</Filter>
+    </ClCompile>
+    <ClCompile Include="..\nwn_internals\CNWSCreatureStats.cpp">
+      <Filter>Source Files\nwn_internals</Filter>
+    </ClCompile>
+    <ClCompile Include="..\nwn_internals\CNWSDoor.cpp">
+      <Filter>Source Files\nwn_internals</Filter>
+    </ClCompile>
+    <ClCompile Include="..\nwn_internals\CNWSEncounter.cpp">
+      <Filter>Source Files\nwn_internals</Filter>
+    </ClCompile>
+    <ClCompile Include="..\nwn_internals\CNWSFaction.cpp">
+      <Filter>Source Files\nwn_internals</Filter>
+    </ClCompile>
+    <ClCompile Include="..\nwn_internals\CNWSInventory.cpp">
+      <Filter>Source Files\nwn_internals</Filter>
+    </ClCompile>
+    <ClCompile Include="..\nwn_internals\CNWSItem.cpp">
+      <Filter>Source Files\nwn_internals</Filter>
+    </ClCompile>
+    <ClCompile Include="..\nwn_internals\CNWSMessage.cpp">
+      <Filter>Source Files\nwn_internals</Filter>
+    </ClCompile>
+    <ClCompile Include="..\nwn_internals\CNWSModule.cpp">
+      <Filter>Source Files\nwn_internals</Filter>
+    </ClCompile>
+    <ClCompile Include="..\nwn_internals\CNWSObject.cpp">
+      <Filter>Source Files\nwn_internals</Filter>
+    </ClCompile>
+    <ClCompile Include="..\nwn_internals\CNWSpellArray.cpp">
+      <Filter>Source Files\nwn_internals</Filter>
+    </ClCompile>
+    <ClCompile Include="..\nwn_internals\CNWSPlaceable.cpp">
+      <Filter>Source Files\nwn_internals</Filter>
+    </ClCompile>
+    <ClCompile Include="..\nwn_internals\CNWSPlayer.cpp">
+      <Filter>Source Files\nwn_internals</Filter>
+    </ClCompile>
+    <ClCompile Include="..\nwn_internals\CNWSPlayerCharSheetGUI.cpp">
+      <Filter>Source Files\nwn_internals</Filter>
+    </ClCompile>
+    <ClCompile Include="..\nwn_internals\CNWSplayerTURD.cpp">
+      <Filter>Source Files\nwn_internals</Filter>
+    </ClCompile>
+    <ClCompile Include="..\nwn_internals\CNWSScriptVarTable.cpp">
+      <Filter>Source Files\nwn_internals</Filter>
+    </ClCompile>
+    <ClCompile Include="..\nwn_internals\CNWSStats_Level.cpp">
+      <Filter>Source Files\nwn_internals</Filter>
+    </ClCompile>
+    <ClCompile Include="..\nwn_internals\CNWSStore.cpp">
+      <Filter>Source Files\nwn_internals</Filter>
+    </ClCompile>
+    <ClCompile Include="..\nwn_internals\CNWSTile.cpp">
+      <Filter>Source Files\nwn_internals</Filter>
+    </ClCompile>
+    <ClCompile Include="..\nwn_internals\CNWSTrigger.cpp">
+      <Filter>Source Files\nwn_internals</Filter>
+    </ClCompile>
+    <ClCompile Include="..\nwn_internals\CNWTile.cpp">
+      <Filter>Source Files\nwn_internals</Filter>
+    </ClCompile>
+    <ClCompile Include="..\nwn_internals\CResGFF.cpp">
+      <Filter>Source Files\nwn_internals</Filter>
+    </ClCompile>
+    <ClCompile Include="..\nwn_internals\CResRef.cpp">
+      <Filter>Source Files\nwn_internals</Filter>
+    </ClCompile>
+    <ClCompile Include="..\nwn_internals\CScriptEvent.cpp">
+      <Filter>Source Files\nwn_internals</Filter>
+    </ClCompile>
+    <ClCompile Include="..\nwn_internals\CServerAIMaster.cpp">
+      <Filter>Source Files\nwn_internals</Filter>
+    </ClCompile>
+    <ClCompile Include="..\nwn_internals\CServerExoApp.cpp">
+      <Filter>Source Files\nwn_internals</Filter>
+    </ClCompile>
+    <ClCompile Include="..\nwn_internals\CServerExoAppInternal.cpp">
+      <Filter>Source Files\nwn_internals</Filter>
+    </ClCompile>
+    <ClCompile Include="..\nwn_internals\CTlkTable.cpp">
+      <Filter>Source Files\nwn_internals</Filter>
+    </ClCompile>
+    <ClCompile Include="..\nwn_internals\CTwoDimArrays.cpp">
+      <Filter>Source Files\nwn_internals</Filter>
+    </ClCompile>
+    <ClCompile Include="..\nwn_internals\CVirtualMachine.cpp">
+      <Filter>Source Files\nwn_internals</Filter>
+    </ClCompile>
+    <ClCompile Include="..\nwn_internals\CWorldTimer.cpp">
+      <Filter>Source Files\nwn_internals</Filter>
+    </ClCompile>
+    <ClCompile Include="NWNXPatch.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="patch.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="..\NWNXdll\IniFile.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="CExoString.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+  </ItemGroup>
+  <ItemGroup>
+    <ClInclude Include="..\nwn_internals\C2DA.h">
+      <Filter>Source Files\nwn_internals</Filter>
+    </ClInclude>
+    <ClInclude Include="..\nwn_internals\CAppManager.h">
+      <Filter>Source Files\nwn_internals</Filter>
+    </ClInclude>
+    <ClInclude Include="..\nwn_internals\CAutoMap.h">
+      <Filter>Source Files\nwn_internals</Filter>
+    </ClInclude>
+    <ClInclude Include="..\nwn_internals\CCodeBase.h">
+      <Filter>Source Files\nwn_internals</Filter>
+    </ClInclude>
+    <ClInclude Include="..\nwn_internals\CCombatinformation.h">
+      <Filter>Source Files\nwn_internals</Filter>
+    </ClInclude>
+    <ClInclude Include="..\nwn_internals\CExoArrayList.h">
+      <Filter>Source Files\nwn_internals</Filter>
+    </ClInclude>
+    <ClInclude Include="..\nwn_internals\CExoArrayList_2.h">
+      <Filter>Source Files\nwn_internals</Filter>
+    </ClInclude>
+    <ClInclude Include="..\nwn_internals\CExoArrayList_uint16.h">
+      <Filter>Source Files\nwn_internals</Filter>
+    </ClInclude>
+    <ClInclude Include="..\nwn_internals\CExoLinkedList.h">
+      <Filter>Source Files\nwn_internals</Filter>
+    </ClInclude>
+    <ClInclude Include="..\nwn_internals\CExoLinkedListHeader.h">
+      <Filter>Source Files\nwn_internals</Filter>
+    </ClInclude>
+    <ClInclude Include="..\nwn_internals\CExoLinkedListNode.h">
+      <Filter>Source Files\nwn_internals</Filter>
+    </ClInclude>
+    <ClInclude Include="..\nwn_internals\CExoLocString.h">
+      <Filter>Source Files\nwn_internals</Filter>
+    </ClInclude>
+    <ClInclude Include="..\nwn_internals\CExoLocString2.h">
+      <Filter>Source Files\nwn_internals</Filter>
+    </ClInclude>
+    <ClInclude Include="..\nwn_internals\CExoResMan.h">
+      <Filter>Source Files\nwn_internals</Filter>
+    </ClInclude>
+    <ClInclude Include="..\nwn_internals\CExoString.h">
+      <Filter>Source Files\nwn_internals</Filter>
+    </ClInclude>
+    <ClInclude Include="..\nwn_internals\CFactionManager.h">
+      <Filter>Source Files\nwn_internals</Filter>
+    </ClInclude>
+    <ClInclude Include="..\nwn_internals\CGameEffect.h">
+      <Filter>Source Files\nwn_internals</Filter>
+    </ClInclude>
+    <ClInclude Include="..\nwn_internals\CGameObject_VTable.h">
+      <Filter>Source Files\nwn_internals</Filter>
+    </ClInclude>
+    <ClInclude Include="..\nwn_internals\CGameObjectArray.h">
+      <Filter>Source Files\nwn_internals</Filter>
+    </ClInclude>
+    <ClInclude Include="..\nwn_internals\CGameObjectArrayElement.h">
+      <Filter>Source Files\nwn_internals</Filter>
+    </ClInclude>
+    <ClInclude Include="..\nwn_internals\CGenericObject.h">
+      <Filter>Source Files\nwn_internals</Filter>
+    </ClInclude>
+    <ClInclude Include="..\nwn_internals\CItemRepository.h">
+      <Filter>Source Files\nwn_internals</Filter>
+    </ClInclude>
+    <ClInclude Include="..\nwn_internals\CLastUpdateObject.h">
+      <Filter>Source Files\nwn_internals</Filter>
+    </ClInclude>
+    <ClInclude Include="..\nwn_internals\CLookupTableObject.h">
+      <Filter>Source Files\nwn_internals</Filter>
+    </ClInclude>
+    <ClInclude Include="..\nwn_internals\CNetLayer.h">
+      <Filter>Source Files\nwn_internals</Filter>
+    </ClInclude>
+    <ClInclude Include="..\nwn_internals\CNWBaseItem.h">
+      <Filter>Source Files\nwn_internals</Filter>
+    </ClInclude>
+    <ClInclude Include="..\nwn_internals\CNWBaseItemArray.h">
+      <Filter>Source Files\nwn_internals</Filter>
+    </ClInclude>
+    <ClInclude Include="..\nwn_internals\CNWCCMessageData.h">
+      <Filter>Source Files\nwn_internals</Filter>
+    </ClInclude>
+    <ClInclude Include="..\nwn_internals\CNWClass.h">
+      <Filter>Source Files\nwn_internals</Filter>
+    </ClInclude>
+    <ClInclude Include="..\nwn_internals\CNWMessage.h">
+      <Filter>Source Files\nwn_internals</Filter>
+    </ClInclude>
+    <ClInclude Include="..\nwn_internals\CNWRules.h">
+      <Filter>Source Files\nwn_internals</Filter>
+    </ClInclude>
+    <ClInclude Include="..\nwn_internals\CNWSAction.h">
+      <Filter>Source Files\nwn_internals</Filter>
+    </ClInclude>
+    <ClInclude Include="..\nwn_internals\CNWSArea.h">
+      <Filter>Source Files\nwn_internals</Filter>
+    </ClInclude>
+    <ClInclude Include="..\nwn_internals\CNWSAreaOfEffectObject.h">
+      <Filter>Source Files\nwn_internals</Filter>
+    </ClInclude>
+    <ClInclude Include="..\nwn_internals\CNWSClient.h">
+      <Filter>Source Files\nwn_internals</Filter>
+    </ClInclude>
+    <ClInclude Include="..\nwn_internals\CNWSCombatAttackData.h">
+      <Filter>Source Files\nwn_internals</Filter>
+    </ClInclude>
+    <ClInclude Include="..\nwn_internals\CNWSCombatRound.h">
+      <Filter>Source Files\nwn_internals</Filter>
+    </ClInclude>
+    <ClInclude Include="..\nwn_internals\CNWSCreature.h">
+      <Filter>Source Files\nwn_internals</Filter>
+    </ClInclude>
+    <ClInclude Include="..\nwn_internals\CNWSCreature_vtable.h">
+      <Filter>Source Files\nwn_internals</Filter>
+    </ClInclude>
+    <ClInclude Include="..\nwn_internals\CNWSCreatureAppearanceInfo.h">
+      <Filter>Source Files\nwn_internals</Filter>
+    </ClInclude>
+    <ClInclude Include="..\nwn_internals\CNWSCreatureClass.h">
+      <Filter>Source Files\nwn_internals</Filter>
+    </ClInclude>
+    <ClInclude Include="..\nwn_internals\CNWSCreatureEventHandler.h">
+      <Filter>Source Files\nwn_internals</Filter>
+    </ClInclude>
+    <ClInclude Include="..\nwn_internals\CNWSCreatureStats.h">
+      <Filter>Source Files\nwn_internals</Filter>
+    </ClInclude>
+    <ClInclude Include="..\nwn_internals\CNWSDoor.h">
+      <Filter>Source Files\nwn_internals</Filter>
+    </ClInclude>
+    <ClInclude Include="..\nwn_internals\CNWSEncounter.h">
+      <Filter>Source Files\nwn_internals</Filter>
+    </ClInclude>
+    <ClInclude Include="..\nwn_internals\CNWSFaction.h">
+      <Filter>Source Files\nwn_internals</Filter>
+    </ClInclude>
+    <ClInclude Include="..\nwn_internals\CNWSInventory.h">
+      <Filter>Source Files\nwn_internals</Filter>
+    </ClInclude>
+    <ClInclude Include="..\nwn_internals\CNWSItem.h">
+      <Filter>Source Files\nwn_internals</Filter>
+    </ClInclude>
+    <ClInclude Include="..\nwn_internals\CNWSItemProperty.h">
+      <Filter>Source Files\nwn_internals</Filter>
+    </ClInclude>
+    <ClInclude Include="..\nwn_internals\CNWSItemPropertyHandler.h">
+      <Filter>Source Files\nwn_internals</Filter>
+    </ClInclude>
+    <ClInclude Include="..\nwn_internals\CNWSMessage.h">
+      <Filter>Source Files\nwn_internals</Filter>
+    </ClInclude>
+    <ClInclude Include="..\nwn_internals\CNWSModule.h">
+      <Filter>Source Files\nwn_internals</Filter>
+    </ClInclude>
+    <ClInclude Include="..\nwn_internals\CNWSObject.h">
+      <Filter>Source Files\nwn_internals</Filter>
+    </ClInclude>
+    <ClInclude Include="..\nwn_internals\CNWSObjectActionNode.h">
+      <Filter>Source Files\nwn_internals</Filter>
+    </ClInclude>
+    <ClInclude Include="..\nwn_internals\CNWSpell.h">
+      <Filter>Source Files\nwn_internals</Filter>
+    </ClInclude>
+    <ClInclude Include="..\nwn_internals\CNWSpellArray.h">
+      <Filter>Source Files\nwn_internals</Filter>
+    </ClInclude>
+    <ClInclude Include="..\nwn_internals\CNWSPlaceable.h">
+      <Filter>Source Files\nwn_internals</Filter>
+    </ClInclude>
+    <ClInclude Include="..\nwn_internals\CNWSPlayer.h">
+      <Filter>Source Files\nwn_internals</Filter>
+    </ClInclude>
+    <ClInclude Include="..\nwn_internals\CNWSPlayerCharSheetGUI.h">
+      <Filter>Source Files\nwn_internals</Filter>
+    </ClInclude>
+    <ClInclude Include="..\nwn_internals\CNWSPlayerTURD.h">
+      <Filter>Source Files\nwn_internals</Filter>
+    </ClInclude>
+    <ClInclude Include="..\nwn_internals\CNWSScriptVarTable.h">
+      <Filter>Source Files\nwn_internals</Filter>
+    </ClInclude>
+    <ClInclude Include="..\nwn_internals\CNWSSoundObject.h">
+      <Filter>Source Files\nwn_internals</Filter>
+    </ClInclude>
+    <ClInclude Include="..\nwn_internals\CNWSStats_Level.h">
+      <Filter>Source Files\nwn_internals</Filter>
+    </ClInclude>
+    <ClInclude Include="..\nwn_internals\CNWSStats_Spell.h">
+      <Filter>Source Files\nwn_internals</Filter>
+    </ClInclude>
+    <ClInclude Include="..\nwn_internals\CNWSStore.h">
+      <Filter>Source Files\nwn_internals</Filter>
+    </ClInclude>
+    <ClInclude Include="..\nwn_internals\CNWSTile.h">
+      <Filter>Source Files\nwn_internals</Filter>
+    </ClInclude>
+    <ClInclude Include="..\nwn_internals\CNWSTrigger.h">
+      <Filter>Source Files\nwn_internals</Filter>
+    </ClInclude>
+    <ClInclude Include="..\nwn_internals\CNWSWaypoint.h">
+      <Filter>Source Files\nwn_internals</Filter>
+    </ClInclude>
+    <ClInclude Include="..\nwn_internals\CNWTile.h">
+      <Filter>Source Files\nwn_internals</Filter>
+    </ClInclude>
+    <ClInclude Include="..\nwn_internals\CNWTlkTable.h">
+      <Filter>Source Files\nwn_internals</Filter>
+    </ClInclude>
+    <ClInclude Include="..\nwn_internals\CNWVisibilityNode.h">
+      <Filter>Source Files\nwn_internals</Filter>
+    </ClInclude>
+    <ClInclude Include="..\nwn_internals\combat_modes.h">
+      <Filter>Source Files\nwn_internals</Filter>
+    </ClInclude>
+    <ClInclude Include="..\nwn_internals\CResFileInfo.h">
+      <Filter>Source Files\nwn_internals</Filter>
+    </ClInclude>
+    <ClInclude Include="..\nwn_internals\CResGFF.h">
+      <Filter>Source Files\nwn_internals</Filter>
+    </ClInclude>
+    <ClInclude Include="..\nwn_internals\CResource.h">
+      <Filter>Source Files\nwn_internals</Filter>
+    </ClInclude>
+    <ClInclude Include="..\nwn_internals\CResRef.h">
+      <Filter>Source Files\nwn_internals</Filter>
+    </ClInclude>
+    <ClInclude Include="..\nwn_internals\CResStruct.h">
+      <Filter>Source Files\nwn_internals</Filter>
+    </ClInclude>
+    <ClInclude Include="..\nwn_internals\CScriptEvent.h">
+      <Filter>Source Files\nwn_internals</Filter>
+    </ClInclude>
+    <ClInclude Include="..\nwn_internals\CScriptLocation.h">
+      <Filter>Source Files\nwn_internals</Filter>
+    </ClInclude>
+    <ClInclude Include="..\nwn_internals\CScriptVariable.h">
+      <Filter>Source Files\nwn_internals</Filter>
+    </ClInclude>
+    <ClInclude Include="..\nwn_internals\CServerAIMaster.h">
+      <Filter>Source Files\nwn_internals</Filter>
+    </ClInclude>
+    <ClInclude Include="..\nwn_internals\CServerExoApp.h">
+      <Filter>Source Files\nwn_internals</Filter>
+    </ClInclude>
+    <ClInclude Include="..\nwn_internals\CServerExoAppInternal.h">
+      <Filter>Source Files\nwn_internals</Filter>
+    </ClInclude>
+    <ClInclude Include="..\nwn_internals\CTlkTable.h">
+      <Filter>Source Files\nwn_internals</Filter>
+    </ClInclude>
+    <ClInclude Include="..\nwn_internals\CTwoDimArrays.h">
+      <Filter>Source Files\nwn_internals</Filter>
+    </ClInclude>
+    <ClInclude Include="..\nwn_internals\CVirtualMachine.h">
+      <Filter>Source Files\nwn_internals</Filter>
+    </ClInclude>
+    <ClInclude Include="..\nwn_internals\CVirtualmachineCommands.h">
+      <Filter>Source Files\nwn_internals</Filter>
+    </ClInclude>
+    <ClInclude Include="..\nwn_internals\CWorldTimer.h">
+      <Filter>Source Files\nwn_internals</Filter>
+    </ClInclude>
+    <ClInclude Include="..\nwn_internals\nwn_const.h">
+      <Filter>Source Files\nwn_internals</Filter>
+    </ClInclude>
+    <ClInclude Include="..\nwn_internals\nwn_const_feats.h">
+      <Filter>Source Files\nwn_internals</Filter>
+    </ClInclude>
+    <ClInclude Include="..\nwn_internals\nwn_effects.h">
+      <Filter>Source Files\nwn_internals</Filter>
+    </ClInclude>
+    <ClInclude Include="..\nwn_internals\nwnx_funcs_const.h">
+      <Filter>Source Files\nwn_internals</Filter>
+    </ClInclude>
+    <ClInclude Include="..\nwn_internals\types.h">
+      <Filter>Source Files\nwn_internals</Filter>
+    </ClInclude>
+    <ClInclude Include="..\nwn_internals\Vector.h">
+      <Filter>Source Files\nwn_internals</Filter>
+    </ClInclude>
+    <ClInclude Include="CNWNHooks.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="nwn_internals.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="StdAfx.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="types.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="..\nwn_internals\CServerExoAppConfig.h">
+      <Filter>Source Files\nwn_internals</Filter>
+    </ClInclude>
+    <ClInclude Include="NWNXPatch.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="..\NWNXdll\IniFile.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="CExoString.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+  </ItemGroup>
+</Project>
