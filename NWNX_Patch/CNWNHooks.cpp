@@ -242,8 +242,8 @@ unsigned char (__fastcall *CNWSCreatureStats__GetSpellGainWithBonusAfterLevelUp)
 int (__fastcall *CNWSCreatureStats__GetSpellMinAbilityMet)(CNWSCreatureStats *pThis, void *, unsigned char cls_pos, unsigned char spell_lvl);
 void (__fastcall *CNWSCreatureStats__UpdateNumberMemorizedSpellSlots)(CNWSCreatureStats *pThis, void *);
 unsigned char (__fastcall *CNWSCreatureStats__ComputeNumberKnownSpellsLeft)(CNWSCreatureStats *pThis, void *, unsigned char cls_pos, unsigned char spell_lvl);
-int (__fastcall *CNWSCreatureStats_ClassInfo__ConfirmDomainSpell)(CNWSCreatureClass *pThis, void *, unsigned char domain_lvl, unsigned long spell_id);
-unsigned char (__fastcall *CNWSCreatureStats__GetSpellUsesLeft)(CNWSCreatureStats *pThis, void *, unsigned long spell_id, unsigned char cls_pos, unsigned char spell_lvl, unsigned char metamagic);
+int (__fastcall *CNWSCreatureStats_ClassInfo__ConfirmDomainSpell)(CNWSCreatureClass *pThis, void *, unsigned char domain_lvl, long spell_id);
+unsigned char (__fastcall *CNWSCreatureStats__GetSpellUsesLeft)(CNWSCreatureStats *pThis, void *, long spell_id, unsigned char cls_pos, unsigned char spell_lvl, unsigned char metamagic);
 int (__fastcall *CNWSCreature__LearnScroll)(CNWSCreature *pThis, void*, unsigned long itemID);
 void (__fastcall *CNWSCreatureStats__AdjustSpellUsesPerDay)(CNWSCreatureStats *pThis, void *);
 void (__fastcall *CNWSCreatureStats__ComputeFeatBonuses)(CNWSCreatureStats *pThis, void*, int *a1, int a2, int a3);
@@ -273,12 +273,12 @@ void __fastcall CNWSCreatureStats__ComputeFeatBonuses_Hook(CNWSCreatureStats *pT
 void __fastcall CNWSCreatureStats__AdjustSpellUsesPerDay_Hook(CNWSCreatureStats *pThis, void*)
 {
 	if(Patch.helper == 56) return;//called from CNWSCreatureStats::ComputeFeatBonuses or CNWSCreature::ReadItemsFromGff
-	if(!pThis->cs_is_pc)
+	else if(!pThis->cs_is_pc)
 	{
 		CNWSCreatureStats__AdjustSpellUsesPerDay(pThis,NULL);
 		return;
 	}
-	for(unsigned char cls_pos=0;cls_pos<3;cls_pos++)
+	for(unsigned char cls_pos=0;cls_pos<pThis->cs_classes_len;cls_pos++)
 	{
 		if(Patch.cls_cast_type[pThis->cs_classes[cls_pos].cl_class] & CAST_TYPE_SPONTANEOUS)
 		{
@@ -361,7 +361,7 @@ void __fastcall CNWSCreatureStats__LevelUp_Hook(CNWSCreatureStats *pThis, void*,
 		{
 			unsigned char cls_id = pThis->cs_classes[x].cl_class;
 			CNWClass *cClass = &(NWN_Rules->ru_classes[cls_id]);
-			if(cClass->SpellCaster && ((Patch.cls_cast_type[cls_id] & CAST_TYPE_SPONTANEOUS) && !(Patch.cls_cast_type[cls_id] & CAST_TYPE_RESTRICTED_SPELLBOOK)))
+			if(cls_id != CLASS_TYPE_INVALID && cClass && cClass->SpellCaster && ((Patch.cls_cast_type[cls_id] & CAST_TYPE_SPONTANEOUS) && !(Patch.cls_cast_type[cls_id] & CAST_TYPE_RESTRICTED_SPELLBOOK)))
 			{
 				unsigned char cls_id = pThis->cs_classes[x].cl_class;
 				unsigned char cls_lvl = pThis->cs_classes[x].cl_level;
@@ -417,12 +417,12 @@ int __fastcall CNWSCreature__LearnScroll_Hook(CNWSCreature *pThis, void *, unsig
 }
 
 
-unsigned char __fastcall CNWSCreatureStats__GetSpellUsesLeft_Hook(CNWSCreatureStats *pThis, void *, unsigned long spell_id, unsigned char cls_pos, unsigned char domain_lvl, unsigned char metamagic)
+unsigned char __fastcall CNWSCreatureStats__GetSpellUsesLeft_Hook(CNWSCreatureStats *pThis, void *, long spell_id, unsigned char cls_pos, unsigned char domain_lvl, unsigned char metamagic)
 {
 	unsigned char retValOrig = CNWSCreatureStats__GetSpellUsesLeft(pThis,NULL,spell_id,cls_pos,domain_lvl,metamagic);
-
+	if(cls_pos >= pThis->cs_classes_len || spell_id == -1) return 0;//sometimes engine invalid values, in this case we need  to return 0
+	//todo//fprintf(Patch.m_fFile, "o CNWSCreatureStats__GetSpellUsesLeft_Hook: cls_pos %i, spell_id %i, domain_lvl: %i, metamagic: %i, oldval %i, cls_len: %i\n",cls_pos,spell_id,domain_lvl,metamagic,retValOrig,pThis->cs_classes_len);fflush(Patch.m_fFile);
 	if(pThis->cs_original->cre_pm_IsPolymorphed) return 1;
-
 	unsigned char retVal = 0;
 	unsigned char cls_id = pThis->cs_classes[cls_pos].cl_class;
 	CNWClass *cClass = &(NWN_Rules->ru_classes[cls_id]);
@@ -484,12 +484,13 @@ unsigned char __fastcall CNWSCreatureStats__GetSpellUsesLeft_Hook(CNWSCreatureSt
 	return retVal;
 }
 
-int __fastcall CNWSCreatureStats_ClassInfo__ConfirmDomainSpell_Hook(CNWSCreatureClass *pThis, void *, unsigned char domain_lvl, unsigned long spell_id)
+int __fastcall CNWSCreatureStats_ClassInfo__ConfirmDomainSpell_Hook(CNWSCreatureClass *pThis, void *, unsigned char domain_lvl, long spell_id)
 {
 	if(!classes_2da)
 	{
 		return CNWSCreatureStats_ClassInfo__ConfirmDomainSpell(pThis,NULL,domain_lvl,spell_id);
 	}
+	else if(spell_id == -1) return 0;
 	CNWClass *cClass = &(NWN_Rules->ru_classes[pThis->cl_class]);
 	if(pThis->cl_class != CLASS_TYPE_INVALID && cClass && (Patch.cls_cast_type[pThis->cl_class] & CAST_TYPE_SELECT_DOMAINS))
 	{
@@ -518,6 +519,7 @@ unsigned char __fastcall CNWSCreatureStats__ComputeNumberKnownSpellsLeft_Hook(CN
 	{
 		return CNWSCreatureStats__ComputeNumberKnownSpellsLeft(pThis,NULL,cls_pos,spell_lvl);
 	}
+	if(cls_pos >= pThis->cs_classes_len) return 0;//sometimes engine passes 254/255 into class position, in this case we need  to return 0
 	unsigned char retVal;
 	unsigned char cls_id = pThis->cs_classes[cls_pos].cl_class;
 	if(cls_id != CLASS_TYPE_INVALID)
@@ -621,7 +623,7 @@ void __fastcall CNWSCreatureStats__UpdateNumberMemorizedSpellSlots_Hook(CNWSCrea
 {
 	if(Patch.helper == 56) return;//called from CNWSCreatureStats::ComputeFeatBonuses
 	CNWClass *cClass;int spell_lvl, num_slots;uint8_t cls_id;
-	for(char x = 0;x < pThis->cs_classes_len; x++)
+	for(unsigned char x = 0;x < pThis->cs_classes_len; x++)
 	{
 		cls_id = pThis->cs_classes[x].cl_class;
 		cClass = &(NWN_Rules->ru_classes[cls_id]);
@@ -642,6 +644,7 @@ unsigned char __fastcall CNWSCreatureStats__GetSpellGainWithBonus_Hook(CNWSCreat
 	{
 		return CNWSCreatureStats__GetSpellGainWithBonus(pThis,NULL,cls_pos,spell_lvl);
 	}
+	if(cls_pos >= pThis->cs_classes_len) return 0;//sometimes engine passes 254/255 into class position, in this case we need  to return 0
 	unsigned char retVal = 0;
 	unsigned char cls_id = pThis->cs_classes[cls_pos].cl_class;
 	char bonus = 0, abil_score = 0;
@@ -724,7 +727,7 @@ unsigned char __fastcall CNWSCreatureStats__GetSpellGainWithBonus_Hook(CNWSCreat
 		}
 	}
 	unsigned char retValOrig = CNWSCreatureStats__GetSpellGainWithBonus(pThis,NULL,cls_pos,spell_lvl);
-	if(retValOrig != retVal && pThis->cs_classes[cls_pos].cl_class < 11)
+	if(retValOrig != retVal && cls_id < 11)
 	{
 		fprintf(Patch.m_fFile, "o CNWSCreatureStats__GetSpellGainWithBonus: new calculation doesnt match with vanilla! cls_id %i, spell_lvl %i, oldval %i, newval: %i, bonus: %i, abil_score: %i\n",pThis->cs_classes[cls_pos].cl_class,spell_lvl,retValOrig,retVal,bonus,abil_score);fflush(Patch.m_fFile);
 	}
@@ -737,6 +740,7 @@ unsigned char __fastcall CNWSCreatureStats__GetSpellGainWithBonusAfterLevelUp_Ho
 	{
 		return CNWSCreatureStats__GetSpellGainWithBonusAfterLevelUp(pThis,NULL,cls_pos,spell_lvl,lvlstats,spell_school,is_first_lvl);
 	}
+	if(cls_pos >= pThis->cs_classes_len) return 0;//sometimes engine passes 254/255 into class position, in this case we need  to return 0
 	unsigned char retValOrig = CNWSCreatureStats__GetSpellGainWithBonusAfterLevelUp(pThis,NULL,cls_pos,spell_lvl,lvlstats,spell_school,is_first_lvl);
 	unsigned char retVal = 0;
 	unsigned char cls_id = is_first_lvl ? lvlstats->ls_class : pThis->cs_classes[cls_pos].cl_class;
@@ -836,6 +840,7 @@ unsigned char __fastcall CNWSCreatureStats__GetSpellGainWithBonusAfterLevelUp_Ho
 
 int __fastcall CNWSCreatureStats__GetSpellMinAbilityMet_Hook(CNWSCreatureStats *pThis, void *, unsigned char cls_pos, unsigned char spell_lvl)
 {
+	if(cls_pos >= pThis->cs_classes_len) return 0;//sometimes engine passes 254/255 into class position, in this case we need  to return 0
 	unsigned char cls_id = pThis->cs_classes[cls_pos].cl_class;
 	switch(cls_id)
 	{
@@ -1532,11 +1537,11 @@ void __fastcall CNWSCreature__UpdateAttributesOnEffect_Hook(CNWSCreature *pThis,
 	//support for custom spellcasters based on str/dex/con cast ability
 	if(eff->eff_type == EFFECT_TRUETYPE_ABILITY_INCREASE && (eff->eff_integers[0] == ABILITY_STRENGTH || eff->eff_integers[0] == ABILITY_DEXTERITY || eff->eff_integers[0] == ABILITY_CONSTITUTION))
 	{
-		for(unsigned char cls_pos = 0;cls_pos<3;cls_pos++)
+		for(unsigned char cls_pos = 0;cls_pos<pThis->cre_stats->cs_classes_len;cls_pos++)
 		{
 			unsigned char cls_id = pThis->cre_stats->cs_classes[cls_pos].cl_class;
 			CNWClass *cClass = &(NWN_Rules->ru_classes[cls_id]);
-			if(cClass->SpellCaster && cClass->PrimaryAbility == eff->eff_integers[0])
+			if(cClass && cClass->SpellCaster && cClass->PrimaryAbility == eff->eff_integers[0])
 			{
 				pThis->cre_stats->UpdateNumberMemorizedSpellSlots();
 				pThis->cre_stats->AdjustSpellUsesPerDay();
