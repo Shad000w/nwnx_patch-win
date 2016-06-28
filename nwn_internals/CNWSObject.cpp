@@ -1,30 +1,29 @@
-#include "stdafx.h"
 #include "types.h"
 #include "nwn_internals.h"
 
-int16_t			(__thiscall *CNWSObject__ApplyEffect)(CNWSObject *pTHIS, CGameEffect *Effect_a2, int a3, int a4) = (int16_t (__thiscall*)(CNWSObject *pTHIS, CGameEffect *Effect_a2, int a3, int a4))0x004E27A0;
-void 			(__thiscall *CNWSObject__ClearSpellEffectsOnOthers)(CNWSObject *pTHIS) = (void(__thiscall*)(CNWSObject *pTHIS))0x004E3E20;
-int				(__thiscall *CNWSObject__DoDamageImmunity)(CNWSObject *pTHIS, CNWSCreature *Attacker, int DamageDelivered, int DamageFlags, int _bMaxDamage, int bFeedback) = (int(__thiscall*)(CNWSObject *pTHIS, CNWSCreature *Attacker, int DamageDelivered, int DamageFlags, int _bMaxDamage, int bFeedback))0x004E1A00;
-int				(__thiscall *CNWSObject__DoDamageResistance)(CNWSObject *pTHIS, CNWSCreature *a2, int a3, signed int a4, int a5, int a6, int a7) = (int(__thiscall*)(CNWSObject *pTHIS, CNWSCreature *a2, int a3, signed int a4, int a5, int a6, int a7))0x004E07D0;
-int16_t			(__thiscall *CNWSObject__GetCurrentHitPoints)(CNWSObject *pTHIS, int bExcludeTemp) = (int16_t(__thiscall*)(CNWSObject *pTHIS, int bExcludeTemp))0x004DFDA0;
-char			(__thiscall *CNWSObject__GetDamageImmunityByFlags)(CNWSObject_s *pTHIS, uint16_t Flags) = (char (__thiscall *)(CNWSObject_s * pTHIS, uint16_t))0x004E1D50;
-int 			(__thiscall *CNWSObject__GetIsPCDying)(CNWSObject *pTHIS) = (int(__thiscall*)(CNWSObject *pTHIS))0x004E5A60;
-int				(__thiscall *CNWSObject__RemoveEffectById)(CNWSObject_s *pTHIS, uint64_t EffID) = (int (__thiscall *)(CNWSObject_s *pTHIS, uint64_t EffID))0x004E2DE0;
-CNWSArea * 		(__thiscall *CNWSObject__GetArea)(CNWSObject_s *pTHIS) = (CNWSArea* (__thiscall *)(CNWSObject_s *pTHIS))0x004E3F50;
-void 			(__thiscall *CNWSObject__SetTag)(CNWSObject_s *pTHIS, CExoString sTag) = (void (__thiscall*)(CNWSObject_s *pTHIS, CExoString sTag))0x00466360;
-int 			(__thiscall *CNWSObject__GetDead)(CNWSObject_s *pTHIS) = (int (__thiscall*)(CNWSObject_s *pTHIS))0x004E59D0;
-unsigned int 	(__thiscall *CNWSObject__SetArea)(CNWSObject_s *pTHIS, CNWSArea *Area) = (unsigned int (__thiscall*)(CNWSObject_s *pTHIS, CNWSArea *Area))0x004E3F90;
-int 			(__thiscall *CNWSObject__GetMaximumDamageResistanceVsDamageFlag)(CNWSObject_s *pTHIS, uint16_t DamageType, int *EffectIndex) = (int (__thiscall*)(CNWSObject_s *pTHIS, uint16_t DamageType, int *EffectIndex))0x004E1920;
-void 			(__thiscall *CNWSObject__SaveVarTable)(CNWSObject *pTHIS, CResGFF *pResGFF, CResStruct *pResStruct) = (void(__thiscall*)(CNWSObject *pTHIS, CResGFF *pResGFF, CResStruct *pResStruct))0x004DEF40;
-void 			(__thiscall *CNWSObject__LoadVarTable)(CNWSObject *pTHIS, CResGFF *pResGFF, CResStruct *pResStruct) = (void(__thiscall*)(CNWSObject *pTHIS, CResGFF *pResGFF, CResStruct *pResStruct))0x004DEF20;
-void 			(__thiscall *CNWSObject__SetPosition)(CNWSObject *pTHIS, Vector v, int a3) = (void(__thiscall*)(CNWSObject *pTHIS, Vector v, int a3))0x004E25D0;
-void 			(__thiscall *CNWSObject__SetOrientation)(CNWSObject *pTHIS, Vector v) = (void(__thiscall*)(CNWSObject *pTHIS, Vector v))0x004E25B0;
-void *			(__thiscall *CNWSObject__BroadcastDialog)(CNWSObject *pTHIS, CExoString Msg, float Max_Distance) = (void*(__thiscall*)(CNWSObject *pTHIS, CExoString Msg, float Max_Distance))0x004E54B0;
-int				(__thiscall *CNWSObject__HasSpellEffectApplied)(CNWSObject *pTHIS, unsigned long lSpell) = (int(__thiscall*)(CNWSObject *pTHIS, unsigned long lSpell))0x004E5990;
-void			(__thiscall *CNWSObject__RemoveEffect)(CNWSObject *pTHIS, CGameEffect *eff) = (void(__thiscall*)(CNWSObject *pTHIS, CGameEffect *eff))0x4E2CE0;
-void			(__thiscall *CNWSObject__UpdateEffectList)(CNWSObject *pTHIS, unsigned long l, unsigned long l2) = (void(__thiscall*)(CNWSObject *pTHIS, unsigned long l, unsigned long l2))0x4E2FE0;
+int16_t			(__thiscall *CNWSObject__ApplyEffect)(CNWSObject *pThis, CGameEffect *Effect_a2, int a3, int a4) = (int16_t (__thiscall*)(CNWSObject *pThis, CGameEffect *Effect_a2, int a3, int a4))0x004E27A0;
+void 			(__thiscall *CNWSObject__ClearSpellEffectsOnOthers)(CNWSObject *pThis) = (void(__thiscall*)(CNWSObject *pThis))0x004E3E20;
+int				(__thiscall *CNWSObject__DoDamageImmunity)(CNWSObject *pThis, CNWSCreature *Attacker, int DamageDelivered, int DamageFlags, int _bMaxDamage, int bFeedback) = (int(__thiscall*)(CNWSObject *pThis, CNWSCreature *Attacker, int DamageDelivered, int DamageFlags, int _bMaxDamage, int bFeedback))0x004E1A00;
+int				(__thiscall *CNWSObject__DoDamageResistance)(CNWSObject *pThis, CNWSCreature *a2, int a3, signed int a4, int a5, int a6, int a7) = (int(__thiscall*)(CNWSObject *pThis, CNWSCreature *a2, int a3, signed int a4, int a5, int a6, int a7))0x004E07D0;
+int16_t			(__thiscall *CNWSObject__GetCurrentHitPoints)(CNWSObject *pThis, int bExcludeTemp) = (int16_t(__thiscall*)(CNWSObject *pThis, int bExcludeTemp))0x004DFDA0;
+char			(__thiscall *CNWSObject__GetDamageImmunityByFlags)(CNWSObject_s *pThis, uint16_t Flags) = (char (__thiscall *)(CNWSObject_s * pThis, uint16_t))0x004E1D50;
+int 			(__thiscall *CNWSObject__GetIsPCDying)(CNWSObject *pThis) = (int(__thiscall*)(CNWSObject *pThis))0x004E5A60;
+int				(__thiscall *CNWSObject__RemoveEffectById)(CNWSObject_s *pThis, uint64_t EffID) = (int (__thiscall *)(CNWSObject_s *pThis, uint64_t EffID))0x004E2DE0;
+CNWSArea * 		(__thiscall *CNWSObject__GetArea)(CNWSObject_s *pThis) = (CNWSArea* (__thiscall *)(CNWSObject_s *pThis))0x004E3F50;
+void 			(__thiscall *CNWSObject__SetTag)(CNWSObject_s *pThis, CExoString sTag) = (void (__thiscall*)(CNWSObject_s *pThis, CExoString sTag))0x00466360;
+int 			(__thiscall *CNWSObject__GetDead)(CNWSObject_s *pThis) = (int (__thiscall*)(CNWSObject_s *pThis))0x004E59D0;
+unsigned int 	(__thiscall *CNWSObject__SetArea)(CNWSObject_s *pThis, CNWSArea *Area) = (unsigned int (__thiscall*)(CNWSObject_s *pThis, CNWSArea *Area))0x004E3F90;
+int 			(__thiscall *CNWSObject__GetMaximumDamageResistanceVsDamageFlag)(CNWSObject_s *pThis, uint16_t DamageType, int *EffectIndex) = (int (__thiscall*)(CNWSObject_s *pThis, uint16_t DamageType, int *EffectIndex))0x004E1920;
+void 			(__thiscall *CNWSObject__SaveVarTable)(CNWSObject *pThis, CResGFF *pResGFF, CResStruct *pResStruct) = (void(__thiscall*)(CNWSObject *pThis, CResGFF *pResGFF, CResStruct *pResStruct))0x004DEF40;
+void 			(__thiscall *CNWSObject__LoadVarTable)(CNWSObject *pThis, CResGFF *pResGFF, CResStruct *pResStruct) = (void(__thiscall*)(CNWSObject *pThis, CResGFF *pResGFF, CResStruct *pResStruct))0x004DEF20;
+void 			(__thiscall *CNWSObject__SetPosition)(CNWSObject *pThis, Vector v, int a3) = (void(__thiscall*)(CNWSObject *pThis, Vector v, int a3))0x004E25D0;
+void 			(__thiscall *CNWSObject__SetOrientation)(CNWSObject *pThis, Vector v) = (void(__thiscall*)(CNWSObject *pThis, Vector v))0x004E25B0;
+void *			(__thiscall *CNWSObject__BroadcastDialog)(CNWSObject *pThis, CExoString Msg, float Max_Distance) = (void*(__thiscall*)(CNWSObject *pThis, CExoString Msg, float Max_Distance))0x004E54B0;
+int				(__thiscall *CNWSObject__HasSpellEffectApplied)(CNWSObject *pThis, unsigned long lSpell) = (int(__thiscall*)(CNWSObject *pThis, unsigned long lSpell))0x004E5990;
+void			(__thiscall *CNWSObject__RemoveEffect)(CNWSObject *pThis, CGameEffect *eff) = (void(__thiscall*)(CNWSObject *pThis, CGameEffect *eff))0x4E2CE0;
+void			(__thiscall *CNWSObject__UpdateEffectList)(CNWSObject *pThis, unsigned long l, unsigned long l2) = (void(__thiscall*)(CNWSObject *pThis, unsigned long l, unsigned long l2))0x4E2FE0;
 
-void 				(__thiscall *CNWSObject__UpdateEffectPointers)(CNWSObject *pTHIS) = (void (__thiscall*)(CNWSObject *pTHIS))0x46BDD0;
+void 				(__thiscall *CNWSObject__UpdateEffectPointers)(CNWSObject *pThis) = (void (__thiscall*)(CNWSObject *pThis))0x46BDD0;
 
 void CNWSObject_s::UpdateEffectPointers( ) {
 	CNWSObject__UpdateEffectPointers(this);

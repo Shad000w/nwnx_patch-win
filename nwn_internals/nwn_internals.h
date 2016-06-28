@@ -3,13 +3,13 @@
 
 #include "types.h"
 
-extern CAppManager **NWN_AppManager;
-extern CVirtualMachine **NWN_VirtualMachine;
-extern CTlkTable **NWN_CTlkTable;
-extern CNWTlkTable **NWN_CNWTlkTable;
-extern CNWRules **NWN_Rules;
-extern CExoResMan **NWN_ResMan;
-extern int **g_bEnableCombatDebugging;
+extern CAppManager *&NWN_AppManager;
+extern CVirtualMachine *&NWN_VirtualMachine;
+extern CTlkTable *&NWN_CTlkTable;
+extern CNWTlkTable *&NWN_CNWTlkTable;
+extern CNWRules *&NWN_Rules;
+extern CExoResMan *&NWN_ResMan;
+extern int *&g_bEnableCombatDebugging;
 
 //void SendFeedbackmessage(nwn_objid_t oID, char *Msg);
 

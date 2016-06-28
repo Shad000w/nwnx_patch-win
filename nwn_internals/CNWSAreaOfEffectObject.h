@@ -3,16 +3,16 @@
 
 struct CNWSAreaOfEffectObject_s {
 	CNWSObject obj;
-  unsigned __int8 unknown_449;
-  unsigned __int8 unknown_450;
-  unsigned __int8 unknown_451;
-  unsigned __int8 unknown_452;
-  unsigned __int32 AreaEffectId;
-  unsigned __int8 Shape;
-  unsigned __int8 unknown_458;
-  unsigned __int8 unknown_459;
-  unsigned __int8 unknown_460;
-  unsigned __int32 SpellID;
+  unsigned __int8 unknown_449;//1c0
+  unsigned __int8 unknown_450;//1c1
+  unsigned __int8 unknown_451;//1c2
+  unsigned __int8 unknown_452;//1c3
+  unsigned __int32 AreaEffectId;//1c4
+  unsigned __int8 Shape;//1c8
+  unsigned __int8 unknown_458;//1c9
+  unsigned __int8 unknown_459;//1cA
+  unsigned __int8 unknown_460;//1cB
+  __int32 SpellID;//1CC
   float Radius;
   float Width;
   unsigned __int32 Length;

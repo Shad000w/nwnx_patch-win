@@ -1,4 +1,3 @@
-#include "stdafx.h"
 #include ".\types.h"
 
 // Internal function calls definitions

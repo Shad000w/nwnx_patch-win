@@ -1,8 +1,7 @@
 #ifndef _NX_NWN_STRUCT_CNWMESSAGE_
 #define _NX_NWN_STRUCT_CNWMESSAGE_
 
-struct CNWMessage_s 
-{
+struct CNWMessage_s {
 	void *vftable;
 	void *field_04;
 	unsigned __int32 field_08;
@@ -26,12 +25,16 @@ struct CNWMessage_s
 	unsigned __int8 field_44;
 	char field_45;
 
+
+	CNWMessage_s();
+
 	int 		ReadBOOL();
 	int			ReadCResRef(CResRef *ResRef, int a3);
 	int 		MessageReadOverflow(int a2);
 
 	void CreateWriteMessage(unsigned long l, unsigned long l2, int i);
-	void WriteCExoString(CExoString s, int i);
+	//void WriteCExoString(CExoString s, int i);
+	void WriteCExoString(char*name, unsigned long len, int i);
 	void WriteINT(int i, int i2);
 	int GetWriteMessage(unsigned char **c, unsigned long *l);
 };

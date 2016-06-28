@@ -20,7 +20,7 @@ struct CNWSDoor_s {
   CExoString OnFailToOpen;
   unsigned __int32 Appearance;
   unsigned __int32 GenericType;
-  char cresref240[16];
+  char door_conv[16];
   unsigned __int32 Bearing;
   unsigned __int32 Faction;
   unsigned __int8 Fort;
@@ -43,25 +43,25 @@ struct CNWSDoor_s {
   unsigned __int32 dword280;
   unsigned __int32 dword284;
   unsigned __int32 dword288;
-  unsigned __int32 TrapCreator;
-  unsigned __int32 TrapFlag;
-  unsigned __int8 DisarmDC;
-  unsigned __int8 TrapDetectDC;
+  unsigned __int32 TrapCreator;//28C
+  unsigned __int32 TrapIsTrapped;//290
+  unsigned __int8 TrapDisarmDC;//294
+  unsigned __int8 TrapDetectDC;//295
   unsigned __int8 f296;
   unsigned __int8 f297;
-  unsigned __int8 AutoRemoveKey;
+  unsigned __int8 AutoRemoveKey;//298
   unsigned __int8 f299;
   unsigned __int8 f29A;
   unsigned __int8 f29B;
-  unsigned __int32 dword29C;
-  unsigned __int8 TrapType;
+  unsigned __int32 TrapFlagged;//29C
+  unsigned __int8 TrapType;//2A0
   unsigned __int8 f2A1[3];
-  unsigned __int32 TrapDisarmable;
-  unsigned __int32 TrapDetectable;
-  unsigned __int32 TrapOneShot;
-  unsigned __int32 TrapRecoverable;
-  unsigned __int32 TrapActive;
-  unsigned __int32 TrapFaction;
+  unsigned __int32 TrapDisarmable;//2A4
+  unsigned __int32 TrapDetectable;//2A8
+  unsigned __int32 TrapOneShot;//2AC
+  unsigned __int32 TrapRecoverable;//2b0
+  unsigned __int32 TrapActive;//2b4
+  unsigned __int32 TrapFaction;//2b8
   unsigned __int32 dword2BC;
   unsigned __int32 dword2C0;
   unsigned __int32 dword2C4;

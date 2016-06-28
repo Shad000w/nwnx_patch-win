@@ -87,12 +87,8 @@ struct CNWSItem_s {
     CExoLinkedList				*it_LocNames;		/* 0x026C */
     uint32_t					spacer_270;			/* 0x0270 */
     CExoString					it_displayname;		/* 0x0274 */
-    uint8_t						field_27C;
-	uint8_t						field_27D;
-	uint8_t						field_27E;
-	uint8_t						field_27F;
-	
-	uint32_t					spacer_280;			/* 0x0280 */
+    uint32_t					spacer_27C;			/* 0x027C */
+	uint32_t					it_infinite;			/* 0x0280 */
     
     uint8_t						it_droppable;			/* 0x0284 */
     
@@ -134,6 +130,7 @@ struct CNWSItem_s {
 	int SaveItem(CResGFF *ResGFF, void *ResStruct, int a3);
 	void SetDisplayName(CExoString Name);
 	int SetPossessor(unsigned int a2_Possessor_id, int a3_Signalevent, int a4_bFeedback, int i);
+	int CompareItem(CNWSItem *itm);
 	void UpdateUsedActiveProperties(int unknown);
 	void RestoreUsedActiveProperties(int unknown);
 	void AIUpdate();

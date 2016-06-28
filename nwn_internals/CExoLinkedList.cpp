@@ -2,8 +2,8 @@
 #include <stdlib.h>
 #include "CExoLinkedList.h"
 
-int (__thiscall *CExoLinkedListInternal__Remove)(CExoLinkedListHeader *pTHIS, CExoLinkedListElement *Element) = (int (__thiscall *)(CExoLinkedListHeader *pTHIS, CExoLinkedListElement *Element))0x00410080;
-CExoLinkedListElement* (__thiscall *CExoLinkedListInternal__AddTail)(CExoLinkedList_s *pTHIS, void *) = (CExoLinkedListElement* (__thiscall*)(CExoLinkedList_s *pTHIS, void*))0x0040FE60;
+int (__thiscall *CExoLinkedListInternal__Remove)(CExoLinkedListHeader *pThis, CExoLinkedListElement *Element) = (int (__thiscall *)(CExoLinkedListHeader *pThis, CExoLinkedListElement *Element))0x00410080;
+CExoLinkedListElement* (__thiscall *CExoLinkedListInternal__AddTail)(CExoLinkedList_s *pThis, void *) = (CExoLinkedListElement* (__thiscall*)(CExoLinkedList_s *pThis, void*))0x0040FE60;
 	
 int CExoLinkedList_s::Remove(CExoLinkedListElement *Element) {
 	return CExoLinkedListInternal__Remove(this->ListHeader, Element);

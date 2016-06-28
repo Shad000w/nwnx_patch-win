@@ -1,16 +1,25 @@
-#include "stdafx.h"
 #include "types.h"
 #include "nwn_internals.h"
 
-int (__thiscall *CNWMessage__ReadBOOL)(CNWMessage *pTHIS) = (int(__thiscall*)(CNWMessage *pTHIS))0x005078C0;
-int (__thiscall *CNWMessage__ReadCResRef)(CNWMessage *pTHIS, CResRef *a2, signed int a3) = (int (__thiscall*)(CNWMessage *pTHIS, CResRef *a2, signed int a3))0x00507BC0;
-int (__thiscall *CNWMessage__MessageReadOverflow)(CNWMessage *pTHIS, int a2) = (int (__thiscall*)(CNWMessage *pTHIS, int a2))0x00507DD0;
+DWORD CNWMessage__WriteCExoString = 0x508900;
 
-void (__thiscall *CNWMessage__CreateWriteMessage)(CNWMessage *pTHIS, unsigned long l, unsigned long l2, int i) = (void (__thiscall*)(CNWMessage *pTHIS, unsigned long l, unsigned long l2, int i))0x507E30;
-int  (__thiscall *CNWMessage__GetWriteMessage)(CNWMessage *pTHIS, unsigned char **c, unsigned long *l) = (int (__thiscall*)(CNWMessage *pTHIS, unsigned char **c, unsigned long *l))0x508B80;
-void (__thiscall *CNWMessage__WriteCExoString)(CNWMessage *pTHIS, CExoString s, int i) = (void(__thiscall*)(CNWMessage *pTHIS, CExoString s, int i))0x508900;
-void (__thiscall *CNWMessage__WriteINT)(CNWMessage *pTHIS, int i, int i2) = (void(__thiscall*)(CNWMessage *pTHIS, int i, int i2))0x5084F0;
 
+__declspec( naked ) void CNWMessage_s::WriteCExoString(char*name, unsigned long len, int i){__asm{ jmp dword ptr [CNWMessage__WriteCExoString] }}
+
+
+CNWMessage* (__thiscall *CNWMessage__CNWMessage)(CNWMessage *pThis) = (CNWMessage*(__thiscall*)(CNWMessage *pThis))0x507030;
+int (__thiscall *CNWMessage__ReadBOOL)(CNWMessage *pThis) = (int(__thiscall*)(CNWMessage *pThis))0x005078C0;
+int (__thiscall *CNWMessage__ReadCResRef)(CNWMessage *pThis, CResRef *a2, signed int a3) = (int (__thiscall*)(CNWMessage *pThis, CResRef *a2, signed int a3))0x00507BC0;
+int (__thiscall *CNWMessage__MessageReadOverflow)(CNWMessage *pThis, int a2) = (int (__thiscall*)(CNWMessage *pThis, int a2))0x00507DD0;
+
+void (__thiscall *CNWMessage__CreateWriteMessage)(CNWMessage *pThis, unsigned long l, unsigned long l2, int i) = (void (__thiscall*)(CNWMessage *pThis, unsigned long l, unsigned long l2, int i))0x507E30;
+int  (__thiscall *CNWMessage__GetWriteMessage)(CNWMessage *pThis, unsigned char **c, unsigned long *l) = (int (__thiscall*)(CNWMessage *pThis, unsigned char **c, unsigned long *l))0x508B80;
+//void (__thiscall *CNWMessage__WriteCExoString)(CNWMessage *pThis, CExoString s, int i) = (void(__thiscall*)(CNWMessage *pThis, CExoString s, int i))0x508900;
+void (__thiscall *CNWMessage__WriteINT)(CNWMessage *pThis, int i, int i2) = (void(__thiscall*)(CNWMessage *pThis, int i, int i2))0x5084F0;
+
+CNWMessage_s::CNWMessage_s() {
+	CNWMessage__CNWMessage(this);
+}
 
 int CNWMessage_s::ReadCResRef(CResRef *ResRef, int a3) {
 	return CNWMessage__ReadCResRef(this, ResRef, a3);
@@ -37,11 +46,11 @@ int CNWMessage::GetWriteMessage(unsigned char **c, unsigned long *l)
 	return CNWMessage__GetWriteMessage(this,c,l);
 }
 
-
+/*
 void CNWMessage::WriteCExoString(CExoString s, int i)
 {	
 	return CNWMessage__WriteCExoString(this,s,i);
-}
+}*/
 
 void CNWMessage::WriteINT(int i, int i2)
 {

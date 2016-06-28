@@ -8,6 +8,11 @@ struct CNWSInventory_s {
 
 	CNWSInventory_s();
 	CNWSItem *GetItemInSlot(unsigned long nSlot);
+	int GetItemInInventory(CNWSItem *item);
+	unsigned long GetSlotFromItem(CNWSItem *item);
+	int RemoveItem(CNWSItem *item);
+	void PutItemInSlot(unsigned long nSlot, CNWSItem *item);
+
 };
 
 #endif

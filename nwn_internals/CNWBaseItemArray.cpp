@@ -1,8 +1,7 @@
-#include "stdafx.h"
 #include "types.h"
 #include "nwn_internals.h"
 
-CNWBaseItem *	(__thiscall *CNWBaseItemArray__GetBaseItem)(CNWBaseItemArray *pTHIS, int baseItem) = (CNWBaseItem* (__thiscall*)(CNWBaseItemArray *pTHIS, int baseItem))0x00512AF0;
+CNWBaseItem *	(__thiscall *CNWBaseItemArray__GetBaseItem)(CNWBaseItemArray *pThis, int baseItem) = (CNWBaseItem* (__thiscall*)(CNWBaseItemArray *, int))0x512AF0;
 
 
 CNWBaseItem *CNWBaseItemArray_s::GetBaseItem(int BaseItem) {
