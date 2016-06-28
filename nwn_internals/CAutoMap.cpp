@@ -53,6 +53,15 @@ void CCreatureMaps::DeleteAreas() {
 	AreaCount = 0;
 }
 
+int CCreatureMaps::IndexOf(nwn_objid_t area){
+	return CExoArrayList_uint32_contains((CExoArrayList_uint32*)&Areas, area);
+}
+
+bool CCreatureMaps::Exists(nwn_objid_t areaid){
+	int iIndex = CExoArrayList_uint32_contains((CExoArrayList_uint32*)&Areas, areaid);
+	return iIndex != -1;
+}
+
 void CCreatureMaps::AddArea(unsigned areaid) {
 	MiniMap = ResizeMapList(MiniMapCount+1);
 

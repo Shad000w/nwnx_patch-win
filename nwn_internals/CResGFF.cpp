@@ -1,21 +1,20 @@
-#include "stdafx.h"
 #include "types.h"
 #include "nwn_internals.h"
 
-int				(__thiscall *CResGFF__CreateGFFFile)(CResGFF *pTHIS, void *ResStruct, CExoString const &, CExoString const &) = (int(__thiscall*)(CResGFF *pTHIS, void *ResStruct, CExoString const &, CExoString const &))0x00614190;
-CResGFF_s *		(__thiscall *CResGFF__CResGFF)(CResGFF *pTHIS) = (CResGFF_s*(__thiscall*)(CResGFF *pTHIS))0x00611920;
-int				(__thiscall *CResGFF__WriteGFFFile)(CResGFF *pTHIS, CExoString const &FileName, unsigned short GFFType) = (int(__thiscall*)(CResGFF *pTHIS, CExoString const &FileName, unsigned short GFFType))0x00614300;
-int 			(__thiscall *CResGFF__WriteGFFToPointer)(CResGFF *pTHIS, void * *, unsigned int &) = (int(__thiscall*)(CResGFF *pTHIS, void * *, unsigned int &))0x00614570;
-int 			(__thiscall *CResGFF__GetDataFromPointer)(CResGFF *pTHIS, char *Pointer, int) = (int(__thiscall*)(CResGFF *pTHIS, char *Pointer, int))0x00612A20;
-int 			(__thiscall *CResGFF__GetTopLevelStruct)(CResGFF *pTHIS, char *ResStruct) = (int(__thiscall*)(CResGFF *pTHIS, char *ResStruct))0x00612EF0;
-void 			(__thiscall *CResGFF__GetGFFFileInfo)(CResGFF *pTHIS, CExoString &, CExoString &) = (void(__thiscall*)(CResGFF *pTHIS, CExoString &, CExoString &))0x00612C60;
-void			(__thiscall *CResGFF_dtor)(CResGFF *pTHIS) = (void(__thiscall*)(CResGFF *pTHIS))0x00611AF0;
+int				(__thiscall *CResGFF__CreateGFFFile)(CResGFF *pThis, void *ResStruct, CExoString const &, CExoString const &) = (int(__thiscall*)(CResGFF *pThis, void *ResStruct, CExoString const &, CExoString const &))0x00614190;
+CResGFF_s *		(__thiscall *CResGFF__CResGFF)(CResGFF *pThis) = (CResGFF_s*(__thiscall*)(CResGFF *pThis))0x00611920;
+int				(__thiscall *CResGFF__WriteGFFFile)(CResGFF *pThis, CExoString const &FileName, unsigned short GFFType) = (int(__thiscall*)(CResGFF *pThis, CExoString const &FileName, unsigned short GFFType))0x00614300;
+int 			(__thiscall *CResGFF__WriteGFFToPointer)(CResGFF *pThis, void * *, unsigned int &) = (int(__thiscall*)(CResGFF *pThis, void * *, unsigned int &))0x00614570;
+int 			(__thiscall *CResGFF__GetDataFromPointer)(CResGFF *pThis, char *Pointer, int) = (int(__thiscall*)(CResGFF *pThis, char *Pointer, int))0x00612A20;
+int 			(__thiscall *CResGFF__GetTopLevelStruct)(CResGFF *pThis, char *ResStruct) = (int(__thiscall*)(CResGFF *pThis, char *ResStruct))0x00612EF0;
+void 			(__thiscall *CResGFF__GetGFFFileInfo)(CResGFF *pThis, CExoString &, CExoString &) = (void(__thiscall*)(CResGFF *pThis, CExoString &, CExoString &))0x00612C60;
+void			(__thiscall *CResGFF_dtor)(CResGFF *pThis) = (void(__thiscall*)(CResGFF *pThis))0x00611AF0;
 
-int 			(__thiscall *CResGFF__ReadFieldINT)(CResGFF *pTHIS, CResStruct *, char *Source, int &, int) = (int(__thiscall*)(CResGFF *pTHIS, CResStruct *, char *Source, int &, int))0x00613140;
-int 			(__thiscall *CResGFF__GetList)(CResGFF *pTHIS, void *, CResStruct *, char*) = (int(__thiscall*)(CResGFF *pTHIS, void *, CResStruct *, char*))0x00612D30;
-unsigned long 	(__thiscall *CResGFF__GetListCount)(CResGFF *pTHIS, void *) = (unsigned long(__thiscall*)(CResGFF *pTHIS, void *))0x00612DC0;
-int 			(__thiscall *CResGFF__GetListElement)(CResGFF *pTHIS, CResStruct *, void*, unsigned long) = (int(__thiscall*)(CResGFF *pTHIS, CResStruct *, void*, unsigned long))0x00612E20;
-int 			(__thiscall *CResGFF__ReadFieldVOID)(CResGFF *pTHIS, CResStruct*, void *, unsigned long, char *Source, int &, void *) = (int(__thiscall*)(CResGFF *pTHIS, CResStruct*, void *, unsigned long, char *Source, int &, void *))0x00613690;
+int 			(__thiscall *CResGFF__ReadFieldINT)(CResGFF *pThis, CResStruct *, char *Source, int &, int) = (int(__thiscall*)(CResGFF *pThis, CResStruct *, char *Source, int &, int))0x00613140;
+int 			(__thiscall *CResGFF__GetList)(CResGFF *pThis, void *, CResStruct *, char*) = (int(__thiscall*)(CResGFF *pThis, void *, CResStruct *, char*))0x00612D30;
+unsigned long 	(__thiscall *CResGFF__GetListCount)(CResGFF *pThis, void *) = (unsigned long(__thiscall*)(CResGFF *pThis, void *))0x00612DC0;
+int 			(__thiscall *CResGFF__GetListElement)(CResGFF *pThis, CResStruct *, void*, unsigned long) = (int(__thiscall*)(CResGFF *pThis, CResStruct *, void*, unsigned long))0x00612E20;
+int 			(__thiscall *CResGFF__ReadFieldVOID)(CResGFF *pThis, CResStruct*, void *, unsigned long, char *Source, int &, void *) = (int(__thiscall*)(CResGFF *pThis, CResStruct*, void *, unsigned long, char *Source, int &, void *))0x00613690;
 
 
 

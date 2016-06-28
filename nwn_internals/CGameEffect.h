@@ -19,7 +19,7 @@ struct CGameEffect_s {
     uint32_t            eff_is_exposed;         /* 20 */
     uint32_t            eff_is_iconshown;       /* 24 */
 
-    uint32_t            eff_casterlvl;          /* 28 */
+    int32_t             eff_casterlvl;          /* 28 */
 
     CGameEffect         *eff_link_id1;          /* 2C */
     CGameEffect         *eff_link_id2;          /* 30 */
@@ -43,10 +43,11 @@ struct CGameEffect_s {
 	void CopyEffect(CGameEffect *Source, int bCopyVars);
 	int	GetScriptEffectType();
 	int GetInteger(int nInt);
+	int SetInteger( int nIndex, int nData );
 	int SetNumIntegers(int nInts);
 	int SetCreator(nwn_objid_t oidCreator);
 	int SetNumIntegersInitializeToNegativeOne(int nInts);
-	void SetInteger(int nTh, int iVal);
+	int UpdateLinked( );
 	
 	CGameEffect* SetLinked(CGameEffect *a2, CGameEffect *a3);
 	

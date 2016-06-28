@@ -1,9 +1,8 @@
-#include "stdafx.h"
 #include "types.h"
 #include "nwn_internals.h"
 
-void	(__thiscall *CScriptEvent__dtor)(CScriptEvent *pTHIS) = (void(__thiscall*)(CScriptEvent *pTHIS))0x00469950;
-int		(__thiscall *CScriptEvent__SetInteger)(CScriptEvent *PTHIS, int nNthInt, int Value) = (int(__thiscall*)(CScriptEvent *pTHIS, int nNthInt, int Value))0x00506720;
+void	(__thiscall *CScriptEvent__dtor)(CScriptEvent *pThis) = (void(__thiscall*)(CScriptEvent *pThis))0x00469950;
+int		(__thiscall *CScriptEvent__SetInteger)(CScriptEvent *pThis, int nNthInt, int Value) = (int(__thiscall*)(CScriptEvent *pThis, int nNthInt, int Value))0x00506720;
 
 CScriptEvent_s::CScriptEvent_s() {
 	integer_list = NULL;

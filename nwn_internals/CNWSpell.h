@@ -166,7 +166,7 @@ struct CNWSpell_s {
   unsigned __int8 field_131;
   unsigned __int8 field_132;
   unsigned __int8 field_133;
-  unsigned __int8 field_134;
+  unsigned __int8 field_134;//use concentration?
   unsigned __int8 field_135;
   unsigned __int8 field_136;
   unsigned __int8 field_137;
@@ -190,6 +190,8 @@ struct CNWSpell_s {
   unsigned __int8 field_161;
   unsigned __int8 field_162;
   unsigned __int8 field_163;
+
+  unsigned char GetSpellLevel(unsigned char cls_id);
 };
 #endif
 

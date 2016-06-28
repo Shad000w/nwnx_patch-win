@@ -1,4 +1,3 @@
-#include "stdafx.h"
 #include "types.h"
 #include "nwn_internals.h"
 

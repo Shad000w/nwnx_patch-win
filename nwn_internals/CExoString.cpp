@@ -1,12 +1,16 @@
-//#include "stdafx.h"
 #include <stdlib.h>
 #include <stdio.h>
 #include <string.h>
+#include <windows.h>
 #include "CExoString.h"
 
-int (__thiscall *CExoString__StripNonAlphaNumeric)(CExoString *pTHIS, int a1, int a2, int a3) = (int (__thiscall*)(CExoString *pTHIS, int a1, int a2, int a3))0x0040CE30;
-int	(__thiscall *CExoString__AsTAG)(CExoString *pTHIS, CExoString *ExoString) = (int (__thiscall*)(CExoString *pTHIS, CExoString *ExoString))0x0040CFB0;
+DWORD CExoString__operator_as_CExoString = 0x40B9D0;
 
+int (__thiscall *CExoString__StripNonAlphaNumeric)(CExoString *pThis, int a1, int a2, int a3) = (int (__thiscall*)(CExoString *pThis, int a1, int a2, int a3))0x0040CE30;
+int	(__thiscall *CExoString__AsTAG)(CExoString *pThis, CExoString *ExoString) = (int (__thiscall*)(CExoString *pThis, CExoString *ExoString))0x0040CFB0;
+
+ __declspec( naked ) CExoString & CExoString::operator=(CExoString const &){ __asm{ jmp dword ptr [CExoString__operator_as_CExoString] }}
+ 
 CExoString::CExoString() {
 	text = NULL;
 	len = 0;
@@ -131,7 +135,7 @@ bool CExoString::operator==(char const *c) {
 		
 	return true;
 }
-
+/*
 CExoString &CExoString::operator=(CExoString const &Op) {
 	if (this != &Op) {
 		if (text) {
@@ -158,7 +162,7 @@ CExoString &CExoString::operator=(CExoString const &Op) {
 	}
 
 	return *this;
-}
+}*/
 
 CExoString &CExoString::operator=(char const *Op) {
 	if (Op && text && (strcmp(Op, text) == 0)) return *this;

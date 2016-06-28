@@ -9,12 +9,11 @@
   unsigned __int16 ReaxnDelay;
   unsigned __int16 ReaxnAnimation;
   unsigned __int16 ReaxnAnimLength;
-  char ToHitRoll;
-  char ThreatRoll;
-  char ToHitMod;
-  char rsvd1[3];
-  char MissedBy;
-  char rsvd2;
+  unsigned __int8 ToHitRoll;
+  unsigned __int8 ThreatRoll;
+  unsigned __int32 ToHitMod;
+  unsigned __int8 MissedBy;
+  unsigned __int8 field_15;
   unsigned __int16 Damage_Bludgeoning;
   unsigned __int16 Damage_Piercing;
   unsigned __int16 Damage_Slashing;
@@ -28,10 +27,10 @@
   unsigned __int16 Damage_Positive;
   unsigned __int16 Damage_Sonic;
   unsigned __int16 BaseDamage;
-  char WeaponAttackType;
-  char AttackMode;
-  char Concealment;
-  char rsvd4;
+  unsigned __int8 WeaponAttackType;
+  unsigned __int8 AttackMode;
+  unsigned __int8 Concealment;
+  unsigned __int8 field_33;
   unsigned __int32 RangedAttack;
   unsigned __int32 SneakAttack;//probably bool
   unsigned __int32 DeathAttack;//probably bool
@@ -59,9 +58,9 @@
   unsigned __int32 field_90;
   unsigned __int32 field_94_a12;
   unsigned __int32 field_98;
-  CNWCCMessageData **Messages;
-  int Messages_count;
-  int Messages_alloc;
+  CNWCCMessageData **Messages;//9C
+  int Messages_count;//A0
+  int Messages_alloc;//A4
 
   CNWSCombatAttackData_s();
   ~CNWSCombatAttackData_s();

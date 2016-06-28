@@ -98,6 +98,21 @@ struct CNWSStore_s {
 	void SetScriptName(int iScript, CExoString ScriptName);
 	int LoadStore(CResGFF *pResGFF, CResStruct *pResStruct, CExoString *Tag);
 	int SaveStore(CResGFF *ResGFF, void *ResStruct);
+
+	int CalculateItemBuyPrice(CNWSItem *item, unsigned long unknown);
+	int CalculateItemSellPrice(CNWSItem *item, unsigned long unknown);
+	void RemoveItem(CNWSItem *item);
+	int AcquireItem(CNWSItem *item, int a1, unsigned char a2, unsigned char a3);
+	int SellItem(CNWSItem *item, CNWSCreature *buyer, unsigned char a1, unsigned char a2);
+	int AddItemToInventory(CNWSItem * *item, unsigned char a1, unsigned char a2, unsigned char a3);
+	int RemoveItemFromInventory(CNWSItem *item, unsigned char a1);
+	int GetIsRestrictedBuyItem(int a1);
+	void AddCustomer(CNWSPlayer *player, char a1, char a2);
+	void RemoveCustomer(CNWSPlayer *player);
+	short GetCustomerSellRate(unsigned long customer_id);
+	unsigned char GetCustomerBuyRate(unsigned long customer_id, int a1);
+	int GetItemInInventory(unsigned long item_id);
+	int GetItemInInventory(CExoString *resref);
 };
 
 #endif

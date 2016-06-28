@@ -40,7 +40,7 @@
     <_ProjectFileVersion>10.0.30319.1</_ProjectFileVersion>
     <OutDir Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">.\Debug\</OutDir>
     <IntDir Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">$(Configuration)\</IntDir>
-    <OutDir Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">.\Release\</OutDir>
+    <OutDir Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">..\..\..\..\..\NeverwinterNights\NWN\</OutDir>
     <IntDir Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">$(Configuration)\</IntDir>
   </PropertyGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
@@ -79,9 +79,10 @@
   </ItemDefinitionGroup>
   <ItemGroup>
     <ClCompile Include="..\NWNXdll\IniFile.cpp" />
-    <ClCompile Include="CExoString.cpp" />
+    <ClCompile Include="..\nwn_internals\CItemRepository.cpp" />
+    <ClCompile Include="..\nwn_internals\CNWSCreatureClass.cpp" />
+    <ClCompile Include="..\nwn_internals\CNWSpell.cpp" />
     <ClCompile Include="CNWNHooks.cpp" />
-    <ClCompile Include="patch.cpp" />
     <ClCompile Include="nwn_internals.cpp" />
     <ClCompile Include="..\NWNXdll\NWNXBase.cpp" />
     <ClCompile Include="NWNXPatch.cpp" />
@@ -133,6 +134,7 @@
     <ClCompile Include="..\nwn_internals\CTwoDimArrays.cpp" />
     <ClCompile Include="..\nwn_internals\CVirtualMachine.cpp" />
     <ClCompile Include="..\nwn_internals\CWorldTimer.cpp" />
+    <ClCompile Include="patch.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="..\NWNXdll\IniFile.h" />
@@ -165,7 +167,11 @@
     <ClInclude Include="..\nwn_internals\CNWBaseItemArray.h" />
     <ClInclude Include="..\nwn_internals\CNWCCMessageData.h" />
     <ClInclude Include="..\nwn_internals\CNWClass.h" />
+    <ClInclude Include="..\nwn_internals\CNWDomain.h" />
+    <ClInclude Include="..\nwn_internals\CNWFeat.h" />
+    <ClInclude Include="..\nwn_internals\CNWLevelStats.h" />
     <ClInclude Include="..\nwn_internals\CNWMessage.h" />
+    <ClInclude Include="..\nwn_internals\CNWRace.h" />
     <ClInclude Include="..\nwn_internals\CNWRules.h" />
     <ClInclude Include="..\nwn_internals\CNWSAction.h" />
     <ClInclude Include="..\nwn_internals\CNWSArea.h" />
@@ -229,9 +235,7 @@
     <ClInclude Include="..\nwn_internals\nwn_const_feats.h" />
     <ClInclude Include="..\nwn_internals\nwn_effects.h" />
     <ClInclude Include="..\nwn_internals\nwnx_funcs_const.h" />
-    <ClInclude Include="..\nwn_internals\types.h" />
     <ClInclude Include="..\nwn_internals\Vector.h" />
-    <ClInclude Include="CExoString.h" />
     <ClInclude Include="CNWNHooks.h" />
     <ClInclude Include="nwn_internals.h" />
     <ClInclude Include="NWNXPatch.h" />

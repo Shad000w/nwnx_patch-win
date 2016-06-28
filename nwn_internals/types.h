@@ -29,6 +29,9 @@ struct CResRef_s;							typedef struct CResRef_s						CResRef;
 struct CResGFF_s;							typedef struct CResGFF_s						CResGFF;
 struct Vector_s;							typedef struct Vector_s                         Vector;
 struct CNWClass_s;							typedef struct CNWClass_s						CNWClass;
+struct CNWFeat_s;							typedef struct CNWFeat_s						CNWFeat;
+struct CNWRace_s;							typedef struct CNWRace_s						CNWRace;
+struct CNWDomain_s;							typedef struct CNWDomain_s						CNWDomain;
 struct CScriptEvent_s;						typedef struct CScriptEvent_s					CScriptEvent;
 struct CNWCCMessageData_s;					typedef struct CNWCCMessageData_s				CNWCCMessageData;
 struct CNWSFaction_s;						typedef struct CNWSFaction_s                    CNWSFaction;
@@ -156,7 +159,7 @@ struct CEffectsStore_s; typedef struct CEffectsStore_s CEffectsStore;
 #include ".\CNWSCreature.h"
 #include ".\CNWSStats_Spell.h"
 #include ".\CNWSStats_Level.h"
-#include ".\CNWSCreatureClass.h" 
+#include ".\CNWSCreatureClass.h"
 #include ".\CNWSCreatureStats.h"
 #include ".\CGameEffect.h"
 #include ".\CItemRepository.h" 
@@ -191,6 +194,9 @@ struct CEffectsStore_s; typedef struct CEffectsStore_s CEffectsStore;
 #include ".\CScriptEvent.h"
 #include ".\CNWSpell.h"
 #include ".\CNWClass.h"
+#include ".\CNWFeat.h"
+#include ".\CNWRace.h"
+#include ".\CNWDomain.h"
 #include ".\CNWSpellArray.h"
 #include ".\CResGFF.h"
 #include ".\CCodeBase.h"

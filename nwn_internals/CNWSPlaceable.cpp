@@ -1,13 +1,12 @@
-#include "stdafx.h"
 #include "types.h"
 #include "nwn_internals.h"
 
-void 	(__thiscall *CNWSPlaceable__CNWSPlaceable)(CNWSPlaceable *pTHIS, nwn_objid_t oID) = (void(__thiscall*)(CNWSPlaceable *pTHIS, nwn_objid_t oID))0x0051DEC0;
-void 	(__thiscall *CNWSPlaceable__AddToArea)(CNWSPlaceable *pTHIS, CNWSArea *Area, Vector v, int a2) = (void(__thiscall*)(CNWSPlaceable *pTHIS, CNWSArea *Area, Vector v, int a2))0x005206F0;
-int32_t	(__thiscall *CNWSPlaceable__AcquireItem)(CNWSPlaceable *pTHIS, CNWSItem **a2, nwn_objid_t From, int a4, int a5, int bSendFeedBack) = (signed int (__thiscall*)(CNWSPlaceable *pTHIS, CNWSItem **a2, nwn_objid_t From, int a4, int a5, int bSendFeedBack))0x00521AD0;
-int		(__thiscall *CNWSPlaceable__LoadPlaceable)(CNWSPlaceable *pTHIS, CResGFF *ResGFF, CResStruct *ResStruct, CExoString *Tag) = (int(__thiscall*)(CNWSPlaceable *pTHIS, CResGFF *ResGFF, CResStruct *ResStruct, CExoString *Tag))0x0051E4D0;
-int		(__thiscall *CNWSPlaceable__SavePlaceable)(CNWSPlaceable *pTHIS, CResGFF *, void *CResStruct) = (int (__thiscall*)(CNWSPlaceable *pTHIS, CResGFF *, void *CResStruct))0x0051FBD0;
-void 	(__thiscall *CNWSPlaceable__SetScriptName)(CNWSPlaceable *pTHIS, int iScript, CExoString ScriptName) = (void (__thiscall*)(CNWSPlaceable *pTHIS, int iScript, CExoString ScriptName))0x004CD150;
+void 	(__thiscall *CNWSPlaceable__CNWSPlaceable)(CNWSPlaceable *pThis, nwn_objid_t oID) = (void(__thiscall*)(CNWSPlaceable *pThis, nwn_objid_t oID))0x0051DEC0;
+void 	(__thiscall *CNWSPlaceable__AddToArea)(CNWSPlaceable *pThis, CNWSArea *Area, Vector v, int a2) = (void(__thiscall*)(CNWSPlaceable *pThis, CNWSArea *Area, Vector v, int a2))0x005206F0;
+int32_t	(__thiscall *CNWSPlaceable__AcquireItem)(CNWSPlaceable *pThis, CNWSItem **a2, nwn_objid_t From, int a4, int a5, int bSendFeedBack) = (signed int (__thiscall*)(CNWSPlaceable *pThis, CNWSItem **a2, nwn_objid_t From, int a4, int a5, int bSendFeedBack))0x00521AD0;
+int		(__thiscall *CNWSPlaceable__LoadPlaceable)(CNWSPlaceable *pThis, CResGFF *ResGFF, CResStruct *ResStruct, CExoString *Tag) = (int(__thiscall*)(CNWSPlaceable *pThis, CResGFF *ResGFF, CResStruct *ResStruct, CExoString *Tag))0x0051E4D0;
+int		(__thiscall *CNWSPlaceable__SavePlaceable)(CNWSPlaceable *pThis, CResGFF *, void *CResStruct) = (int (__thiscall*)(CNWSPlaceable *pThis, CResGFF *, void *CResStruct))0x0051FBD0;
+void 	(__thiscall *CNWSPlaceable__SetScriptName)(CNWSPlaceable *pThis, int iScript, CExoString ScriptName) = (void (__thiscall*)(CNWSPlaceable *pThis, int iScript, CExoString ScriptName))0x004CD150;
 
 CNWSPlaceable_s::CNWSPlaceable_s(nwn_objid_t oID) {
 	CNWSPlaceable__CNWSPlaceable(this, oID);

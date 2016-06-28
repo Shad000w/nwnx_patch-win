@@ -23,5 +23,5 @@ struct C2DA_s {
 	int 	GetINTEntry_strcol(int nRow, CExoString const &ColName, int *Ret);
 	int 	GetINTEntry_intcol(int nRow, int nCol, int *Ret);
 	void	*vect_destructor(unsigned int);
-
+	void Unload2DArray();
 };

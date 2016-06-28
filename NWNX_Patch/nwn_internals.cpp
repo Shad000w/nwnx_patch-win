@@ -3,13 +3,13 @@
 
 // Internal function calls definitions
 
-CAppManager **NWN_AppManager = (CAppManager**)0x0066c050;
-CVirtualMachine **NWN_VirtualMachine = (CVirtualMachine**)0x0066C048;
-CTlkTable **NWN_CTlkTable = (CTlkTable**)0x0066C054;
-CNWTlkTable **NWN_CNWTlkTable = (CNWTlkTable**)0x0066C058;
-CNWRules **NWN_Rules = (CNWRules**)0x0066c060;
-CExoResMan **NWN_ResMan = (CExoResMan**)0x0066C044;
-int **g_bEnableCombatDebugging = (int**)0x0066C978;
+CAppManager *&NWN_AppManager = *(CAppManager**)0x0066c050;
+CVirtualMachine *&NWN_VirtualMachine = *(CVirtualMachine**)0x0066C048;
+CTlkTable *&NWN_CTlkTable = *(CTlkTable**)0x0066C054;
+CNWTlkTable *&NWN_CNWTlkTable = *(CNWTlkTable**)0x0066C058;
+CNWRules *&NWN_Rules = *(CNWRules**)0x0066c060;
+CExoResMan *&NWN_ResMan = *(CExoResMan**)0x0066C044;
+int *&g_bEnableCombatDebugging = *(int**)0x0066C978;
 
 /*
 void			(__fastcall *CNWSCreature__SetQuickbarButton_AssociateCommand)(CNWSCreature*, void*, uint8_t, int, uint16_t, uint32_t) = (void (__fastcall *)(CNWSCreature*, void*, uint8_t, int, uint16_t, uint32_t))0x004A8E10;
@@ -38,7 +38,7 @@ void (__fastcall *CNWSDoor__dtor_CNWSDoor)								(void *pThis, void *pVOID, cha
 void (__fastcall *CNWSEncounter__dtor_CNWSEncounter)					(void *pThis, void *pVOID, char) = (void (__fastcall*)(void *pThis, void *pVOID, char))0x005A9D80;
 void (__fastcall *CNWSItem__dtor_CNWSItem)								(void *pThis, void *pVOID, char) = (void (__fastcall*)(void *pThis, void *pVOID, char))0x00502150;
 void (__fastcall *CNWSPlaceable__dtor_CNWSPlaceable)					(void *pThis, void *pVOID, char) = (void (__fastcall*)(void *pThis, void *pVOID, char))0x0051E1C0;
-void (__fastcall *CNWSSoundObject_dtor_CNWSSoundObject)					(void *pTHIS, void *pVOID, char) = (void (__fastcall*)(void *pThis, void *pVOID, char))0x005B5BA0;
+void (__fastcall *CNWSSoundObject_dtor_CNWSSoundObject)					(void *pThis, void *pVOID, char) = (void (__fastcall*)(void *pThis, void *pVOID, char))0x005B5BA0;
 void (__fastcall *CNWSStore__dtor_CNWSStore)							(void *pThis, void *pVOID, char) = (void (__fastcall*)(void *pThis, void *pVOID, char))0x004645E0;
 void (__fastcall *CNWSTrigger__dtor_CNWSTrigger)						(void *pThis, void *pVOID, char) = (void (__fastcall*)(void *pThis, void *pVOID, char))0x005A63D0;
 void (__fastcall *CNWSWaypoint__dtor_CNWSWaypoint)						(void *pThis, void *pVOID, char) = (void (__fastcall*)(void *pThis, void *pVOID, char))0x005B51B0;

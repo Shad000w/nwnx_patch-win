@@ -30,44 +30,45 @@ struct CNWSPlaceable_s {
     uint8_t                     c1;
     uint8_t                     c2;
     uint8_t                     c3;
-    uint8_t                     plc_open_lock_dc;
+    /*uint8_t                     plc_open_lock_dc;
     uint8_t                     plc_close_lock_dc;
     uint8_t                     field_232;
-    uint8_t                     field_233;
-    uint32_t                    plc_trap_creator;
-    uint8_t                     plc_detect_dc;
+    uint8_t                     field_233;*/
+	uint32_t                    TrapCreator;//230
+    uint32_t                    TrapDetectDC;//234
+    uint8_t                     TrapIsTrapped;//238
     uint8_t                     field_239;
     uint8_t                     field_23A;
     uint8_t                     field_23B;
-    uint32_t                    plc_trapped;
-    uint32_t                    plc_disarm_dc;
-    uint32_t                    plc_disarmable;
-    uint32_t                    field_248;
-    uint32_t                    plc_oneshot;
-    uint32_t                    plc_recoverable;
-    uint32_t                    plc_flagged;
-    uint8_t                     plc_basetype;
+    uint32_t                    TrapDisarmDC;//23C
+    uint32_t                    TrapDisarmable;//240
+    uint32_t                    TrapDetectable;//244
+    uint32_t                    TrapOneShot;
+    uint32_t                    TrapRecoverable;//24C
+    uint32_t                    TrapFlagged;//250
+    uint32_t                    TrapType;//254
+    uint8_t                     TrapActive;//258
     uint8_t                     field_259;
     uint8_t                     field_25A;
     uint8_t                     field_25B;
     uint32_t                    plc_active;
     uint32_t                    plc_trap_faction;
-	CExoString 					OnClosed;
-	CExoString 					OnDamaged;
-	CExoString 					OnDeath;
-	CExoString 					OnDisarm;
-	CExoString 					OnHeartbeat;
-	CExoString 					OnInvDisturbed;
-	CExoString 					OnLock;
-	CExoString 					OnMeleeAttacked;
-	CExoString 					OnOpen;
-	CExoString 					OnDialog;
-	CExoString 					OnSpellCastAt;
-	CExoString 					OnUnlock;
-	CExoString 					OnUsed;
-	CExoString 					OnUserDefined;
-	CExoString 					OnTrapTriggered;
-	CExoString 					OnClick;
+	CExoString					OnClosed;
+	CExoString					OnDamaged;
+	CExoString					OnDeath;
+	CExoString					OnDisarm;
+	CExoString					OnHeartbeat;
+	CExoString					OnInvDisturbed;
+	CExoString					OnLock;
+	CExoString					OnMeleeAttacked;
+	CExoString					OnOpen;
+	CExoString					OnDialog;
+	CExoString					OnSpellCastAt;
+	CExoString					OnUnlock;
+	CExoString					OnUsed;
+	CExoString					OnUserDefined;
+	CExoString					OnTrapTriggered;
+	CExoString					OnClick;
     uint8_t                     plc_save_fort;
     uint8_t                     plc_save_will;
     uint8_t                     plc_save_reflex;
@@ -95,29 +96,29 @@ struct CNWSPlaceable_s {
     nwn_objid_t                 plc_last_locker;
     nwn_objid_t                 plc_last_unlocker;
     CItemRepository            *plc_inventory;
-    uint32_t                    field_344;
-    uint32_t                    field_348;
-    uint32_t                    field_34C;
-    uint32_t                    field_350;
-    uint32_t                    field_354;
-    uint32_t                    field_358;
-    uint32_t                    field_35C;
-    uint32_t                    field_360;
-    uint32_t                    field_364;
-    uint32_t                    field_368;
-    uint32_t                    field_36C;
-    uint32_t                    field_370;
-    uint32_t                    field_374;
-    uint32_t                    field_378;
-    uint32_t                    field_37C;
-    uint32_t                    plc_LightState;
-    uint32_t                    plc_light_state_change;
-    uint8_t                     plc_bodybag;
-    uint8_t                     field_389;
-    uint8_t                     field_38A;
-    uint8_t                     field_38B;
-    uint32_t                    plc_static;
-    uint32_t                    plc_never_static;
+	uint32_t					field_344;
+	uint32_t					field_348;
+	uint32_t					field_34C;
+	uint32_t					field_350;
+	uint32_t					field_354;
+	uint32_t					field_358;
+	uint32_t					field_35C;
+	uint32_t					field_360;
+	uint32_t					field_364;
+	uint32_t					field_368;
+	uint32_t					field_36C;
+	uint32_t					field_370;
+	uint32_t					field_374;
+	uint32_t					field_378;
+	int32_t						effect_spell_id;//0x378!
+	uint32_t					plc_LightState;
+	uint32_t					plc_light_state_change;
+	uint8_t						plc_bodybag;
+	uint8_t						field_389;
+	uint8_t						field_38A;
+	uint8_t						field_38B;
+	uint32_t					plc_static;
+	uint32_t					plc_never_static;
 
 	CNWSPlaceable_s(nwn_objid_t oID);
 	int32_t	AcquireItem(CNWSItem **a2, nwn_objid_t oid_From, int a4, int a5, int bSendFeedBack);

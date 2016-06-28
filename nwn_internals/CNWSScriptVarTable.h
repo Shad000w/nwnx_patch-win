@@ -1,6 +1,12 @@
 #ifndef _NX_NWN_STRUCT_CNWSSCRIPTVARTABLE_
 #define _NX_NWN_STRUCT_CNWSSCRIPTVARTABLE_
 
+#define VARIABLE_TYPE_INT 1
+#define VARIABLE_TYPE_FLOAT 2
+#define VARIABLE_TYPE_STRING 3
+#define VARIABLE_TYPE_OBJECT 4
+#define VARIABLE_TYPE_LOCATION 5
+
 struct CNWSScriptVarTable_s {
     CScriptVariable    *vt_list;
     uint32_t            vt_len;
@@ -18,6 +24,7 @@ struct CNWSScriptVarTable_s {
 	void 				SetInt(CExoString &VarName, int VarValue, int a3);
 	void 				SetObject(CExoString &VarName, nwn_objid_t Object_oID);
 	void 				SetString(CExoString &VarName, CExoString &VarValue);
+    CScriptVariable*	MatchIndex(CExoString &VarName, uint32_t type, int a3);
 };
 
 #endif

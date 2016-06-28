@@ -2,7 +2,7 @@
 #define _H_CNWSPELLARRAY_H_
 
 struct CNWSpellArray_s {
-	void *unknown;
+	unsigned long spells_len;
 	
 	CNWSpell *GetSpell(int SpellID);
 

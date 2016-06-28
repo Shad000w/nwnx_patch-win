@@ -42,6 +42,14 @@ struct CNWSCreatureClass_s {
     uint8_t                     cl_domain_2;			/* 0x01AE */
 
     uint8_t                     unknown_2[4];			/* 0x01AF */
+
+unsigned char GetNumberMemorizedSpellSlots(unsigned char spell_level);
+int GetMemorizedSpellInSlotReady(unsigned char spell_level, unsigned char spell_pos);
+void SetMemorizedSpellInSlotReady(unsigned char spell_level, unsigned char spell_pos, int spell_ready);
+void SetNumberMemorizedSpellSlots(unsigned char spell_level, unsigned char num_slots);
+int ConfirmDomainSpell(unsigned char arg1, unsigned long spell_id);
+void RemoveKnownSpell(unsigned char spell_level, unsigned long spell_id);
+CNWSCreatureStats* AsNWSCreatureStats();
 };
 
 #endif /* _NX_NWN_STRUCT_CNWSCREATURECLASS_ */

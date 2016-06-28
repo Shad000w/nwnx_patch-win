@@ -16,7 +16,9 @@ struct CServerExoApp_s {
 	CGameObjectArray*	GetObjectArray();
 	void* 				GetPlayerList();
 	CServerAIMaster*	GetServerAIMaster();
-
+	nwn_objid_t			GetFirstPCObject( void );
+	nwn_objid_t			GetNextPCObject( void );
+	CWorldTimer*		GetWorldTimer();
 };
 
 #endif

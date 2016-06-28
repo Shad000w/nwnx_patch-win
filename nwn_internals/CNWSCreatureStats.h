@@ -161,7 +161,9 @@ struct CNWSCreatureStats_s {
   char *cs_deity;
 
 void 				AddExperience(uint32_t XP);
+void				AddKnownSpell(unsigned char cls_pos, unsigned long spell_id);
 char 				AddFeat(uint16_t Feat);
+void				RemoveFeat(uint16_t Feat);
 char				GetACNaturalBase(int bTouchAttack);
 int 				GetAttackModifierVersus(CNWSCreature *Vs);
 //unsigned char 	GetAttacksPerRound();
@@ -177,10 +179,14 @@ char 				GetFortSavingThrow(int bBaseOnly);
 char 				GetWillSavingThrow(int bBaseOnly);
 char 				GetReflexSavingThrow(int bBaseOnly);
 unsigned long 		GetHighestLevelKnown();
+unsigned short		GetNumberKnownSpells(unsigned char cls_pos, unsigned char spell_level);
+unsigned long		GetKnownSpell(unsigned char cls_pos, unsigned char spell_id, unsigned char spell_level);
 unsigned long		GetMemorizedSpellInSlot(unsigned char c1, unsigned char c2, unsigned char c3);
 unsigned char		GetMemorizedSpellInSlotReady(unsigned char c1, unsigned char c2, unsigned char c3); 
 unsigned char		GetMemorizedSpellInSlotMetaType(unsigned char c1, unsigned char c2, unsigned char c3);
-unsigned char		GetNumberMemorizedSpellSlots(unsigned char c1, unsigned char c2);
+unsigned char		GetNumberMemorizedSpellSlots(unsigned char cls_pos, unsigned char spell_level);
+unsigned char		GetSpellsOfLevelReady(unsigned char cls_pos, unsigned char spell_level);
+unsigned char		GetSpellGainWithBonus(unsigned char cls_pos, unsigned char spell_level);
 int 				GetIsWeaponOfChoice(uint32_t BaseItemType);
 unsigned char		GetLevel(int bCountNegativeLevels);
 int					GetMeleeAttackBonus(int a1, int a2, int a3);
@@ -190,6 +196,7 @@ unsigned char		GetUnarmedDamageDie();
 int 				GetUseMonkAttackTables(int a1);
 signed int 			GetWeaponFinesse(CNWSItem *weapon);
 signed int 			GetWeaponFocus(CNWSItem *weapon);
+signed int 			GetWeaponImprovedCritical(CNWSItem *weapon);
 int 				HasFeat(uint16_t feat);
 bool 				LevelUp(CNWSStats_Level *a2, int a3, char a4, char a5, int a6);
 void				ReadySpellLevel(unsigned char SpellLevel);
@@ -198,6 +205,7 @@ void 				ResetSpellLikeAbilities();
 int 				ResolveSpecialAttackAttackBonus(CNWSCreature *Defender);
 unsigned char		GetSimpleAlignmentGoodEvil();
 unsigned char		GetSimpleAlignmentLawChaos();
+unsigned char		GetFeatSourceClass(unsigned short nFeat);
 
 void				SetCHABase(uint8_t CHABase);
 void				SetCONBase(uint8_t CONBase, int a3);
@@ -207,15 +215,23 @@ void				SetSTRBase(uint8_t STRBase);
 void				SetWISBase(uint8_t WISBase);
 
 void				SetMovementRate(uint8_t MOVrate);
+int					SetMemorizedSpellSlot(unsigned char a1, unsigned char a2, unsigned long spell_id, unsigned char a3, unsigned char a4, int unknown);
 
 unsigned char 		GetCHAStat();
 unsigned char 		GetDEXStat();
 unsigned char 		GetINTStat();
 unsigned char 		GetSTRStat();
 unsigned char 		GetWISStat();
-	
-int16_t				GetDamageRoll(CNWSObject *Defender, int bOffHand, int AttackResult, int SneakAttack, int DeathAttack, int a7);
+char				GetTotalSTRBonus();
+char				GetTotalDEXBonus();
+char				GetTotalCONBonus();
+char				GetTotalINTBonus();
+char				GetTotalWISBonus();
+char				GetTotalCHABonus();
 
+int16_t				GetDamageRoll(CNWSObject *Defender, int bOffHand, int AttackResult, int SneakAttack, int DeathAttack, int a7);
+CNWSCreatureClass*	GetInfo(unsigned char cls);
+unsigned char		GetClassLevel(unsigned char cls_pos, int bCountNegativeLevels);
 int GetNumLevelsOfClass(unsigned char nClassType);
 int GetNumLevelsOfClass(unsigned char nClassType, int bPreEpicOnly); 
 
@@ -226,6 +242,10 @@ int GetArmorClassVersus(CNWSCreature *Attacker, int bTouchAttack);
 int GetRangedAttackBonus( int arg1, int arg2);
 CExoString GetAnimalCompanionName();
 CExoString GetFamiliarName();
+int					GetSpellMinAbilityMet(unsigned char cls_pos, unsigned char spell_lvl);
+void				UpdateCombatInformation();
+	void UpdateNumberMemorizedSpellSlots();
+	void AdjustSpellUsesPerDay();
 };
 
 

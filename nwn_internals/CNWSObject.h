@@ -82,7 +82,7 @@ struct CNWSObject_s {
 	uint32_t							obj_effects_target_allocated;		/* 0x0108 */
 
 	uint32_t							obj_pending_effect_removal;			/* 0x010C */
-	uint32_t							obj_saving_throw_spellid;			/* 0x0110 */
+	int32_t								obj_saving_throw_spellid;			/* 0x0110 */
 	int32_t								obj_custom_event_id;				/* 0x0114 */
 	nwn_objid_t							obj_killer;							/* 0x0118 */
 	nwn_objid_t							obj_last_hostile_actor;				/* 0x011C */
@@ -119,7 +119,7 @@ struct CNWSObject_s {
 	int16_t								*obj_damage_immunities;				/* 0x0174 */
 	Vector								obj_last_spell_location;			/* 0x0178 */
 	nwn_objid_t							obj_last_spell_target;				/* 0x0184 */
-	uint32_t							obj_last_spell_id;					/* 0x0188 */
+	int32_t								obj_last_spell_id;					/* 0x0188 */
 	uint8_t								obj_last_spell_domain_level;		/* 0x018C */
 
 	uint8_t								field_018D;							/* 0x018D */
@@ -129,7 +129,7 @@ struct CNWSObject_s {
 	uint32_t							obj_last_spell_proj_time;			/* 0x0190 */
 	uint32_t							obj_last_spell_cast;				/* 0x0194 */
 	uint32_t							obj_last_spell_spontaneous;			/* 0x0198 */
-	uint8_t								obj_last_spell_multiclass;			/* 0x019C */
+	uint8_t								obj_last_spell_class;				/* 0x019C */
 	uint8_t								obj_last_spell_metamagic;			/* 0x019D */
 
 	uint8_t								field_019E;							/* 0x019E */

@@ -3,7 +3,6 @@
 
 #include "../nwn_internals/nwn_const.h"
 #include ".\nwnx_funcs_const.h"
-#include ".\CExoString.h"
 
 struct CNWSAction_s;						typedef struct CNWSAction_s						CNWSAction;
 struct CResStruct_s;						typedef struct CResStruct_s						CResStruct;
@@ -13,23 +12,26 @@ struct CCodeBase_s;							typedef struct CCodeBase_s						CCodeBase;
 struct CResource_s;							typedef struct CResource_s						CResource; 
 struct CTwoDimArrays_s;						typedef struct CTwoDimArrays_s					CTwoDimArrays;
 struct C2DA_s;								typedef struct C2DA_s							C2DA; 
-struct CExoArrayList_float_s;             	typedef struct CExoArrayList_float_s            CExoArrayList_float;
-struct CExoArrayList_int32_s;             	typedef struct CExoArrayList_int32_s            CExoArrayList_int32;
-struct CExoArrayList_int8_s;              	typedef struct CExoArrayList_int8_s             CExoArrayList_int8;
-struct CExoArrayList_ptr_s;               	typedef struct CExoArrayList_ptr_s              CExoArrayList_ptr;
-struct CExoArrayList_uint16_s;            	typedef struct CExoArrayList_uint16_s           CExoArrayList_uint16;
-struct CExoArrayList_uint32_s;            	typedef struct CExoArrayList_uint32_s           CExoArrayList_uint32;
-struct CExoArrayList_uint64_s;            	typedef struct CExoArrayList_uint64_s           CExoArrayList_uint64;
-struct CExoArrayList_uint8_s;             	typedef struct CExoArrayList_uint8_s            CExoArrayList_uint8; 
-struct CExoArrayList_string_s;             	typedef struct CExoArrayList_string_s           CExoArrayList_string;
+struct CExoArrayList_float_s;             	typedef struct CExoArrayList_float_s			CExoArrayList_float;
+struct CExoArrayList_int32_s;             	typedef struct CExoArrayList_int32_s			CExoArrayList_int32;
+struct CExoArrayList_int8_s;              	typedef struct CExoArrayList_int8_s				CExoArrayList_int8;
+struct CExoArrayList_ptr_s;               	typedef struct CExoArrayList_ptr_s				CExoArrayList_ptr;
+struct CExoArrayList_uint16_s;            	typedef struct CExoArrayList_uint16_s			CExoArrayList_uint16;
+struct CExoArrayList_uint32_s;            	typedef struct CExoArrayList_uint32_s			CExoArrayList_uint32;
+struct CExoArrayList_uint64_s;            	typedef struct CExoArrayList_uint64_s			CExoArrayList_uint64;
+struct CExoArrayList_uint8_s;             	typedef struct CExoArrayList_uint8_s			CExoArrayList_uint8; 
+struct CExoArrayList_string_s;             	typedef struct CExoArrayList_string_s			CExoArrayList_string;
 struct CResRef_s;							typedef struct CResRef_s						CResRef;
 struct CResGFF_s;							typedef struct CResGFF_s						CResGFF;
-struct Vector_s;							typedef struct Vector_s                         Vector;
+struct Vector_s;							typedef struct Vector_s							Vector;
 struct CNWClass_s;							typedef struct CNWClass_s						CNWClass;
+struct CNWFeat_s;							typedef struct CNWFeat_s						CNWFeat;
+struct CNWRace_s;							typedef struct CNWRace_s						CNWRace;
+struct CNWDomain_s;							typedef struct CNWDomain_s						CNWDomain;
 struct CScriptEvent_s;						typedef struct CScriptEvent_s					CScriptEvent;
 struct CNWCCMessageData_s;					typedef struct CNWCCMessageData_s				CNWCCMessageData;
-struct CNWSFaction_s;						typedef struct CNWSFaction_s                    CNWSFaction;
-struct CFactionManager_s;					typedef struct CFactionManager_s                CFactionManager;
+struct CNWSFaction_s;						typedef struct CNWSFaction_s					CNWSFaction;
+struct CFactionManager_s;					typedef struct CFactionManager_s				CFactionManager;
 //struct CExoString_s; typedef CExoString_s CExoString;
 //struct CExoLinkedListHeader_s;				typedef struct CExoLinkedListHeader_s           CExoLinkedListHeader;
 //struct CExoLinkedListNode_s;				typedef struct CExoLinkedListNode_s             CExoLinkedListNode;
@@ -116,7 +118,7 @@ struct CEffectsStore_s; typedef struct CEffectsStore_s CEffectsStore;
 #include "..\nwn_internals\CExoArrayList.h"
 #include "..\nwn_internals\Vector.h"
 #include "..\nwn_internals\CExoLinkedList.h"
-//#include ".\CExoString.h"
+#include "..\nwn_internals\CExoString.h"
 //#include ".\CExoLinkedListHeader.h"
 //#include ".\CExoLinkedListNode.h" 
 //#include ".\CExoLocStringElement.h" 
@@ -157,7 +159,7 @@ struct CEffectsStore_s; typedef struct CEffectsStore_s CEffectsStore;
 #include "..\nwn_internals\CNWSCreature.h"
 #include "..\nwn_internals\CNWSStats_Spell.h"
 #include "..\nwn_internals\CNWSStats_Level.h"
-#include "..\nwn_internals\CNWSCreatureClass.h" 
+#include "..\nwn_internals\CNWSCreatureClass.h"
 #include "..\nwn_internals\CNWSCreatureStats.h"
 #include "..\nwn_internals\CGameEffect.h"
 #include "..\nwn_internals\CItemRepository.h" 
@@ -192,6 +194,9 @@ struct CEffectsStore_s; typedef struct CEffectsStore_s CEffectsStore;
 #include "..\nwn_internals\CScriptEvent.h"
 #include "..\nwn_internals\CNWSpell.h"
 #include "..\nwn_internals\CNWClass.h"
+#include "..\nwn_internals\CNWFeat.h"
+#include "..\nwn_internals\CNWRace.h"
+#include "..\nwn_internals\CNWDomain.h"
 #include "..\nwn_internals\CNWSpellArray.h"
 #include "..\nwn_internals\CResGFF.h"
 #include "..\nwn_internals\CCodeBase.h"

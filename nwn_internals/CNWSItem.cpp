@@ -1,23 +1,23 @@
-#include "stdafx.h"
 #include "types.h"
 #include "nwn_internals.h"
 
-CNWSItem*		(__thiscall *CNWSItem__CNWSItem)(CNWSItem *pTHIS, unsigned long) = (CNWSItem*(__thiscall*)(CNWSItem *pTHIS, unsigned long))0x004FAA90;
+CNWSItem*		(__thiscall *CNWSItem__CNWSItem)(CNWSItem *pThis, unsigned long) = (CNWSItem*(__thiscall*)(CNWSItem *pThis, unsigned long))0x004FAA90;
 
-void 			(__thiscall *CNWSItem__AddToArea)(CNWSItem *pTHIS, CNWSArea *area, float x, float y, float z, int a5) = (void(__thiscall*)(CNWSItem *pTHIS, CNWSArea *area, float x, float y, float z, int a5))0x004FB6F0;
-int 			(__thiscall *CNWSItem__ComputeArmorClass)(CNWSItem *pTHIS) = (int (__thiscall*)(CNWSItem *pTHIS))0x004FE870;
-unsigned short	(__thiscall *CNWSItem__GetDamageFlags)(CNWSItem *pTHIS) = (unsigned short(__thiscall*)(CNWSItem *pTHIS))0x00501660;
-unsigned char 	(__thiscall *CNWSItem__GetMinEquipLevel)(CNWSItem *pTHIS) = (unsigned char(__thiscall*)(CNWSItem *pTHIS))0x005017A0;
-int 			(__thiscall *CNWSItem__GetPropertyByType)(CNWSItem *pTHIS, CNWSItemProperty **iprp, uint16_t ipType, uint16_t ipSubType) = (int(__thiscall*)(CNWSItem *pTHIS, CNWSItemProperty **iprp, uint16_t ipType, uint16_t ipSubType))0x004FE670;
-int 			(__thiscall *CNWSItem__GetPropertyByTypeExists)(CNWSItem* pTHIS, unsigned short, unsigned short) = (int(__thiscall*)(CNWSItem* pTHIS, unsigned short, unsigned short))0x004FE370;
-int 			(__thiscall *CNWSItem__LoadFromTemplate)(CNWSItem *pTHIS, CResRef CRes, CExoString *Tag) = (int(__thiscall*)(CNWSItem *pTHIS, CResRef CRes, CExoString *Tag))0x004FBAE0;
-int				(__thiscall *CNWSItem__LoadItem)(CNWSItem *pTHIS, CResGFF *ResGFF, void *CResStruct, int a3) = (int(__thiscall*)(CNWSItem *pTHIS, CResGFF *ResGFF, void *CResStruct, int a3))0x004FD0D0;
-int 			(__thiscall *CNWSItem__SaveItem)(CNWSItem *pTHIS, CResGFF *, void *ResStruct, int) = (int(__thiscall*)(CNWSItem *pTHIS, CResGFF *, void *ResStruct, int))0x004FD300;
-void 			(__thiscall *CNWSItem__SetDisplayName)(CNWSItem *pTHIS, CExoString Name) = (void(__thiscall*)(CNWSItem *pTHIS, CExoString Name))0x00596AB0;
-int 			(__thiscall *CNWSItem__SetPossessor)(CNWSItem *pTHIS, unsigned int a2_Possessor_id, int a3_Signalevent, int a4_bFeedback, int i) = (int (__thiscall*)(CNWSItem *pTHIS, unsigned int a2_Possessor_id, int a3_Signalevent, int a4_bFeedback, int i))0x004FAF10;
-void			(__thiscall *CNWSItem__UpdateUsedActiveProperties)(CNWSItem *pTHIS, int unknown) = (void (__thiscall*)(CNWSItem *pTHIS, int unknown))0x4FDEE0;
-void			(__thiscall *CNWSItem__RestoreUsedActiveProperties)(CNWSItem *pTHIS, int unknown) = (void (__thiscall*)(CNWSItem *pTHIS, int unknown))0x4FE220;
-void			(__thiscall *CNWSItem__AIUpdate)(CNWSItem *pTHIS) = (void (__thiscall*)(CNWSItem *pTHIS))0x4FB7C0;
+void 			(__thiscall *CNWSItem__AddToArea)(CNWSItem *pThis, CNWSArea *area, float x, float y, float z, int a5) = (void(__thiscall*)(CNWSItem *pThis, CNWSArea *area, float x, float y, float z, int a5))0x004FB6F0;
+int 			(__thiscall *CNWSItem__ComputeArmorClass)(CNWSItem *pThis) = (int (__thiscall*)(CNWSItem *pThis))0x004FE870;
+unsigned short	(__thiscall *CNWSItem__GetDamageFlags)(CNWSItem *pThis) = (unsigned short(__thiscall*)(CNWSItem *pThis))0x00501660;
+unsigned char 	(__thiscall *CNWSItem__GetMinEquipLevel)(CNWSItem *pThis) = (unsigned char(__thiscall*)(CNWSItem *pThis))0x005017A0;
+int 			(__thiscall *CNWSItem__GetPropertyByType)(CNWSItem *pThis, CNWSItemProperty **iprp, uint16_t ipType, uint16_t ipSubType) = (int(__thiscall*)(CNWSItem *pThis, CNWSItemProperty **iprp, uint16_t ipType, uint16_t ipSubType))0x004FE670;
+int 			(__thiscall *CNWSItem__GetPropertyByTypeExists)(CNWSItem* pThis, unsigned short, unsigned short) = (int(__thiscall*)(CNWSItem* pThis, unsigned short, unsigned short))0x004FE370;
+int 			(__thiscall *CNWSItem__LoadFromTemplate)(CNWSItem *pThis, CResRef CRes, CExoString *Tag) = (int(__thiscall*)(CNWSItem *pThis, CResRef CRes, CExoString *Tag))0x004FBAE0;
+int				(__thiscall *CNWSItem__LoadItem)(CNWSItem *pThis, CResGFF *ResGFF, void *CResStruct, int a3) = (int(__thiscall*)(CNWSItem *pThis, CResGFF *ResGFF, void *CResStruct, int a3))0x004FD0D0;
+int 			(__thiscall *CNWSItem__SaveItem)(CNWSItem *pThis, CResGFF *, void *ResStruct, int) = (int(__thiscall*)(CNWSItem *pThis, CResGFF *, void *ResStruct, int))0x004FD300;
+void 			(__thiscall *CNWSItem__SetDisplayName)(CNWSItem *pThis, CExoString Name) = (void(__thiscall*)(CNWSItem *pThis, CExoString Name))0x00596AB0;
+int 			(__thiscall *CNWSItem__SetPossessor)(CNWSItem *pThis, unsigned int a2_Possessor_id, int a3_Signalevent, int a4_bFeedback, int i) = (int (__thiscall*)(CNWSItem *pThis, unsigned int a2_Possessor_id, int a3_Signalevent, int a4_bFeedback, int i))0x004FAF10;
+int 			(__thiscall *CNWSItem__CompareItem)(CNWSItem *pTHIS, CNWSItem * itm) = (int(__thiscall*)(CNWSItem *, CNWSItem *))0x004FE9B0;
+void			(__thiscall *CNWSItem__UpdateUsedActiveProperties)(CNWSItem *pThis, int unknown) = (void (__thiscall*)(CNWSItem *pThis, int unknown))0x4FDEE0;
+void			(__thiscall *CNWSItem__RestoreUsedActiveProperties)(CNWSItem *pThis, int unknown) = (void (__thiscall*)(CNWSItem *pThis, int unknown))0x4FE220;
+void			(__thiscall *CNWSItem__AIUpdate)(CNWSItem *pThis) = (void (__thiscall*)(CNWSItem *pThis))0x4FB7C0;
 
 void CNWSItem_s::AIUpdate() 
 {
@@ -38,6 +38,11 @@ CNWSItem_s::CNWSItem_s(nwn_objid_t oID) {
 	CNWSItem__CNWSItem(this, oID);
 }
 	
+int CNWSItem_s::CompareItem( CNWSItem * itm ){
+
+	return CNWSItem__CompareItem( this, itm );
+}
+
 int CNWSItem_s::ComputeArmorClass() {
 	return CNWSItem__ComputeArmorClass(this);
 }

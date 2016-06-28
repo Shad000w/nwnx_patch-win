@@ -421,14 +421,7 @@ struct CNWSPlayerTURD_s {
   unsigned __int8 field_1BD;
   unsigned __int8 field_1BE;
   unsigned __int8 field_1BF;
-  unsigned __int8 TURD_CommntyName;
-  unsigned __int8 field_1C1;
-  unsigned __int8 field_1C2;
-  unsigned __int8 field_1C3;
-  unsigned __int8 field_1C4;
-  unsigned __int8 field_1C5;
-  unsigned __int8 field_1C6;
-  unsigned __int8 field_1C7;
+  CExoString TURD_CommntyName;
   unsigned __int8 field_1C8;
   unsigned __int8 field_1C9;
   unsigned __int8 field_1CA;

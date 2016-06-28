@@ -46,26 +46,26 @@ struct CNWSTrigger_s
   unsigned __int8 field_24B;
   unsigned __int32 Type1_;
   unsigned __int32 Faction;
-  unsigned __int32 Type2_;
-  unsigned __int32 TrapDetectable;
-  unsigned __int32 TrapDisarmable;
-  unsigned __int32 field_260;
-  unsigned __int32 AutoRemoveKey;
-  unsigned __int32 TrapOneShot;
-  unsigned __int8 TrapType;
+  unsigned __int32 TrapIsTrapped;//254
+  unsigned __int32 TrapDetectable;//258
+  unsigned __int32 TrapDisarmable;//25C
+  unsigned __int32 TrapFlagged;//260
+  unsigned __int32 AutoRemoveKey;//264
+  unsigned __int32 TrapOneShot;//268
+  unsigned __int8 TrapType;//26C
   unsigned __int8 field_26D;
   unsigned __int8 field_26E;
   unsigned __int8 field_26F;
-  unsigned __int32 TrapDetectDC;
-  unsigned __int32 DisarmDC;
-  unsigned __int32 TrapRecoverable;
-  unsigned __int32 TrapActive;
+  unsigned __int32 TrapDetectDC;//270
+  unsigned __int32 TrapDisarmDC;//274
+  unsigned __int32 TrapRecoverable;//278
+  unsigned __int32 TrapActive;//27C
   unsigned __int8 field_280;
   unsigned __int8 field_281;
   unsigned __int8 field_282;
   unsigned __int8 field_283;
-  float HighlightHeight;
-  unsigned __int32 CreatorId;
+  float HighlightHeight;//284
+  unsigned __int32 CreatorId;//288   -trap creator
   unsigned __int8 field_28C;
   unsigned __int8 field_28D;
   unsigned __int8 field_28E;

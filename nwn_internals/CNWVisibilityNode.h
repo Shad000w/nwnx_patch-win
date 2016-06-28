@@ -2,7 +2,9 @@
 #define _NX_NWN_STRUCT_CNWVISIBILITYNODE_
 
 struct CNWVisibilityNode_s {
-    void               *unknown;
+    
+	nwn_objid_t obj;
+	DWORD flags;
 };
 
 #endif

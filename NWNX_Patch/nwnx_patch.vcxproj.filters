@@ -174,14 +174,20 @@
     <ClCompile Include="NWNXPatch.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="patch.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
     <ClCompile Include="..\NWNXdll\IniFile.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="CExoString.cpp">
+    <ClCompile Include="..\nwn_internals\CNWSCreatureClass.cpp">
+      <Filter>Source Files\nwn_internals</Filter>
+    </ClCompile>
+    <ClCompile Include="patch.cpp">
       <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="..\nwn_internals\CNWSpell.cpp">
+      <Filter>Source Files\nwn_internals</Filter>
+    </ClCompile>
+    <ClCompile Include="..\nwn_internals\CItemRepository.cpp">
+      <Filter>Source Files\nwn_internals</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
@@ -461,9 +467,6 @@
     <ClInclude Include="..\nwn_internals\nwnx_funcs_const.h">
       <Filter>Source Files\nwn_internals</Filter>
     </ClInclude>
-    <ClInclude Include="..\nwn_internals\types.h">
-      <Filter>Source Files\nwn_internals</Filter>
-    </ClInclude>
     <ClInclude Include="..\nwn_internals\Vector.h">
       <Filter>Source Files\nwn_internals</Filter>
     </ClInclude>
@@ -488,8 +491,17 @@
     <ClInclude Include="..\NWNXdll\IniFile.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="CExoString.h">
-      <Filter>Header Files</Filter>
+    <ClInclude Include="..\nwn_internals\CNWDomain.h">
+      <Filter>Source Files\nwn_internals</Filter>
+    </ClInclude>
+    <ClInclude Include="..\nwn_internals\CNWFeat.h">
+      <Filter>Source Files\nwn_internals</Filter>
+    </ClInclude>
+    <ClInclude Include="..\nwn_internals\CNWRace.h">
+      <Filter>Source Files\nwn_internals</Filter>
+    </ClInclude>
+    <ClInclude Include="..\nwn_internals\CNWLevelStats.h">
+      <Filter>Source Files\nwn_internals</Filter>
     </ClInclude>
   </ItemGroup>
 </Project>
