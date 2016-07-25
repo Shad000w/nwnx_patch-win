@@ -225,7 +225,6 @@ void (__fastcall *CNWSCreature__SetActivity)(CNWSCreature *pThis, void*, int nAc
 int (__fastcall *CNWSTrigger__GetCanFireTrapOnObject)(CNWSTrigger *pThis, void*, unsigned long targetID, int arg1);
 int (__fastcall *CNWSCreatureStats__GetFavoredEnemyBonus)(CNWSCreatureStats *pThis, void*, CNWSCreature *cre);
 int (__fastcall *CNWSCreatureStats__GetSpellResistance)(CNWSCreatureStats *pThis, void*);
-float (__fastcall *CNWSCreature__MaxAttackRange)(CNWSCreature *pThis, void*, unsigned long targetID, int arg1, int arg2);
 void (__fastcall *CNWSCreature__RemoveBadEffects)(CNWSCreature *pThis, void*);
 int (__fastcall *CNWSCreature__AddPickPocketAction)(CNWSCreature *pThis, void*, unsigned long targetID);
 int (__fastcall *CNWSCreature__StartBarter)(CNWSCreature *pThis, void*, unsigned long targetID, unsigned long itemID, int arg1);
@@ -272,6 +271,7 @@ void __fastcall CNWSCreatureStats__ComputeFeatBonuses_Hook(CNWSCreatureStats *pT
 
 void __fastcall CNWSCreatureStats__AdjustSpellUsesPerDay_Hook(CNWSCreatureStats *pThis, void*)
 {
+	//Patch.Log(2, "CNWSCreatureStats__AdjustSpellUsesPerDay call\n");
 	if(Patch.helper == 56) return;//called from CNWSCreatureStats::ComputeFeatBonuses or CNWSCreature::ReadItemsFromGff
 	else if(!pThis->cs_is_pc)
 	{
@@ -349,6 +349,7 @@ void __fastcall CNWSCreature__UnpossessFamiliar_Hook(CNWSCreature *pThis, void*)
 
 void __fastcall CNWSCreatureStats__LevelUp_Hook(CNWSCreatureStats *pThis, void*, int *CNWLevelStats, unsigned char domain1, unsigned char domain2, unsigned char spellschool, int num_levels)
 {
+	//Patch.Log(2, "CNWSCreatureStats__LevelUp call\n");
 	unsigned char lvl_array[2];
 	for(unsigned char x=0;x < 3;x++)
 	{
@@ -397,6 +398,7 @@ void __fastcall CNWSCreatureStats__LevelUp_Hook(CNWSCreatureStats *pThis, void*,
 
 void __fastcall CNWSCreatureStats__LevelDown_Hook(CNWSCreatureStats *pThis, void *, int *CNWLevelStats)
 {
+	//Patch.Log(2, "CNWSCreatureStats__LevelDown call\n");
 	CNWSCreatureStats__LevelDown(pThis,NULL,CNWLevelStats);
 	pThis->UpdateCombatInformation();
 	//todo update spellslots?
@@ -404,6 +406,7 @@ void __fastcall CNWSCreatureStats__LevelDown_Hook(CNWSCreatureStats *pThis, void
 
 int __fastcall CNWSCreature__LearnScroll_Hook(CNWSCreature *pThis, void *, unsigned long itemID)
 {
+	//Patch.Log(2, "CNWSCreature__LearnScroll call\n");
 	CNWSItem *item = NWN_AppManager->app_server->srv_internal->GetItemByGameObjectID(itemID);
 	if(pThis != NULL && item != NULL)
 	{
@@ -419,12 +422,13 @@ int __fastcall CNWSCreature__LearnScroll_Hook(CNWSCreature *pThis, void *, unsig
 
 unsigned char __fastcall CNWSCreatureStats__GetSpellUsesLeft_Hook(CNWSCreatureStats *pThis, void *, long spell_id, unsigned char cls_pos, unsigned char domain_lvl, unsigned char metamagic)
 {
+	//Patch.Log(2, "CNWSCreatureStats__GetSpellUsesLeft call\n");
 	if(!classes_2da)
 	{
 		return CNWSCreatureStats__GetSpellUsesLeft(pThis,NULL,spell_id,cls_pos,domain_lvl,metamagic);
 	}
 	unsigned char retValOrig = CNWSCreatureStats__GetSpellUsesLeft(pThis,NULL,spell_id,cls_pos,domain_lvl,metamagic);
-	if(cls_pos >= pThis->cs_classes_len || spell_id == -1) return 0;//sometimes engine invalid values, in this case we need to return 0
+	if(cls_pos >= pThis->cs_classes_len || spell_id == -1) return 0;//sometimes engine passes invalid values, in this case we need to return 0
 	if(pThis->cs_original->cre_pm_IsPolymorphed) return 1;
 	unsigned char retVal = 0;
 	unsigned char cls_id = pThis->cs_classes[cls_pos].cl_class;
@@ -489,6 +493,7 @@ unsigned char __fastcall CNWSCreatureStats__GetSpellUsesLeft_Hook(CNWSCreatureSt
 
 int __fastcall CNWSCreatureStats_ClassInfo__ConfirmDomainSpell_Hook(CNWSCreatureClass *pThis, void *, unsigned char domain_lvl, long spell_id)
 {
+	//Patch.Log(2, "CNWSCreatureStats_ClassInfo__ConfirmDomainSpell call\n");
 	if(!classes_2da)
 	{
 		return CNWSCreatureStats_ClassInfo__ConfirmDomainSpell(pThis,NULL,domain_lvl,spell_id);
@@ -518,6 +523,7 @@ int __fastcall CNWSCreatureStats_ClassInfo__ConfirmDomainSpell_Hook(CNWSCreature
 
 unsigned char __fastcall CNWSCreatureStats__ComputeNumberKnownSpellsLeft_Hook(CNWSCreatureStats *pThis, void *, unsigned char cls_pos, unsigned char spell_lvl)
 {
+	//Patch.Log(2, "CNWSCreatureStats__ComputeNumberKnownSpellsLeft call\n");
 	if(!classes_2da)
 	{
 		return CNWSCreatureStats__ComputeNumberKnownSpellsLeft(pThis,NULL,cls_pos,spell_lvl);
@@ -588,6 +594,7 @@ int __fastcall CNWRules__IsArcaneClass_Hook(CNWRules *pThis, void *, unsigned ch
 
 unsigned char __fastcall CNWSpell__GetSpellLevel_Hook(CNWSpell *pThis, void *, unsigned char cls_id)
 {//tohle pomuze vyplnit zname kouzla v knize kouzel
+	//Patch.Log(2, "CNWSpell__GetSpellLevel call\n");
 	switch(cls_id)
 	{
 	case CLASS_TYPE_WIZARD:
@@ -624,6 +631,7 @@ unsigned char __fastcall CNWSpell__GetSpellLevel_Hook(CNWSpell *pThis, void *, u
 
 void __fastcall CNWSCreatureStats__UpdateNumberMemorizedSpellSlots_Hook(CNWSCreatureStats *pThis, void *)
 {
+	//Patch.Log(2, "CNWSCreatureStats__UpdateNumberMemorizedSpellSlots call\n");
 	if(Patch.helper == 56) return;//called from CNWSCreatureStats::ComputeFeatBonuses
 	CNWClass *cClass;int spell_lvl, num_slots;uint8_t cls_id;
 	for(unsigned char x = 0;x < pThis->cs_classes_len; x++)
@@ -643,6 +651,7 @@ void __fastcall CNWSCreatureStats__UpdateNumberMemorizedSpellSlots_Hook(CNWSCrea
 
 unsigned char __fastcall CNWSCreatureStats__GetSpellGainWithBonus_Hook(CNWSCreatureStats *pThis, void *, unsigned char cls_pos, unsigned char spell_lvl)
 {
+	//Patch.Log(2, "CNWSCreatureStats__GetSpellGainWithBonus call\n");
 	if(!classes_2da)
 	{
 		return CNWSCreatureStats__GetSpellGainWithBonus(pThis,NULL,cls_pos,spell_lvl);
@@ -739,6 +748,7 @@ unsigned char __fastcall CNWSCreatureStats__GetSpellGainWithBonus_Hook(CNWSCreat
 
 unsigned char __fastcall CNWSCreatureStats__GetSpellGainWithBonusAfterLevelUp_Hook(CNWSCreatureStats *pThis, void *, unsigned char cls_pos, unsigned char spell_lvl, CNWLevelStats *lvlstats, unsigned char spell_school, int is_first_lvl)
 {
+	//Patch.Log(2, "CNWSCreatureStats__GetSpellGainWithBonusAfterLevelUp call\n");
 	if(!classes_2da)
 	{
 		return CNWSCreatureStats__GetSpellGainWithBonusAfterLevelUp(pThis,NULL,cls_pos,spell_lvl,lvlstats,spell_school,is_first_lvl);
@@ -843,6 +853,7 @@ unsigned char __fastcall CNWSCreatureStats__GetSpellGainWithBonusAfterLevelUp_Ho
 
 int __fastcall CNWSCreatureStats__GetSpellMinAbilityMet_Hook(CNWSCreatureStats *pThis, void *, unsigned char cls_pos, unsigned char spell_lvl)
 {
+	//Patch.Log(2, "CNWSCreatureStats__GetSpellMinAbilityMet call\n");
 	if(cls_pos >= pThis->cs_classes_len) return 0;//sometimes engine passes 254/255 into class position, in this case we need to return 0
 	unsigned char cls_id = pThis->cs_classes[cls_pos].cl_class;
 	switch(cls_id)
@@ -977,7 +988,7 @@ void __fastcall CGameEffect__SetCreator_Hook(CGameEffect *pThis, void*, unsigned
 				if(cre && cre->effect_spell_id > -1)
 				{
 					pThis->eff_spellid = cre->effect_spell_id;
-					if(cre->cre_item_spell_item != OBJECT_INVALID)
+					if(cre->cre_item_spell_item != OBJECT_INVALID)//spell from item
 					{
 						nLevel = cre->cre_item_spell_level;
 						CNWSObject *item = (CNWSObject*)NWN_AppManager->app_server->GetGameObject(cre->cre_item_spell_item);
@@ -992,16 +1003,17 @@ void __fastcall CGameEffect__SetCreator_Hook(CGameEffect *pThis, void*, unsigned
 							else nLevel+= item->obj_vartable.GetInt(CExoString("ITEM_CASTER_LEVEL_MODIFIER"));
 						}
 					}
-					else if(creator->obj_last_spell_class != 255)
+					else if(creator->obj_last_spell_class < cre->cre_stats->cs_classes_len)//normal spell
 					{
+						//Patch.Log(0, "CGameEffect__SetCreator_Hook normal spell last spell class: %i, spell_id: %i, feat: %i\n",creator->obj_last_spell_class,pThis->eff_spellid,creator->obj_last_spell_feat);
 						nLevel = cre->cre_stats->GetClassLevel(creator->obj_last_spell_class,true);
 						//include prestige classes into calculation
 						if(creator->obj_last_spell_feat == 0xFFFF && NWN_Rules->ru_spells->GetSpell(pThis->eff_spellid)->UserType == 1)
 						{
-							int cls_id = cre->cre_stats->cs_classes[creator->obj_last_spell_class].cl_class;
+							unsigned char cls_id = cre->cre_stats->cs_classes[creator->obj_last_spell_class].cl_class;
 							CNWClass *cClass = &(NWN_Rules->ru_classes[cls_id]);
-							bool bArcane = NWN_Rules->IsArcaneClass(cls_id) != 0;
-							bool bDivine = cClass->SpellCaster == 1;
+							bool bArcane = (Patch.cls_cast_type[cls_id] & CAST_TYPE_ARCANE) == CAST_TYPE_ARCANE;
+							bool bDivine = cClass->SpellCaster && !bArcane;
 							for(unsigned char i = 0; i < cre->cre_stats->cs_classes_len; i++)//todo vyresit double castery
 							{
 								cClass = &(NWN_Rules->ru_classes[cre->cre_stats->cs_classes[i].cl_class]);
@@ -1016,7 +1028,7 @@ void __fastcall CGameEffect__SetCreator_Hook(CGameEffect *pThis, void*, unsigned
 							}
 						}
 					}
-					else//monster special ability
+					else//monster special ability or invalid data input in creator->obj_last_spell_class
 					{
 						nLevel = (NWN_Rules->ru_spells->GetSpell(pThis->eff_spellid)->sp_level_innate*2)-1;
 						if(nLevel < 10)
@@ -1123,7 +1135,7 @@ int __fastcall CNWSCreature__AddPickPocketAction_Hook(CNWSCreature *pThis, void*
 			pThis->cre_attempted_spell = targetID;
 			if(NWN_VirtualMachine->Runscript(&CExoString("70_s2_pickpocket"),pThis->obj.obj_generic.obj_id,1))
 			{
-				return 4;
+				return 1;//todo: should return 0/1/2 depending on result in 70_s2_pickpocket
 			}
 		}
 	}
@@ -1181,20 +1193,7 @@ int __fastcall CNWSEffectListHandler__OnApplyDefensiveStance_Hook(CNWSEffectList
 	return CNWSEffectListHandler__OnApplyDefensiveStance(pThis,NULL,obj,eff,n);
 }
 
-float __fastcall CNWSCreature__MaxAttackRange_Hook(CNWSCreature *pThis, void*, unsigned long targetID, int arg1, int arg2)
-{
-//fprintf(Patch.m_fFile, "o CNWSCreature__MaxAttackRange: %i %i %i\n",targetID,arg1,arg2);fflush(Patch.m_fFile);
-float fReturn = CNWSCreature__MaxAttackRange(pThis,NULL,targetID,arg1,arg2);
-//fprintf(Patch.m_fFile, "o CNWSCreature__MaxAttackRange: %f\n",fReturn);fflush(Patch.m_fFile);
-CNWSItem *item = pThis->cre_equipment->GetItemInSlot(16);
- if(item == NULL)
- {//fprintf(Patch.m_fFile, "o CNWSCreature__MaxAttackRange: unarmed, pushing 2.5 instead\n");fflush(Patch.m_fFile);
- fReturn = 2.5;
- }
-return fReturn;
-}
-
-int __fastcall CNWSCreatureStats__GetSpellResistance_Hook( CNWSCreatureStats *pThis, void*)
+int __fastcall CNWSCreatureStats__GetSpellResistance_Hook(CNWSCreatureStats *pThis, void*)
 {
 	if(pThis != NULL)
 	{
@@ -1218,10 +1217,9 @@ int __fastcall CNWSEffectListHandler__OnApplyKnockdown_Hook(CNWSEffectListHandle
 		{
 			obj->obj_vartable.SetInt(CExoString("KNOCKDOWN_TYPE"),eff->eff_integers[0],1);
 			obj->obj_vartable.SetInt(CExoString("KNOCKDOWN_AB"),cre->cre_combat_round->AttackData->ToHitMod+cre->cre_combat_round->AttackData->ToHitRoll,1);
-			obj->obj_vartable.SetObject(CExoString("KNOCKDOWN_WPN"),cre->cre_combat_round->GetCurrentAttackWeapon(1)->obj.obj_generic.obj_id);
 			if(NWN_VirtualMachine->Runscript(&CExoString("70_s2_knockdown"),obj->obj_generic.obj_id,1) == 1)
 			{
-				return 0xC;
+				return 1;
 			}
 		}
 	}
@@ -1239,10 +1237,9 @@ int __fastcall CNWSEffectListHandler__OnApplyDisarm_Hook(CNWSEffectListHandler *
 		{
 			obj->obj_vartable.SetInt(CExoString("DISARM_TYPE"),eff->eff_integers[0],1);
 			obj->obj_vartable.SetInt(CExoString("DISARM_AB"),cre->cre_combat_round->AttackData->ToHitMod+cre->cre_combat_round->AttackData->ToHitRoll,1);
-			obj->obj_vartable.SetObject(CExoString("DISARM_WPN"),cre->cre_combat_round->GetCurrentAttackWeapon(1)->obj.obj_generic.obj_id);
 			if(NWN_VirtualMachine->Runscript(&CExoString("70_s2_disarm"),obj->obj_generic.obj_id,1) == 1)
 			{
-				return 0xC;
+				return 1;
 			}
 		}
 	}
@@ -1363,7 +1360,7 @@ int __fastcall CNWSMessage__HandlePlayerToServerMessage_Hook(CNWSMessage *pMessa
 	int nType = pData[1];
 	int nSubtype = pData[2];
 
-	Patch.Log(0, "Message: PID %d, type %i, subtype %i\n", nPlayerID, nType, nSubtype);
+	//Patch.Log(2, "Message: PID %d, type %i, subtype %i\n", nPlayerID, nType, nSubtype);
 
 	if(nType == 1)
 	{
@@ -1526,6 +1523,7 @@ int __fastcall CNWSCreatureStats__ResolveSpecialAttackDamageBonus_Hook(CNWSCreat
 
 void __fastcall CNWSCreature__UpdateAttributesOnEffect_Hook(CNWSCreature *pThis, void*, CGameEffect *eff, int arg1)
 {
+	//Patch.Log(2, "CNWSCreature__UpdateAttributesOnEffect call\n");
 	if(Patch.helper == 40 || pThis->cre_pm_IsPolymorphed)
 	{
 		int prev = Patch.helper;
@@ -1562,11 +1560,11 @@ int __fastcall CNWSItemPropertyHandler__ApplyBonusSpellOfLevel_Hook(CNWSItemProp
 		if(cre->cre_pm_IsPolymorphed)//polymorph skin or weapon, skip addition and mark item as merged to enforce skip also removal of this itemproperty
 		{
 			item->obj.obj_vartable.SetInt(CExoString("MERGED"),1,1);
-			return 20;
+			return 0;
 		}
 		else if(item->obj.obj_vartable.GetInt(CExoString("MERGED")) == 1)//this item was merged, skip addition
 		{
-			return 20;
+			return 0;
 		}
 		Patch.helper = 39;//for other cases set helper value to enforce unready spell slot in SetNumberMemorizedSpellSlots
 	}
@@ -1582,7 +1580,7 @@ int __fastcall CNWSItemPropertyHandler__RemoveBonusSpellOfLevel_Hook(CNWSItemPro
 	{
 		if(item->obj.obj_vartable.GetInt(CExoString("MERGED")) == 1)//this item was merged, skip addition
 		{
-			return 16;
+			return 0;
 		}
 		Patch.helper = 39;//for other cases set helper value to enforce unready spell slot in SetNumberMemorizedSpellSlots
 	}
@@ -1722,7 +1720,7 @@ void __fastcall CNWSCreature__ResolveDamageShields_Hook(CNWSCreature *pThis, voi
 }
 
 CNWSItem* __fastcall CNWSCombatRound__GetCurrentAttackWeapon_Hook(CNWSCombatRound *pThis, void*, int n)
-{
+{	
 	if(Patch.hand)
 	{
 		unsigned long slot = Patch.hand;
@@ -2033,7 +2031,7 @@ int __fastcall CNWSEffectListHandler__OnApplyAbilityDecrease_Hook(CNWSEffectList
 		if(eff->eff_creator != NULL)
 		{
 			CGenericObject *creator = NWN_AppManager->app_server->GetGameObject(eff->eff_creator);
-			Patch.Log(1,"o ability decrease creator tag %s\n",creator->obj_tag);//todo || eff->eff_spellid == 129 || eff->eff_spellid == 27 || eff->eff_spellid == 613)
+			//Patch.Log(2,"o ability decrease creator tag %s\n",creator->obj_tag);//todo || eff->eff_spellid == 129 || eff->eff_spellid == 27 || eff->eff_spellid == 613)
 			if(creator->obj_tag == "70_EC_POISON" || creator->obj_tag == "70_EC_DISEASE")//creator is Community Pa POISON or DISEASE engine
 			{
 				int prev = Patch.helper;
@@ -2452,6 +2450,5 @@ void Hook()
 	//scrap
 	//CreateHook(0x5325D0,CNWSCombatRound__AddAttackOfOpportunity_Hook,(PVOID*)&CNWSCombatRound__AddAttackOfOpportunity,"DisableAttackOfOpportunity","Attack of opportunity");
 	//CreateHook(0x4EFEE0,CNWSEffectListHandler__OnApplyKnockdown_Hook, (PVOID*)&CNWSEffectListHandler__OnApplyKnockdown, "DisableKnockdownHook","Knockdown feat softcoding");
-	//CreateHook(0x498090,CNWSCreature__MaxAttackRange_Hook, (PVOID*)&CNWSCreature__MaxAttackRange, "Test","Unarmed attack range fix attempt.");//had unwanted issues with creature weapons
 	//CreateHook(0x4A6C20,CNWSCreature__RemoveBadEffects_Hook, (PVOID*)&CNWSCreature__RemoveBadEffects, "DisableBadEffectsHook","Fix for bad effects removal at rest");//i dont see a problem in there, requires confirmation
 }

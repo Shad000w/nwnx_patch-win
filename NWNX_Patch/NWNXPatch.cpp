@@ -280,6 +280,13 @@ void Hook_CombatMode2()
 	__asm jmp eax
 }
 
+void Hook_CombatMode3()
+{
+	__asm leave
+	__asm mov eax, 0x547478
+	__asm jmp eax
+}
+
 void Hook_ExamineCR()
 {
 	__asm leave
@@ -712,7 +719,7 @@ void Hook_Domains6()//0x691255 - CNWSCreatureStats_ClassInfo::GetMemorizedSpellR
 	__asm mov orig_ecx, ecx
 	__asm mov orig_edx, edx
 	
-	//fprintf(logFile, "o Hook_Domains6: cls_id: %i\n",test1);fflush(logFile);
+	//fprintf(Patch.m_fFile, "o Hook_Domains6: cls_id: %i\n",test1);fflush(Patch.m_fFile);
 
 	if(Patch.cls_cast_type[test1] & CAST_TYPE_SELECT_DOMAINS)
 	{
@@ -1102,7 +1109,7 @@ void CNWNXPatch::HealKit()
 
 void CNWNXPatch::CombatMode()
 {
-	unsigned char *pPatch = (unsigned char *)0x53D716;
+	unsigned char *pPatch = (unsigned char *)0x53D716;//CNWSMessage::HandlePlayerToServerInputWalkToWaypoint
 	DWORD DefaultPrivs;
 	VirtualProtect((DWORD*)pPatch, 1, PAGE_EXECUTE_READWRITE, &DefaultPrivs);
 	memset((PVOID)pPatch, '\x90', 8);
@@ -1110,11 +1117,18 @@ void CNWNXPatch::CombatMode()
 	*((uint32_t *)(pPatch + 1)) = (uint32_t)Hook_CombatMode1 - (uint32_t)(pPatch + 5);
 	VirtualProtect((DWORD*)pPatch, 1, DefaultPrivs, NULL);
 
-	pPatch = (unsigned char *)0x53D129;
+	pPatch = (unsigned char *)0x53D129;//CNWSMessage::HandlePlayerToServerInputDriveControl
 	VirtualProtect((DWORD*)pPatch, 1, PAGE_EXECUTE_READWRITE, &DefaultPrivs);
 	memset((PVOID)pPatch, '\x90', 8);
 	pPatch[0] = 0xE9;
 	*((uint32_t *)(pPatch + 1)) = (uint32_t)Hook_CombatMode2 - (uint32_t)(pPatch + 5);
+	VirtualProtect((DWORD*)pPatch, 1, DefaultPrivs, NULL);
+
+	pPatch = (unsigned char *)0x54746D;//CNWSCreature::AIActionAttackObject
+	VirtualProtect((DWORD*)pPatch, 1, PAGE_EXECUTE_READWRITE, &DefaultPrivs);
+	memset((PVOID)pPatch, '\x90', 8);
+	pPatch[0] = 0xE9;
+	*((uint32_t *)(pPatch + 1)) = (uint32_t)Hook_CombatMode3 - (uint32_t)(pPatch + 5);
 	VirtualProtect((DWORD*)pPatch, 1, DefaultPrivs, NULL);	
 
 	fprintf(m_fFile, "o Patching automatic combat mode canceling.\n");
@@ -1539,7 +1553,7 @@ BOOL CNWNXPatch::OnCreate(const char* LogDir)
 	if (!CNWNXBase::OnCreate(log))
 		return false;
 
-	fprintf(m_fFile, "Community Patch Patch plugin by Shadooow v 1.18d (Server Edition)\n\n");
+	fprintf(m_fFile, "Community Patch Patch plugin by Shadooow v 1.19 (Server Edition)\n\n");
 	fflush(m_fFile);
 
 	CIniFile iniFile = ("nwnplayer.ini");
@@ -1606,7 +1620,7 @@ unsigned long CNWNXPatch::OnRequestObject (char *gameObject, char* Request){
 
 void NWNXPatch_Funcs(CNWSModule *mod, int nFunc, char *Params)
 {
-	fprintf(Patch.m_fFile, "NWNXPatch_Funcs DEBUG: func %i, params %s\n",nFunc,Params);fflush(Patch.m_fFile);
+	//fprintf(Patch.m_fFile, "NWNXPatch_Funcs DEBUG: func %i, params %s\n",nFunc,Params);fflush(Patch.m_fFile);
 	CExoString VarName = CExoString("NWNXPATCH_RESULT");
 	int retVal = -1;
 	if(nFunc == 1)//GetPlayerLanguage
