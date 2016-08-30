@@ -63,6 +63,7 @@ public:
 	bool PMCasterLevel;
 	bool CurseIgnoreAbilityDecreaseImmunity;
 	bool PrestigeClassAffectSpontaneousCasters;
+	int DisallowAnimalCompanionPossessing;
 	unsigned char NumTilesExplored;
 	unsigned int helper;
 	unsigned int hand;

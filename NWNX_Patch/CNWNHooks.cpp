@@ -1366,7 +1366,7 @@ int __fastcall CNWSMessage__HandlePlayerToServerMessage_Hook(CNWSMessage *pMessa
 	{
 		Patch.SendHakList(pMessage,nPlayerID);
 	}
-	else if(nType == 6 && nSubtype == 119)
+	else if(nType == 6 && nSubtype == 119 && !Patch.DisallowAnimalCompanionPossessing)
 	{
 		CNWSPlayer *player = NWN_AppManager->app_server->srv_internal->GetClientObjectByPlayerId(nPlayerID,1);
 		if(player)

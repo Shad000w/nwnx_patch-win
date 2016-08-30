@@ -1560,6 +1560,7 @@ BOOL CNWNXPatch::OnCreate(const char* LogDir)
 
 	examineCRonPlayers = iniFile.ReadInteger("Server Options","Examine CR On Players",0);
 	NoServerCharacter = iniFile.ReadInteger("Server Options","Disallow New Characters",0);
+	DisallowAnimalCompanionPossessing = iniFile.ReadInteger("Community Patch","Disallow Animal Companion Possessing",0);
 
 	helper = 0;
 	hand = 0;
@@ -1591,7 +1592,10 @@ BOOL CNWNXPatch::OnCreate(const char* LogDir)
 	DevastatingCritical();
 	DeathSneakAttackImmunity();
 	HealKit();
-	CombatMode();
+	if(!iniFile.ReadInteger("Community Patch","Disable Sticky Combat Modes",0))
+	{
+		CombatMode();
+	}	
 	SpontaneousSpell();
 	MindImmunity();
 	Speed();
