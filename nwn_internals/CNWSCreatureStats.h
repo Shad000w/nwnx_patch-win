@@ -246,6 +246,7 @@ int					GetSpellMinAbilityMet(unsigned char cls_pos, unsigned char spell_lvl);
 void				UpdateCombatInformation();
 	void UpdateNumberMemorizedSpellSlots();
 	void AdjustSpellUsesPerDay();
+	void ComputeFeatBonuses(CExoArrayList_uint16 *list, int arg1, int arg2);
 };
 
 

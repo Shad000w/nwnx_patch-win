@@ -4,11 +4,12 @@
 struct CWorldTimer_s {
     void               *unknown;
     
-	void		GetWorldTime(uint32_t *a2, uint32_t *a3);
-	void		SetWorldTime(uint32_t a2, uint32_t a3, int a4);
-	uint32_t	SubtractWorldTimes(uint32_t a2, uint32_t a3, uint32_t a4, uint32_t a5, uint32_t *a6, uint32_t *a7);
+	void		GetWorldTime(unsigned long *a2, unsigned long *a3);
+	void		SetWorldTime(unsigned long a2, unsigned long a3, int a4);
+	uint32_t	SubtractWorldTimes(unsigned long a2, unsigned long a3, unsigned long a4, unsigned long a5, unsigned long *a6, unsigned long *a7);
 	int			GetCalendarDayFromSeconds(float seconds);
-	int			GetWorldTimeSecond();
+	unsigned long	GetWorldTimeSecond();
+	unsigned long	GetWorldTimeHour();
 };
 
 #endif

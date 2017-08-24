@@ -33,8 +33,8 @@ public:
 	unsigned __int32 field_50;
 	unsigned __int32 field_54;
 	unsigned __int32 field_58;
-	unsigned __int32 field_5C;
-	unsigned __int32 field_60;
+	unsigned __int32 SpellID;
+	unsigned __int32 field_60;//uses per day?
 	unsigned __int32 field_64;
 	unsigned __int32 MaxLevel;
 	unsigned __int32 field_6C;

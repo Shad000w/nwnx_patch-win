@@ -27,6 +27,7 @@ struct CNWMessage_s {
 
 
 	CNWMessage_s();
+	~CNWMessage_s();
 
 	int 		ReadBOOL();
 	int			ReadCResRef(CResRef *ResRef, int a3);
@@ -37,6 +38,7 @@ struct CNWMessage_s {
 	void WriteCExoString(char*name, unsigned long len, int i);
 	void WriteINT(int i, int i2);
 	int GetWriteMessage(unsigned char **c, unsigned long *l);
+	void WriteOBJECTIDServer(unsigned long oID);
 };
 
 #endif

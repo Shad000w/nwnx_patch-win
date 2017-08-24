@@ -18,7 +18,7 @@ struct CNWSScriptVarTable_s {
 	float 				GetFloat(CExoString &VarName);
 	int 				GetInt(CExoString &VarName);
 	CScriptLocation 	GetLocation(CExoString &VarName);
-	nwn_objid_t 		GetObject(CExoString &VarName);
+	nwn_objid_t 		GetObjectA(CExoString &VarName);
 	CExoString*			GetString(CExoString &VarName);
 	void 				SetFloat(CExoString &VarName, float VarValue);
 	void 				SetInt(CExoString &VarName, int VarValue, int a3);

@@ -78,14 +78,12 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
-    <ClCompile Include="..\NWNXdll\IniFile.cpp" />
     <ClCompile Include="..\nwn_internals\CItemRepository.cpp" />
+    <ClCompile Include="..\nwn_internals\CNWSCombatAttackData.cpp" />
     <ClCompile Include="..\nwn_internals\CNWSCreatureClass.cpp" />
+    <ClCompile Include="..\nwn_internals\CNWSModule.cpp" />
     <ClCompile Include="..\nwn_internals\CNWSpell.cpp" />
-    <ClCompile Include="CNWNHooks.cpp" />
     <ClCompile Include="nwn_internals.cpp" />
-    <ClCompile Include="..\NWNXdll\NWNXBase.cpp" />
-    <ClCompile Include="NWNXPatch.cpp" />
     <ClCompile Include="..\nwn_internals\C2DA.cpp" />
     <ClCompile Include="..\nwn_internals\CAutoMap.cpp" />
     <ClCompile Include="..\nwn_internals\CExoLinkedList.cpp" />
@@ -111,7 +109,6 @@
     <ClCompile Include="..\nwn_internals\CNWSInventory.cpp" />
     <ClCompile Include="..\nwn_internals\CNWSItem.cpp" />
     <ClCompile Include="..\nwn_internals\CNWSMessage.cpp" />
-    <ClCompile Include="..\nwn_internals\CNWSModule.cpp" />
     <ClCompile Include="..\nwn_internals\CNWSObject.cpp" />
     <ClCompile Include="..\nwn_internals\CNWSpellArray.cpp" />
     <ClCompile Include="..\nwn_internals\CNWSPlaceable.cpp" />
@@ -137,7 +134,6 @@
     <ClCompile Include="patch.cpp" />
   </ItemGroup>
   <ItemGroup>
-    <ClInclude Include="..\NWNXdll\IniFile.h" />
     <ClInclude Include="..\nwn_internals\C2DA.h" />
     <ClInclude Include="..\nwn_internals\CAppManager.h" />
     <ClInclude Include="..\nwn_internals\CAutoMap.h" />
@@ -236,9 +232,7 @@
     <ClInclude Include="..\nwn_internals\nwn_effects.h" />
     <ClInclude Include="..\nwn_internals\nwnx_funcs_const.h" />
     <ClInclude Include="..\nwn_internals\Vector.h" />
-    <ClInclude Include="CNWNHooks.h" />
     <ClInclude Include="nwn_internals.h" />
-    <ClInclude Include="NWNXPatch.h" />
     <ClInclude Include="StdAfx.h" />
     <ClInclude Include="types.h" />
   </ItemGroup>

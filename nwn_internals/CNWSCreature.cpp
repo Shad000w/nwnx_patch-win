@@ -10,6 +10,7 @@ __declspec( naked ) void CNWSCreature_s::SummonAssociate(CResRef resref, char*na
 __declspec( naked ) CExoString CNWSCreature_s::GetFamiliarName(){__asm{ jmp dword ptr [CNWSCreature__GetFamiliarName] }}
 __declspec( naked ) CExoString CNWSCreature_s::GetAnimalCompanionName(){__asm{ jmp dword ptr [CNWSCreature__GetAnimalCompanionName] }}
 
+int					(__thiscall *CNWSCreature__AddAttackActions)(CNWSCreature*, unsigned long, int, int, int) = (int(__thiscall*)(CNWSCreature*, unsigned long, int, int, int))0x493810;
 void				(__thiscall *CNWSCreature__ActivityManager)(CNWSCreature *pThis, unsigned long Activity) = (void(__thiscall*)(CNWSCreature *pThis, unsigned long Activity))0x00490630;
 signed int 			(__thiscall *CNWSCreature__AcquireItem)(CNWSCreature *pThis, CNWSItem **Item, nwn_objid_t From_oID, nwn_objid_t a4, char a5, char a6, int a7, int a8) = (signed int (__thiscall*)(CNWSCreature *pThis, CNWSItem **Item, nwn_objid_t From_oID, nwn_objid_t a4, char a5, char a6, int a7, int a8))0x004C0580;
 int 				(__thiscall *CNWSCreature__ApplyDiseasePayload)(CNWSCreature *pThis, CGameEffect *eff, unsigned long a3, unsigned long a4) = (int(__thiscall*)(CNWSCreature *pThis, CGameEffect *eff, unsigned long a3, unsigned long a4))0x004B0170;
@@ -85,6 +86,38 @@ unsigned long (__thiscall *CNWSCreature__GetAssociateId)(CNWSCreature *pThis, un
 void				(__thiscall *CNWSCreature__SetEffectSpellId)(CNWSCreature * pThis, unsigned long ID) = (void (__thiscall *)(CNWSCreature * pThis, unsigned long ID))0x4A11F0;
 float				(__thiscall *CNWSCreature__GetMovementRateFactor)(CNWSCreature *pThis)=(float(__thiscall*)(CNWSCreature*))0x49E180;
 int					(__thiscall *CNWSCreature__SetMovementRateFactor)(CNWSCreature * pThis, float fSpeed) = (int (__thiscall *)(CNWSCreature *, float))0x49E2B0;
+
+void				(__thiscall *CNWSCreature__ResolveAttackRoll)(CNWSCreature*, CNWSObject *) = (void (__thiscall*)(CNWSCreature*, CNWSObject *))0x54B790;
+void				(__thiscall *CNWSCreature__ResolveDamage)(CNWSCreature*, CNWSObject *) = (void (__thiscall*)(CNWSCreature*, CNWSObject *))0x54CA70;
+void				(__thiscall *CNWSCreature__ResolvePostMeleeDamage)(CNWSCreature*, CNWSObject *) = (void (__thiscall*)(CNWSCreature*, CNWSObject *))0x54D470;
+void				(__thiscall *CNWSCreature__ResolvePostRangedDamage)(CNWSCreature*, CNWSObject *) = (void (__thiscall*)(CNWSCreature*, CNWSObject *))0x54DD80;
+void				(__thiscall *CNWSCreature__ResolveMeleeAnimations)(CNWSCreature*, int, int, CNWSObject *, int) = (void (__thiscall*)(CNWSCreature*, int, int, CNWSObject *, int))0x54B0D0;
+void				(__thiscall *CNWSCreature__ResolveRangedAnimations)(CNWSCreature*, CNWSObject *, int) = (void (__thiscall*)(CNWSCreature*, CNWSObject *, int))0x548860;
+
+void CNWSCreature::ResolveAttackRoll(CNWSObject *obj)
+{
+	CNWSCreature__ResolveAttackRoll(this, obj);
+}
+void CNWSCreature::ResolveDamage(CNWSObject *obj)
+{
+	CNWSCreature__ResolveDamage(this, obj);
+}
+void CNWSCreature::ResolvePostMeleeDamage(CNWSObject *obj)
+{
+	CNWSCreature__ResolvePostMeleeDamage(this, obj);
+}
+void CNWSCreature::ResolvePostRangedDamage(CNWSObject *obj)
+{
+	CNWSCreature__ResolvePostRangedDamage(this, obj);
+}
+void CNWSCreature::ResolveMeleeAnimations(int a1, int a2, CNWSObject *obj, int a4)
+{
+	CNWSCreature__ResolveMeleeAnimations(this, a1,a2,obj,a4);
+}
+void CNWSCreature::ResolveRangedAnimations(CNWSObject *obj, int a1)
+{
+	CNWSCreature__ResolveRangedAnimations(this,obj,a1);
+}
 
 //void Destructor(char c) {
 	//CNWSCreature__dtor_CNWSCreature(this, c);
@@ -392,4 +425,9 @@ float CNWSCreature_s::GetMovementRateFactor()
 int CNWSCreature_s::SetMovementRateFactor(float fSpeed)
 {
 	return CNWSCreature__SetMovementRateFactor(this, fSpeed);
+}
+
+int CNWSCreature::AddAttackActions(unsigned long feat, int a1, int a2, int a3)
+{
+	return CNWSCreature__AddAttackActions(this, feat,a1,a2,a3);
 }

@@ -66,20 +66,11 @@ struct CNWSCreature_s {
 	uint8_t								spacer2_050;
 	uint8_t								spacer2_051;
 	uint8_t								spacer2_052;
-	uint8_t								spacer2_053;
-	uint8_t								spacer2_054;
-	uint8_t								spacer2_055;
-	uint8_t								spacer2_056;
-	uint32_t							spacer2_057;
-	uint8_t								spacer2_061;
-	uint8_t								spacer2_062;
-	uint8_t								spacer2_063;
-	uint8_t								spacer2_064;
-	uint32_t							cre_CreatnScrptFird;
-	uint8_t								spacer2_069;
-	uint8_t								spacer2_070;
-	uint8_t								spacer2_071;
-	uint8_t								spacer2_072;
+	uint32_t							field_308;
+    int32_t								m_bUpdateCombatInformation;
+    int32_t								m_nNumCharSheetViewers;
+    int32_t								m_bUpdateSpellSlots;
+    int32_t								m_bOnCreationScriptExecuted;
 	uint8_t								spacer2_073;
 	uint8_t								spacer2_074;
 	uint8_t								spacer2_075;
@@ -475,7 +466,7 @@ struct CNWSCreature_s {
 	uint8_t								field_4D7;
 	float								cre_pref_attack_dist;				/* 0x04D8 */
 	float								cre_weapon_scale;					/* 0x04DC *///TODO bylo uint_32!! bacha
-	nwn_objid_t							cre_attack_target;					/* 0x04E0 */
+	uint32_t							cre_attack_target;					/* 0x04E0 */
 	nwn_objid_t							cre_attempted_target;				/* 0x04E4 */
 	uint32_t							field_4E8;
 	uint32_t							field_4EC;
@@ -648,22 +639,16 @@ struct CNWSCreature_s {
 	uint8_t								field_A9D;
 	uint8_t								field_A9E;
 	uint8_t								field_A9F;
-	uint8_t								field_AA0;
-	uint8_t								field_AA1;
-	uint8_t								field_AA2;
-	uint8_t								field_AA3;
-	uint32_t							field_AA4;
-	uint32_t							field_AA8;
-	uint32_t							field_AAC;
-	uint32_t							field_AB0;
+	int32_t								cre_tauntanimationplayed;
+    uint32_t							m_nRestDurationPerHPGain;
+    uint32_t							m_nRestHPToRecover;
+    uint32_t							m_nRestDurationPerSpellLevelGain;
+    uint32_t							m_nRestSpellLevelToRecover;
 	uint32_t							cre_facing_done;//AB4
 	DWORD								cre_unlmited_arrow;//field_AB8;
 	DWORD								cre_unlmited_bolt;//field_ABC;
 	DWORD								cre_unlmited_bullet;//field_AC0;
-	uint8_t								field_AC4;
-	uint8_t								field_AC5;
-	uint8_t								field_AC6;
-	uint8_t								field_AC7;
+	uint32_t							*cre_skill_timer;
 	CNWSCombatRound						*cre_combat_round;					/* 0x0AC8 */
 	uint32_t							field_ACC;
 	uint32_t							field_AD0;
@@ -697,35 +682,17 @@ struct CNWSCreature_s {
 	uint8_t								field_AFA;
 	uint8_t								field_AFB;
 	CExoString							cre_DisplayName;
-	uint8_t								field_B04;
-	uint8_t								field_B05;
-	uint8_t								field_B06;
-	uint8_t								field_B07;
-	uint16_t							cre_ai_state;
-	uint16_t							field_B0A;//used to determine flatfooted
-	uint8_t								field_B0C;
-	uint8_t								field_B0D;
-	uint8_t								field_B0E;
-	uint8_t								field_B0F;
-	uint8_t								field_B10;
-	uint8_t								field_B11;
-	uint8_t								field_B12;
-	uint8_t								field_B13;
+	int32_t				m_bUpdateDisplayName;//B04
+    uint16_t			m_nAIState;//b08
+    uint8_t				m_nAIStateAction;//b0A
+    uint32_t			m_oidAIStateActee;//b0C
+    uint8_t				m_nAIStateOutput;//b10
 	uint32_t							cre_aistate_activities;
 	uint32_t							cre_activity_locked;
-	float								cre_movement_rate;
-	uint8_t								field_B20;
-	uint8_t								field_B21;
-	uint8_t								field_B22;
-	uint8_t								field_B23;
-	uint8_t								field_B24;
-	uint8_t								field_B25;
-	uint8_t								field_B26;
-	uint8_t								field_B27;
-	uint8_t								field_B28;
-	uint8_t								field_B29;
-	uint8_t								field_B2A;
-	uint8_t								field_B2B;
+	float				m_fMovementRateFactor;
+    float				m_fDriveModeMoveFactor;
+	uint32_t			field_B24;
+	uint32_t			field_B28;
 	uint32_t							field_B2C;
 	uint32_t							cre_MasterID;//B30
 	CExoArrayList_uint32				*cre_associates;//B34
@@ -899,6 +866,7 @@ struct CNWSCreature_s {
 	CNWSCreature_s(int a2, unsigned int a3, unsigned int a4);
 	~CNWSCreature_s();
 	
+	int					AddAttackActions(unsigned long feat, int a1, int a2, int a3);
 	void				RemoveToAssociateList(nwn_objid_t oID);
 	int					ReprocessAssociateList();
 	void				UpdatePersonalSpace();
@@ -920,6 +888,7 @@ struct CNWSCreature_s {
 	int 				GetRangeWeaponEquipped();
 	int 				GetRelativeWeaponSize(CNWSItem *weapon);
 	int 				GetWeaponPower(CNWSItem *weapon, int n);
+	//1 - attack bonus, 2 - damage bonus
 	int 				GetTotalEffectBonus(char a2, CNWSObject *obj_a, int a4, int a5, unsigned __int8 a6, unsigned __int8 a7, unsigned __int8 a8, unsigned __int8 a9, int a10);
 	CNWVisibilityNode *	GetVisibleListElement(unsigned long ul);
 	float 				MaxAttackRange(nwn_objid_t, int, int);
@@ -972,6 +941,12 @@ struct CNWSCreature_s {
 	float				GetMovementRateFactor();
 	int					SetMovementRateFactor(float fSpeed);
 	//void				Destructor(char c);
+	void				ResolveAttackRoll(CNWSObject *obj);
+	void				ResolveDamage(CNWSObject *obj);
+	void				ResolvePostMeleeDamage(CNWSObject *obj);
+	void				ResolveMeleeAnimations(int a1, int a2, CNWSObject *obj, int a4);
+	void				ResolvePostRangedDamage(CNWSObject *obj);
+	void				ResolveRangedAnimations(CNWSObject *obj, int a1);
 	
 	void SetAutoMapData(int a2, int a3, int a4);
 };

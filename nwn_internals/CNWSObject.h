@@ -118,7 +118,7 @@ struct CNWSObject_s {
 
 	int16_t								*obj_damage_immunities;				/* 0x0174 */
 	Vector								obj_last_spell_location;			/* 0x0178 */
-	nwn_objid_t							obj_last_spell_target;				/* 0x0184 */
+	int32_t								obj_last_spell_target;				/* 0x0184 */
 	int32_t								obj_last_spell_id;					/* 0x0188 */
 	uint8_t								obj_last_spell_domain_level;		/* 0x018C */
 

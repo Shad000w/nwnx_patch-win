@@ -59,7 +59,7 @@ void CNWSScriptVarTable_s::DestroyInt(CExoString &VarName) {
 	CNWSScriptVarTable__DestroyInt(this, VarName);
 }
 
-nwn_objid_t CNWSScriptVarTable_s::GetObject(CExoString &VarName) {
+nwn_objid_t CNWSScriptVarTable_s::GetObjectA(CExoString &VarName) {
 	return CNWSScriptVarTable__GetObject(this, VarName);
 }
 

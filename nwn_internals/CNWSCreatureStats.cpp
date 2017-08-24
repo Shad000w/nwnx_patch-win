@@ -91,6 +91,8 @@ void (__thiscall *CNWSCreatureStats__UpdateCombatInformation)(CNWSCreatureStats*
 void (__thiscall *CNWSCreatureStats__UpdateNumberMemorizedSpellSlots)(CNWSCreatureStats*) = (void (__thiscall*)(CNWSCreatureStats*))0x47D1C0;
 void (__thiscall *CNWSCreatureStats__AdjustSpellUsesPerDay)(CNWSCreatureStats*) = (void (__thiscall*)(CNWSCreatureStats*))0x48B920;
 
+void (__thiscall *CNWSCreatureStats__ComputeFeatBonuses)(CNWSCreatureStats*, CExoArrayList_uint16*, int, int) = (void (__thiscall*)(CNWSCreatureStats*, CExoArrayList_uint16*, int, int))0x48E850;
+
 CNWSCreatureClass* CNWSCreatureStats::GetInfo(unsigned char cls)
 {	
 	return CNWSCreatureStats__GetClassInfo(this, cls);

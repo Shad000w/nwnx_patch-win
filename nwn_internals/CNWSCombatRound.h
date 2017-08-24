@@ -49,6 +49,7 @@ struct CNWSCombatRound_s
 	CNWSCombatAttackData *GetAttack(int a2);
 	int GetWeaponAttackType();
 	void UpdateAttackTargetForAllActions(unsigned long target);
+	void AddSpecialAttack(unsigned short nFeat);
 
 };
 

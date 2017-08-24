@@ -15,6 +15,7 @@ struct CItemRepository_s {
 
 	uint32_t FindItemWithTag(CExoString *sTag);
 	int FindPosition(CNWSItem *, unsigned char &, unsigned char &, int);
+	int CheckFit(CNWSItem *item, unsigned char a1, unsigned char a2);
 };
 
 #endif

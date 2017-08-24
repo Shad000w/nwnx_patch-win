@@ -18,13 +18,7 @@
     </Filter>
   </ItemGroup>
   <ItemGroup>
-    <ClCompile Include="CNWNHooks.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
     <ClCompile Include="nwn_internals.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="..\NWNXdll\NWNXBase.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="..\nwn_internals\C2DA.cpp">
@@ -102,9 +96,6 @@
     <ClCompile Include="..\nwn_internals\CNWSMessage.cpp">
       <Filter>Source Files\nwn_internals</Filter>
     </ClCompile>
-    <ClCompile Include="..\nwn_internals\CNWSModule.cpp">
-      <Filter>Source Files\nwn_internals</Filter>
-    </ClCompile>
     <ClCompile Include="..\nwn_internals\CNWSObject.cpp">
       <Filter>Source Files\nwn_internals</Filter>
     </ClCompile>
@@ -171,12 +162,6 @@
     <ClCompile Include="..\nwn_internals\CWorldTimer.cpp">
       <Filter>Source Files\nwn_internals</Filter>
     </ClCompile>
-    <ClCompile Include="NWNXPatch.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="..\NWNXdll\IniFile.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
     <ClCompile Include="..\nwn_internals\CNWSCreatureClass.cpp">
       <Filter>Source Files\nwn_internals</Filter>
     </ClCompile>
@@ -187,6 +172,12 @@
       <Filter>Source Files\nwn_internals</Filter>
     </ClCompile>
     <ClCompile Include="..\nwn_internals\CItemRepository.cpp">
+      <Filter>Source Files\nwn_internals</Filter>
+    </ClCompile>
+    <ClCompile Include="..\nwn_internals\CNWSCombatAttackData.cpp">
+      <Filter>Source Files\nwn_internals</Filter>
+    </ClCompile>
+    <ClCompile Include="..\nwn_internals\CNWSModule.cpp">
       <Filter>Source Files\nwn_internals</Filter>
     </ClCompile>
   </ItemGroup>
@@ -344,9 +335,6 @@
     <ClInclude Include="..\nwn_internals\CNWSMessage.h">
       <Filter>Source Files\nwn_internals</Filter>
     </ClInclude>
-    <ClInclude Include="..\nwn_internals\CNWSModule.h">
-      <Filter>Source Files\nwn_internals</Filter>
-    </ClInclude>
     <ClInclude Include="..\nwn_internals\CNWSObject.h">
       <Filter>Source Files\nwn_internals</Filter>
     </ClInclude>
@@ -470,9 +458,6 @@
     <ClInclude Include="..\nwn_internals\Vector.h">
       <Filter>Source Files\nwn_internals</Filter>
     </ClInclude>
-    <ClInclude Include="CNWNHooks.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
     <ClInclude Include="nwn_internals.h">
       <Filter>Header Files</Filter>
     </ClInclude>
@@ -485,12 +470,6 @@
     <ClInclude Include="..\nwn_internals\CServerExoAppConfig.h">
       <Filter>Source Files\nwn_internals</Filter>
     </ClInclude>
-    <ClInclude Include="NWNXPatch.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="..\NWNXdll\IniFile.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
     <ClInclude Include="..\nwn_internals\CNWDomain.h">
       <Filter>Source Files\nwn_internals</Filter>
     </ClInclude>
@@ -501,6 +480,9 @@
       <Filter>Source Files\nwn_internals</Filter>
     </ClInclude>
     <ClInclude Include="..\nwn_internals\CNWLevelStats.h">
+      <Filter>Source Files\nwn_internals</Filter>
+    </ClInclude>
+    <ClInclude Include="..\nwn_internals\CNWSModule.h">
       <Filter>Source Files\nwn_internals</Filter>
     </ClInclude>
   </ItemGroup>

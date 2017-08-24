@@ -3,22 +3,15 @@
 
 struct CNWLevelStats_s
 {
-	CExoArrayList_uint32			ls_spells_known[10];
-
-	unsigned long					unknown_1[30];
-
-	CExoArrayList_uint16			ls_featlist;
-
-	unsigned char					*ls_skilllist;
-	unsigned char					ls_skillpoints;
-
-	unsigned char					unknown_2;
-
-	unsigned char					ls_ability;
-	unsigned char					ls_hp;
-
-	unsigned char					ls_class;
-
+	CExoArrayList_uint32			m_pAddedKnownSpellList[10];
+	CExoArrayList_uint32			m_pRemovedKnownSpellList[10];
+	CExoArrayList_uint16			m_lstFeats;//F0
+	char* m_lstSkillRanks;
+    uint16_t m_nSkillPointsRemaining;//100
+    uint8_t m_nAbilityGain;//102
+    uint8_t m_nHitDie;//103
+    uint8_t m_nClass;//104
+    int32_t m_bEpic;//105
 };
 
 #endif

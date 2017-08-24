@@ -11,14 +11,19 @@ CNWMessage* (__thiscall *CNWMessage__CNWMessage)(CNWMessage *pThis) = (CNWMessag
 int (__thiscall *CNWMessage__ReadBOOL)(CNWMessage *pThis) = (int(__thiscall*)(CNWMessage *pThis))0x005078C0;
 int (__thiscall *CNWMessage__ReadCResRef)(CNWMessage *pThis, CResRef *a2, signed int a3) = (int (__thiscall*)(CNWMessage *pThis, CResRef *a2, signed int a3))0x00507BC0;
 int (__thiscall *CNWMessage__MessageReadOverflow)(CNWMessage *pThis, int a2) = (int (__thiscall*)(CNWMessage *pThis, int a2))0x00507DD0;
-
+void (__thiscall *CNWMessage_dtor)(CNWMessage *pThis) = (void(__thiscall*)(CNWMessage *pThis))0x534C30;
 void (__thiscall *CNWMessage__CreateWriteMessage)(CNWMessage *pThis, unsigned long l, unsigned long l2, int i) = (void (__thiscall*)(CNWMessage *pThis, unsigned long l, unsigned long l2, int i))0x507E30;
 int  (__thiscall *CNWMessage__GetWriteMessage)(CNWMessage *pThis, unsigned char **c, unsigned long *l) = (int (__thiscall*)(CNWMessage *pThis, unsigned char **c, unsigned long *l))0x508B80;
 //void (__thiscall *CNWMessage__WriteCExoString)(CNWMessage *pThis, CExoString s, int i) = (void(__thiscall*)(CNWMessage *pThis, CExoString s, int i))0x508900;
 void (__thiscall *CNWMessage__WriteINT)(CNWMessage *pThis, int i, int i2) = (void(__thiscall*)(CNWMessage *pThis, int i, int i2))0x5084F0;
+void (__thiscall *CNWMessage__WriteOBJECTIDServer)(CNWMessage *pThis, unsigned long) = (void(__thiscall*)(CNWMessage *pThis, unsigned long))0x508CB0;
 
 CNWMessage_s::CNWMessage_s() {
 	CNWMessage__CNWMessage(this);
+}
+
+CNWMessage_s::~CNWMessage_s() {
+	CNWMessage_dtor(this);
 }
 
 int CNWMessage_s::ReadCResRef(CResRef *ResRef, int a3) {
@@ -55,4 +60,9 @@ void CNWMessage::WriteCExoString(CExoString s, int i)
 void CNWMessage::WriteINT(int i, int i2)
 {
 	return CNWMessage__WriteINT(this,i,i2);
+}
+
+void CNWMessage::WriteOBJECTIDServer(unsigned long oID)
+{
+	CNWMessage__WriteOBJECTIDServer(this,oID);
 }

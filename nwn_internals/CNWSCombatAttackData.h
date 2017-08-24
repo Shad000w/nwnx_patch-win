@@ -31,16 +31,16 @@
   unsigned __int8 AttackMode;
   unsigned __int8 Concealment;
   unsigned __int8 field_33;
-  unsigned __int32 RangedAttack;
-  unsigned __int32 SneakAttack;//probably bool
-  unsigned __int32 DeathAttack;//probably bool
-  unsigned __int32 KillingBlow;
-  unsigned __int32 CoupDeGrace;
-  unsigned __int32 CriticalThreat;
-  unsigned __int32 AttackDeflected;
-  unsigned __int8 AttackResult;
-  unsigned __int8 field_51;
-  unsigned __int16 AttackType;
+  unsigned __int32 RangedAttack;//34
+  unsigned __int32 SneakAttack;//probably bool 38
+  unsigned __int32 DeathAttack;//probably bool 3c
+  unsigned __int32 KillingBlow;//40
+  unsigned __int32 CoupDeGrace;//44
+  unsigned __int32 CriticalThreat;//48
+  unsigned __int32 AttackDeflected;//4c
+  unsigned __int8 AttackResult;//50
+  unsigned __int8 field_51;//51
+  unsigned __int16 AttackType;//52
   unsigned __int16 field_54;
   unsigned __int16 field_56;
   float RangedTargetX;

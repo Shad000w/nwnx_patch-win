@@ -6,6 +6,12 @@ CNWSItem *		(__thiscall *CNWSCombatRound__GetCurrentAttackWeapon)(CNWSCombatRoun
 void			(__thiscall *CNWSCombatRound__StartCombatRound)(CNWSCombatRound *pTHIS, nwn_objid_t oidDefender) = (void (__thiscall *)(CNWSCombatRound *pTHIS, nwn_objid_t oidDefender))0x0052FA00;
 int				(__thiscall *CNWSCombatRound__GetWeaponAttackType)(CNWSCombatRound *pTHIS) = (int(__thiscall*)(CNWSCombatRound *pTHIS))0x00532DB0;
 void			(__thiscall *CNWSCombatRound__UpdateAttackTargetForAllActions)(CNWSCombatRound *pTHIS, unsigned long target) = (void (__thiscall*)(CNWSCombatRound* pTHIS, unsigned long target))0x5331A0;
+void			(__thiscall *CNWSCombatRound__AddSpecialAttack)(CNWSCombatRound *, unsigned short) = (void (__thiscall*)(CNWSCombatRound *, unsigned short))0x531000;
+
+void CNWSCombatRound::AddSpecialAttack(unsigned short nFeat)
+{
+	return CNWSCombatRound__AddSpecialAttack(this,nFeat);
+}
 
 void CNWSCombatRound::UpdateAttackTargetForAllActions(unsigned long target)
 {
