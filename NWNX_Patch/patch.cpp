@@ -1,10 +1,8 @@
-#include "stdafx.h"
 #include "stdio.h"
 #include "stdlib.h"
 #include "nwn_internals.h"
 #include "types.h"
-#include "../NWNXdll/madCHook.h"
-#include "CVirtualMachine.h"
+#include "madCHook.h"
 #include <iostream>
 #pragma comment(lib, "madCHook.lib")
 
