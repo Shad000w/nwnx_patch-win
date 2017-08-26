@@ -4683,10 +4683,6 @@ int __fastcall CNWSMessage__HandlePlayerToServerMessage_Hook(CNWSMessage *pMessa
 char __fastcall CNWSCreatureStats__GetTotalACSkillMod_Hook(CNWSCreatureStats *pThis, void*)
 {
 	Log(2,"o CNWSCreatureStats__GetTotalACSkillMod start\n");
-	if(NoTumbleAC)
-	{
-		return 0;
-	}
 	if(pThis != NULL && pThis->cs_original->obj.obj_vartable.MatchIndex(CExoString("TumbleAC"),VARIABLE_TYPE_INT,0) != NULL)
 	{
 		int nAC = pThis->cs_original->obj.obj_vartable.GetInt(CExoString("TumbleAC"));
@@ -4696,7 +4692,7 @@ char __fastcall CNWSCreatureStats__GetTotalACSkillMod_Hook(CNWSCreatureStats *pT
 			return -127;
 		return nAC;
 	}
-	return CNWSCreatureStats__GetTotalACSkillMod(pThis,NULL);
+	return NoTumbleAC ? 0 : CNWSCreatureStats__GetTotalACSkillMod(pThis,NULL);
 }
 
 unsigned char __fastcall CNWSItem__GetMinEquipLevel_Hook(CNWSItem *pThis, void*)
