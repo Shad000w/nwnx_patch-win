@@ -6300,9 +6300,6 @@ void Hook_Speed()
 void Hook_SpellSlotsCrash()
 {
 	__asm leave
-	__asm mov orig_ebx, ebx
-	__asm mov orig_ecx, ecx
-	__asm mov orig_edx, edx
 	__asm inc edi
 	__asm mov test32, edi
 	__asm mov eax, [esi+24h]
@@ -6317,11 +6314,28 @@ void Hook_SpellSlotsCrash()
 		__asm mov eax, 0x4421C5
 	}
 
-	__asm mov ebx, orig_ebx
-	__asm mov ecx, orig_ecx
-	__asm mov edx, orig_edx
 	__asm jmp eax
 }
+
+void Hook_SpellSlotsCrash2()//0x4420EE
+{
+	__asm leave
+	__asm inc edi
+	__asm mov test32, edi
+	__asm mov eax, [esi]
+	__asm mov test33, eax
+
+	if(test32 < test33)
+	{
+		__asm mov eax, 0x4420C5
+	}
+	else
+	{
+		__asm mov eax, 0x442102
+	}
+
+	__asm jmp eax;
+}	         
 
 void Hook_CustomToken()
 {
@@ -7106,6 +7120,12 @@ void PatchImage()
 	memset((PVOID)pPatch, '\x90', 8);
 	pPatch[0] = 0xE9;
 	*((uint32_t *)(pPatch + 1)) = (uint32_t)Hook_SpellSlotsCrash - (uint32_t)(pPatch + 5);
+	VirtualProtect((DWORD*)pPatch, 1, DefaultPrivs, NULL);
+	pPatch = (unsigned char *) 0x4420EE;
+	VirtualProtect((DWORD*)pPatch, 1, PAGE_EXECUTE_READWRITE, &DefaultPrivs);
+	memset((PVOID)pPatch, '\x90', 8);
+	pPatch[0] = 0xE9;
+	*((uint32_t *)(pPatch + 1)) = (uint32_t)Hook_SpellSlotsCrash2 - (uint32_t)(pPatch + 5);
 	VirtualProtect((DWORD*)pPatch, 1, DefaultPrivs, NULL);
 	fprintf(logFile, "o Patching 255 spellslots crash.\n");
 	fflush(logFile);
