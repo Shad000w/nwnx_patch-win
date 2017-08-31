@@ -56,6 +56,9 @@ CExoString script_defarrow = "70_s2_defarrow";
 CExoString script_healkit = "70_s3_healkit";
 CExoString SpontaneouslyCast = "SpontaneouslyCast";
 CExoString SpellsLearned = "SpellsLearned";
+CExoString aoo_target = "AOO_TARGET";
+CExoString aoo_bypass = "AOO_BYPASS";
+CExoString script_aoo = "70_s2_aoo";
 CExoString bypass_event = "BYPASS_EVENT";
 CExoString script_equ = "70_mod_def_equ";
 CExoString script_rest = "70_mod_def_rest";
@@ -293,8 +296,6 @@ int (__fastcall *CNWSItemPropertyHandler__RemoveHolyAvenger)(CNWSItemPropertyHan
 void (__fastcall *CNWSCreature__SetCombatMode)(CNWSCreature *pThis, void*, unsigned char arg1, int arg2);
 int (__fastcall *CNWSCreature__ToggleMode)(CNWSCreature *pThis, void*, unsigned char arg1);
 void (__fastcall *CNWSCreature__ResolveAmmunition)(CNWSCreature *pThis, void*, unsigned long l);
-void (__fastcall *CNWSCreature__BroadcastAttackOfOpportunity)(CNWSCreature *pThis, void*, unsigned long targetID, int arg1);
-void (__fastcall *CNWSCombatRound__AddAttackOfOpportunity)(CNWSCombatRound *pThis, void*, unsigned long lTarget);
 void (__fastcall *CNWSCreatureStats_ClassInfo__SetNumberMemorizedSpellSlots)(CNWSCreatureStats_ClassInfo *pThis, void *,unsigned char spell_level, unsigned char spell_num);
 int (__fastcall *CNWSItemPropertyHandler__ApplyBonusSpellOfLevel)(CNWSItemPropertyHandler *pThis, void*, CNWSItem *item, int *ip, CNWSCreature *cre, unsigned long l, int i);
 int (__fastcall *CNWSItemPropertyHandler__RemoveBonusSpellOfLevel)(CNWSItemPropertyHandler *pThis, void*, CNWSItem *item, int *ip, CNWSCreature *cre, unsigned long l);
@@ -5485,46 +5486,6 @@ void __fastcall CNWSCreature__SetCombatMode_Hook(CNWSCreature *pThis, void*, uns
 	CNWSCreature__SetCombatMode(pThis, NULL, arg1, arg2);
 }
 
-void __fastcall CNWSCreature__BroadcastAttackOfOpportunity_Hook(CNWSCreature *pThis, void*, unsigned long targetID, int arg1)
-{
-	Log(2,"o CNWSCreature__BroadcastAttackOfOpportunity start\n");
-	pThis->obj.obj_vartable.SetObject(CExoString("AOO_TARGET"),targetID);
-	if(NWN_VirtualMachine->Runscript(&CExoString("70_s2_aoo"),pThis->obj.obj_generic.obj_id,1))
-	{
-		if(pThis->obj.obj_vartable.GetInt(CExoString("AOO_BYPASS")) > 0)
-		{
-			pThis->obj.obj_vartable.DestroyInt(CExoString("AOO_BYPASS"));
-			return;
-		}
-	}
-	CNWSCreature__BroadcastAttackOfOpportunity(pThis,NULL,targetID,arg1);
-}
-
-void __fastcall CNWSCombatRound__AddAttackOfOpportunity_Hook(CNWSCombatRound *pThis, void*, unsigned long lTarget)
-{
-	Log(2,"o CNWSCombatRound__AddAttackOfOpportunity start\n");
-	if(pThis->Creature->obj.obj_vartable.MatchIndex(CExoString("AOO_SNEAK"),VARIABLE_TYPE_INT,0))
-	{
-		switch(pThis->Creature->obj.obj_vartable.GetInt(CExoString("AOO_SNEAK")))
-		{
-		case 3:
-			pThis->GetAttack(pThis->CurrentAttack)->DeathAttack = 1;
-		case 1:
-			pThis->GetAttack(pThis->CurrentAttack)->SneakAttack = 1;
-			break;
-		case 2:
-			pThis->GetAttack(pThis->CurrentAttack)->DeathAttack = 1;
-			break;
-		default:
-			pThis->GetAttack(pThis->CurrentAttack)->DeathAttack = 0;
-			pThis->GetAttack(pThis->CurrentAttack)->SneakAttack = 0;
-			break;
-		}
-		pThis->Creature->obj.obj_vartable.DestroyInt(CExoString("AOO_SNEAK"));
-	}
-	CNWSCombatRound__AddAttackOfOpportunity(pThis,NULL,lTarget);
-}
-
 int __fastcall CNWSCreatureStats__GetEffectImmunity_Hook(CNWSCreatureStats *pThis, void*, unsigned char immunity_type, CNWSCreature *cre)
 {
 	Log(2,"o CNWSCreatureStats__GetEffectImmunity start\n");
@@ -5896,7 +5857,6 @@ void HookFunctions()
 
 	CreateHook(0x4778B0,CNWSCreatureStats__GetCriticalHitRoll_Hook, (PVOID*)&CNWSCreatureStats__GetCriticalHitRoll, "DisableGetCriticalHitRollHook","Ki critical offhand bug");
 	CreateHook(0x477A20,CNWSCreatureStats__GetCriticalHitMultiplier_Hook, (PVOID*)&CNWSCreatureStats__GetCriticalHitMultiplier, "DisableGetCriticalHitRollHook","Enabling critical hit multiplier modification");
-	CreateHook(0x4A27C0,CNWSCreature__BroadcastAttackOfOpportunity_Hook,(PVOID*)&CNWSCreature__BroadcastAttackOfOpportunity, "DisableAttackOfOpportunity","Attack of opportunity");
 
 	CreateHook(0x547580,CNWSCreature__ResolveAttack_Hook, (PVOID*)&CNWSCreature__ResolveAttack, "DisableResolveAttackHook","Circle kick");
 	CreateHook(0x491F10,CNWSCreature__AddEquipItemActions_Hook, (PVOID*)&CNWSCreature__AddEquipItemActions, "DisableAddEquipItemActionsHook","Double equip exploit");
@@ -5965,7 +5925,6 @@ void HookFunctions()
 	CreateHook(0x47DED0,CNWSCreatureStats__GetBaseWillSavingThrow_Hook,(PVOID*)&CNWSCreatureStats__GetBaseWillSavingThrow, "DisableSavingThrows", "Sight of Gruumsh +2bonus to will.");
 
 	CreateHook(0x52FA00,CNWSCombatRound__StartCombatRound_Hook,(PVOID*)&CNWSCombatRound__StartCombatRound, "DisableStartCombatRound", "Enabling combat round modifications.");
-	CreateHook(0x5325D0,CNWSCombatRound__AddAttackOfOpportunity_Hook,(PVOID*)&CNWSCombatRound__AddAttackOfOpportunity,"DisableAttackOfOpportunity","Enabling attack of opportunity modifications.");
 	CreateHook(0x54D120,CNWSCreature__ApplyOnHitCastSpell_Hook,(PVOID*)&CNWSCreature__ApplyOnHitCastSpell,"DisableApplyOnHitCastSpell","Enabling GetIsAttackSneakAttack function.");
 	CreateHook(0x530E40,CNWSCombatRound__InitializeNumberOfAttacks_Hook,(PVOID*)&CNWSCombatRound__InitializeNumberOfAttacks,"DisableInitializeNumberOfAttacks","Enabling number of attacks modifications.");
 
@@ -6463,6 +6422,10 @@ void Hook_ModuleEvents()//0x4D224E - CNWSModule::EventHandler
 	{
 		NWN_VirtualMachine->Runscript(&script_user,test32);
 	}
+	else if(orig_eax == 15)
+	{
+		NWN_VirtualMachine->Runscript(&script_leave,test32);
+	}
 
 	module = NWN_AppManager->app_server->srv_internal->GetModule();
 	
@@ -6518,6 +6481,66 @@ void Hook_OnPlayerChat()//0x534F70 - CNWSMessage::HandlePlayerToServerChatMessag
 	}
 
 	Hook_ret = 0x534F88;
+	__asm jmp Hook_ret;
+}
+
+void Hook_AOO1()//0x4A2CBE - CNWSCreature::BroadcastAttackOfOpportunity
+{
+	__asm leave
+	__asm mov orig_ebx, ebx
+	__asm mov DWORD PTR self, esi
+	__asm mov edx, [ebx+4h]
+	__asm mov test32, edx
+
+	//fprintf_s(logFile, "o Hook_AOO1, target: %x, self: %x\n",test32,self->obj.obj_generic.obj_id);fflush(logFile);
+	
+	self->obj.obj_vartable.SetObject(aoo_target,test32);
+	NWN_VirtualMachine->Runscript(&script_aoo,self->obj.obj_generic.obj_id);
+	if(self->obj.obj_vartable.GetInt(aoo_bypass) == 1)
+	{
+		self->obj.obj_vartable.DestroyInt(aoo_bypass);
+		Hook_ret = 0x4A2D10;
+	}
+	else if(self->cre_attempted_target == OBJECT_INVALID)
+	{
+		Hook_ret = 0x4A2CCA;
+	}
+	else
+	{
+		Hook_ret = 0x4A2CDB;
+	}
+
+	__asm mov ebx, orig_ebx
+	__asm jmp Hook_ret;
+}
+
+void Hook_AOO2()//0x4A3025 - CNWSCreature::BroadcastAttackOfOpportunity
+{
+	__asm leave
+	__asm mov orig_ebx, ebx
+	__asm mov DWORD PTR self, esi
+	__asm mov edx, [ebx+4h]
+	__asm mov test32, edx
+
+	//fprintf_s(logFile, "o Hook_AOO2, target: %x, self: %x\n",test32,self->obj.obj_generic.obj_id);fflush(logFile);
+	
+	self->obj.obj_vartable.SetObject(aoo_target,test32);
+	NWN_VirtualMachine->Runscript(&script_aoo,self->obj.obj_generic.obj_id);
+	if(self->obj.obj_vartable.GetInt(aoo_bypass) == 1)
+	{
+		self->obj.obj_vartable.DestroyInt(aoo_bypass);
+		Hook_ret = 0x4A3071;
+	}
+	else if(self->cre_attempted_target == OBJECT_INVALID)
+	{
+		Hook_ret = 0x4A3031;
+	}
+	else
+	{
+		Hook_ret = 0x4A3042;
+	}
+
+	__asm mov ebx, orig_ebx
 	__asm jmp Hook_ret;
 }
 
@@ -7345,7 +7368,32 @@ void PatchImage()
 		pPatch[0] = 0xE9;
 		*((uint32_t *)(pPatch + 1)) = (uint32_t)Hook_OnPlayerUnEquip - (uint32_t)(pPatch + 5);
 		VirtualProtect((DWORD*)pPatch, 1, DefaultPrivs, NULL);
-		fprintf(logFile, "o Enabling module events duplicates.\n");
+		fprintf(logFile, "o Enabling module event duplicates.\n");
+	}
+	else
+	{
+		fprintf(logFile, "o Module event duplicates disabled.\n");
+	}
+
+	if(!GetPrivateProfileInt("Community Patch","DisableAttackOfOpportunity",0,"./nwnplayer.ini"))
+	{	
+		pPatch = (unsigned char *) 0x4A2CBE;//CNWSCreature::BroadcastAttackOfOpportunity
+		VirtualProtect((DWORD*)pPatch, 1, PAGE_EXECUTE_READWRITE, &DefaultPrivs);
+		memset((PVOID)pPatch, '\x90', 8);
+		pPatch[0] = 0xE9;
+		*((uint32_t *)(pPatch + 1)) = (uint32_t)Hook_AOO1 - (uint32_t)(pPatch + 5);
+		VirtualProtect((DWORD*)pPatch, 1, DefaultPrivs, NULL);
+		pPatch = (unsigned char *) 0x4A3025;//CNWSCreature::BroadcastAttackOfOpportunity
+		VirtualProtect((DWORD*)pPatch, 1, PAGE_EXECUTE_READWRITE, &DefaultPrivs);
+		memset((PVOID)pPatch, '\x90', 8);
+		pPatch[0] = 0xE9;
+		*((uint32_t *)(pPatch + 1)) = (uint32_t)Hook_AOO2 - (uint32_t)(pPatch + 5);
+		VirtualProtect((DWORD*)pPatch, 1, DefaultPrivs, NULL);
+		fprintf(logFile, "o Softcoding Attacks of Opportunity.\n");
+	}
+	else
+	{
+		fprintf(logFile, "o Softcoding Attack of Opportunity disabled.\n");
 	}
 
 	pPatch = (unsigned char *) 0x53F564;
