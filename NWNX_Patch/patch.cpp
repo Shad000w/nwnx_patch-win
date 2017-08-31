@@ -909,9 +909,10 @@ int __fastcall CNWSCreatureStats_ClassInfo__ConfirmDomainSpell_Hook(CNWSCreature
 				return 1;
 			}
 		}
-		if(pThis->cl_domain_2 != 255 && (cDomain = NWN_Rules->GetDomain(pThis->cl_domain_2)))
+		if(pThis->cl_domain_2 != 255)
 		{
-			if(cDomain->SpellLevel[domain_lvl] == spell_id)
+			cDomain = NWN_Rules->GetDomain(pThis->cl_domain_2);
+			if(cDomain && cDomain->SpellLevel[domain_lvl] == spell_id)
 			{
 				return 1;
 			}
@@ -928,7 +929,7 @@ unsigned char __fastcall CNWSCreatureStats__ComputeNumberKnownSpellsLeft_Hook(CN
 		return CNWSCreatureStats__ComputeNumberKnownSpellsLeft(pThis,NULL,cls_pos,spell_lvl);
 	}
 	if(cls_pos >= pThis->cs_classes_len) return 0;//sometimes engine passes 254/255 into class position, in this case we need  to return 0
-	unsigned char retVal;
+	unsigned char retVal = 0;
 	unsigned char cls_id = pThis->cs_classes[cls_pos].cl_class;
 	if(cls_id != CLASS_TYPE_INVALID)
 	{
@@ -936,10 +937,10 @@ unsigned char __fastcall CNWSCreatureStats__ComputeNumberKnownSpellsLeft_Hook(CN
 		if(cClass && cClass->SpellCaster && (cls_cast_type[cls_id] & CAST_TYPE_SPONTANEOUS))
 		{
 			CNWClass *otherClass;
-			int bArcane = cls_cast_type[cls_id] & CAST_TYPE_ARCANE;
+			unsigned int bArcane = cls_cast_type[cls_id] & CAST_TYPE_ARCANE;
 			bool can_enhance_with_prc = true;
-			int level = pThis->cs_classes[cls_pos].cl_level;
-			int spellMod = 0;
+			unsigned char level = pThis->cs_classes[cls_pos].cl_level;
+			unsigned char spellMod = 0;
 			if((cls_cast_type[cls_id] & CAST_TYPE_SPONTANEOUS) && PrestigeClassAffectSpontaneousCasters)
 			{
 				for(unsigned char x=0;x < pThis->cs_classes_len;x++)
@@ -982,7 +983,7 @@ unsigned char __fastcall CNWSCreatureStats__ComputeNumberKnownSpellsLeft_Hook(CN
 	return retVal;
 }
 
-int __fastcall CNWRules__IsArcaneClass_Hook(CNWRules *pThis, void *, unsigned char cls_id)
+int __fastcall CNWRules__IsArcaneClass_Hook(CNWRules *, void *, unsigned char cls_id)
 {//ma vliv na nektere pravidla jako hluchota, somatic spell component, prestige class spell progression
 	Log(2,"o CNWRules__IsArcaneClass start\n");
 	if(!classes_2da)
@@ -1026,7 +1027,7 @@ unsigned char __fastcall CNWSpell__GetSpellLevel_Hook(CNWSpell *pThis, void *, u
 		delete colname;
 		if(spells_level_2da->GetINTEntry_strcol(pThis->sp_ID,column,&retVal))
 		{
-			return retVal;
+			return (unsigned char)retVal;
 		}
 		return 255;
 		//fprintf(logFile, "o CNWSpell__GetSpellLevel: spell_id: %i, cls_id: %i, retval: %i\n",pThis->sp_ID,cls_id,retVal);fflush(logFile);
@@ -1038,7 +1039,7 @@ void __fastcall CNWSCreatureStats__UpdateNumberMemorizedSpellSlots_Hook(CNWSCrea
 {
 	Log(2,"o CNWSCreatureStats__UpdateNumberMemorizedSpellSlots start\n");
 	if(helper == 56) return;//called from CNWSCreatureStats::ComputeFeatBonuses
-	CNWClass *cClass;int spell_lvl, num_slots;uint8_t cls_id;
+	CNWClass *cClass;unsigned char spell_lvl, num_slots, cls_id;
 	for(unsigned char x = 0;x < pThis->cs_classes_len; x++)
 	{
 		cls_id = pThis->cs_classes[x].cl_class;
@@ -1072,10 +1073,10 @@ unsigned char __fastcall CNWSCreatureStats__GetSpellGainWithBonus_Hook(CNWSCreat
 		if(cClass && cClass->SpellCaster)
 		{
 			CNWClass *otherClass;
-			int bArcane = cls_cast_type[cls_id] & CAST_TYPE_ARCANE;
+			unsigned int bArcane = cls_cast_type[cls_id] & CAST_TYPE_ARCANE;
 			int can_enhance_with_prc = 1;
-			int level = pThis->cs_classes[cls_pos].cl_level;
-			int spellMod = 0;
+			unsigned char level = pThis->cs_classes[cls_pos].cl_level;
+			unsigned char spellMod = 0;
 			if(!(cls_cast_type[cls_id] & CAST_TYPE_SPONTANEOUS) || PrestigeClassAffectSpontaneousCasters)
 			{
 				for(unsigned char x=0;x < pThis->cs_classes_len;x++)
@@ -1168,10 +1169,10 @@ unsigned char __fastcall CNWSCreatureStats__GetSpellGainWithBonusAfterLevelUp_Ho
 		if(cClass && cClass->SpellCaster)
 		{
 			CNWClass *otherClass;
-			int bArcane = cls_cast_type[cls_id] & CAST_TYPE_ARCANE;
+			unsigned int bArcane = cls_cast_type[cls_id] & CAST_TYPE_ARCANE;
 			int can_enhance_with_prc = 1;
-			int level = is_first_lvl ? 1 : pThis->cs_classes[cls_pos].cl_level+1;
-			int spellMod = 0;
+			unsigned char level = is_first_lvl ? 1 : pThis->cs_classes[cls_pos].cl_level+1;
+			unsigned char spellMod = 0;
 			if(!(cls_cast_type[cls_id] & CAST_TYPE_SPONTANEOUS) || PrestigeClassAffectSpontaneousCasters)
 			{
 				for(unsigned char x=0;x < pThis->cs_classes_len;x++)
@@ -1471,7 +1472,7 @@ void __fastcall CGameEffect__SetCreator_Hook(CGameEffect *pThis, void*, unsigned
 	}
 }
 
-int __fastcall CNWVirtualMachineCommands__ExecuteCommandSetSubType_Hook(CVirtualMachineCommands *vm_cmds, void*, int cmd, int args)
+int __fastcall CNWVirtualMachineCommands__ExecuteCommandSetSubType_Hook(CVirtualMachineCommands *, void*, int cmd, int)
 {
 	Log(2,"o CNWVirtualMachineCommands__ExecuteCommandSetSubType start\n");
 	CGameEffect *eff;
@@ -1491,7 +1492,7 @@ int __fastcall CNWVirtualMachineCommands__ExecuteCommandSetSubType_Hook(CVirtual
 	}
 	if(mod && mod->mod_vartable.MatchIndex(CExoString("SetEffectTrueType"),VARIABLE_TYPE_INT,0) != NULL)
 	{
-		eff->eff_type = mod->mod_vartable.GetInt(CExoString("SetEffectTrueType"));
+		eff->eff_type = (unsigned short)mod->mod_vartable.GetInt(CExoString("SetEffectTrueType"));
 	}
 	else if(mod && mod->mod_vartable.MatchIndex(CExoString("SetEffectSpellId"),VARIABLE_TYPE_INT,0) != NULL)
 	{
@@ -1515,7 +1516,7 @@ int __fastcall CNWVirtualMachineCommands__ExecuteCommandSetSubType_Hook(CVirtual
 	else if(mod && mod->mod_vartable.MatchIndex(CExoString("GetEffect"),VARIABLE_TYPE_INT,0) != NULL && mod->mod_vartable.MatchIndex(CExoString("GetEffect"),VARIABLE_TYPE_OBJECT,0) != NULL)
 	{
 		unsigned long id = mod->mod_vartable.GetObject(CExoString("GetEffect"));
-		int th = mod->mod_vartable.GetInt(CExoString("GetEffect"));
+		unsigned int th = (unsigned int)mod->mod_vartable.GetInt(CExoString("GetEffect"));
 		CNWSObject *obj = (CNWSObject*)NWN_AppManager->app_server->srv_internal->GetGameObject(id);
 		if(obj)
 		{
@@ -1562,7 +1563,7 @@ int __fastcall CNWVirtualMachineCommands__ExecuteCommandSetSubType_Hook(CVirtual
 	return 0;
 }
 
-int __fastcall CNWVirtualMachineCommands__ExecuteCommandGetEffectSubType_Hook(CVirtualMachineCommands *vm_cmds, void*, int cmd, int args)
+int __fastcall CNWVirtualMachineCommands__ExecuteCommandGetEffectSubType_Hook(CVirtualMachineCommands *, void*, int, int)
 {
 	Log(2,"o CNWVirtualMachineCommands__ExecuteCommandGetEffectSubType start\n");
 	CGameEffect *eff;
@@ -1605,7 +1606,7 @@ int __fastcall CNWVirtualMachineCommands__ExecuteCommandGetEffectSubType_Hook(CV
 	return 0;
 }
 
-int __fastcall CNWVirtualMachineCommands__ExecuteCommandApplyEffectOnObject_Hook(CVirtualMachineCommands *vm_cmds, void*, int cmd, int args)
+int __fastcall CNWVirtualMachineCommands__ExecuteCommandApplyEffectOnObject_Hook(CVirtualMachineCommands *, void*, int, int)
 {
 	Log(2,"o CNWVirtualMachineCommands__ExecuteCommandApplyEffectOnObject start\n");
 	int32_t dur_type;
@@ -4110,7 +4111,7 @@ void NWNXPatch_Funcs(CNWSScriptVarTable *pThis, int nFunc, char *Params)
 					unsigned char cls_pos = 0;
 					for(;cls_pos < cre->cre_stats->cs_classes_len;cls_pos++)
 					{
-						if(cre->cre_stats->cs_classes[cls_pos].cl_class == cls_id)
+						if(cre->cre_stats->cs_classes[cls_pos].cl_class == (unsigned char)cls_id)
 						{
 							break;
 						}
@@ -4129,15 +4130,15 @@ void NWNXPatch_Funcs(CNWSScriptVarTable *pThis, int nFunc, char *Params)
 						}
 						if(cls_pos != 255)
 						{
-							unsigned char backup = cls_cast_type[cls_id];
+							unsigned char backup = cls_cast_type[(unsigned char)cls_id];
 							if(ignore_limit)
 							{
-								cls_cast_type[cls_id] = cls_cast_type[cls_id]^CAST_TYPE_SPONTANEOUS;//small engine hack to ignore limit of number known spells left
+								cls_cast_type[(unsigned char)cls_id] = cls_cast_type[(unsigned char)cls_id]^CAST_TYPE_SPONTANEOUS;//small engine hack to ignore limit of number known spells left
 							}
 							cre->cre_stats->AddKnownSpell(cls_pos,spell_id);
 							if(ignore_limit)
 							{
-								cls_cast_type[cls_id] = backup;
+								cls_cast_type[(unsigned char)cls_id] = backup;
 							}
 						}
 						else
@@ -4779,7 +4780,7 @@ void __fastcall CNWSCreature__ResolveRangedSpecialAttack_Hook(CNWSCreature *pThi
 		pThis->obj.obj_vartable.SetInt(CExoString("SPECIAL_ATTACK_DATA1"),attack->GetTotalDamage(1),1);
 		pThis->obj.obj_vartable.SetInt(CExoString("SPECIAL_ATTACK_DATA2"),attack->ToHitRoll+attack->ToHitMod,1);
 		pThis->obj.obj_vartable.SetObject(CExoString("SPECIAL_ATTACK_TARGET"),target->obj_generic.obj_id);
-		if(!NWN_VirtualMachine->Runscript(&CExoString("70_s2_specattk"),pThis->obj.obj_generic.obj_id,1))
+		if(!NWN_VirtualMachine->Runscript(&CExoString("70_s2_specattk"),pThis->obj.obj_generic.obj_id))
 		{
 			//this will happen if user doesn't have script 70_s2_specattk which means he most likely uses plugin but not patch
 			return CNWSCreature__ResolveRangedSpecialAttack(pThis,NULL,target,a1);
@@ -5009,7 +5010,7 @@ void __fastcall CNWSCreatureStats_ClassInfo__SetNumberMemorizedSpellSlots_Hook(C
 	CNWSCreatureStats_ClassInfo__SetNumberMemorizedSpellSlots(pThis,NULL,spell_level,spell_num);
 }
 
-int __fastcall CNWSItemPropertyHandler__RemoveHolyAvenger_Hook(CNWSItemPropertyHandler *pThis, void*, CNWSItem *item, int *ip, CNWSCreature *cre, unsigned long l)
+int __fastcall CNWSItemPropertyHandler__RemoveHolyAvenger_Hook(CNWSItemPropertyHandler *, void*, CNWSItem *item, int *, CNWSCreature *cre, unsigned long)
 {
 	Log(2,"o CNWSItemPropertyHandler__RemoveHolyAvenger start\n");
 	for(unsigned int nEffect = 0;nEffect < cre->obj.obj_effects_len;nEffect++)
@@ -5281,7 +5282,7 @@ int __fastcall CNWSCreatureStats__GetWeaponFocus_Hook(CNWSCreatureStats *pThis, 
 		weaponfeats_2da->GetINTEntry_intcol(item ? item->it_baseitemtype : 36,1,&retVal);
 		if(retVal > 0)
 		{
-			return pThis->HasFeat(retVal);
+			return pThis->HasFeat((unsigned short)retVal);
 		}
 		return FALSE;
 	}
@@ -5301,7 +5302,7 @@ int __fastcall CNWSCreatureStats__GetWeaponImprovedCritical_Hook(CNWSCreatureSta
 		weaponfeats_2da->GetINTEntry_intcol(item ? item->it_baseitemtype : 36,2,&retVal);
 		if(retVal > 0)
 		{
-			return pThis->HasFeat(retVal);
+			return pThis->HasFeat((unsigned short)retVal);
 		}
 		return FALSE;
 	}
@@ -5317,7 +5318,7 @@ int __fastcall CNWSCreatureStats__GetWeaponSpecialization_Hook(CNWSCreatureStats
 		weaponfeats_2da->GetINTEntry_intcol(item ? item->it_baseitemtype : 36,3,&retVal);
 		if(retVal > 0)
 		{
-			return pThis->HasFeat(retVal);
+			return pThis->HasFeat((unsigned short)retVal);
 		}
 		return FALSE;
 	}
@@ -5333,7 +5334,7 @@ int __fastcall CNWSCreatureStats__GetEpicWeaponFocus_Hook(CNWSCreatureStats *pTh
 		weaponfeats_2da->GetINTEntry_intcol(item ? item->it_baseitemtype : 36,4,&retVal);
 		if(retVal > 0)
 		{
-			return pThis->HasFeat(retVal);
+			return pThis->HasFeat((unsigned short)retVal);
 		}
 		return FALSE;
 	}
@@ -5349,7 +5350,7 @@ int __fastcall CNWSCreatureStats__GetEpicWeaponSpecialization_Hook(CNWSCreatureS
 		weaponfeats_2da->GetINTEntry_intcol(item ? item->it_baseitemtype : 36,5,&retVal);
 		if(retVal > 0)
 		{
-			return pThis->HasFeat(retVal);
+			return pThis->HasFeat((unsigned short)retVal);
 		}
 		return FALSE;
 	}
@@ -5365,7 +5366,7 @@ int __fastcall CNWSCreatureStats__GetEpicWeaponOverwhelmingCritical_Hook(CNWSCre
 		weaponfeats_2da->GetINTEntry_intcol(item ? item->it_baseitemtype : 36,6,&retVal);
 		if(retVal > 0)
 		{
-			return pThis->HasFeat(retVal);
+			return pThis->HasFeat((unsigned short)retVal);
 		}
 		return FALSE;
 	}
@@ -5381,7 +5382,7 @@ int __fastcall CNWSCreatureStats__GetEpicWeaponDevastatingCritical_Hook(CNWSCrea
 		weaponfeats_2da->GetINTEntry_intcol(item ? item->it_baseitemtype : 36,7,&retVal);
 		if(retVal > 0)
 		{
-			return pThis->HasFeat(retVal);
+			return pThis->HasFeat((unsigned short)retVal);
 		}
 		return FALSE;
 	}
@@ -5397,7 +5398,7 @@ int __fastcall CNWSCreatureStats__GetIsWeaponOfChoice_Hook(CNWSCreatureStats *pT
 		weaponfeats_2da->GetINTEntry_intcol(BaseItemType,8,&retVal);
 		if(retVal > 0)
 		{
-			return pThis->HasFeat(retVal);
+			return pThis->HasFeat((unsigned short)retVal);
 		}
 		return FALSE;
 	}
@@ -5626,7 +5627,7 @@ void __fastcall CNWSCreature__SummonAnimalCompanion_Hook(CNWSCreature *pThis, vo
 	CNWSPlayer *player = NWN_AppManager->app_server->srv_internal->GetClientObjectByObjectId(pThis->obj.obj_generic.obj_id);
 	if(player)
 	{
-		unsigned char expansion = NWN_Rules->GetFamiliarExpansionLevel(pThis->cre_stats->cs_acomp_type,1);
+		unsigned char expansion = NWN_Rules->GetFamiliarExpansionLevel((unsigned char)pThis->cre_stats->cs_acomp_type,1);
 		if(expansion > 0 && !player->HasExpansionPack(expansion,1))
 		{
 			fprintf(logFile, "o Error when summoning animal companion: player doesn't have required expansion pack!\n");fflush(logFile);
@@ -5704,7 +5705,7 @@ void __fastcall CNWSCreature__SummonFamiliar_Hook(CNWSCreature *pThis, void*)
 	CNWSPlayer *player = NWN_AppManager->app_server->srv_internal->GetClientObjectByObjectId(pThis->obj.obj_generic.obj_id);
 	if(player)
 	{
-		unsigned char expansion = NWN_Rules->GetFamiliarExpansionLevel(pThis->cre_stats->cs_famil_type,0);
+		unsigned char expansion = NWN_Rules->GetFamiliarExpansionLevel((unsigned char)pThis->cre_stats->cs_famil_type,0);
 		if(expansion > 0 && !player->HasExpansionPack(expansion,1))
 		{
 			fprintf(logFile, "o Error when summoning familiar: player doesn't have required expansion pack!\n");fflush(logFile);
@@ -5738,7 +5739,6 @@ void __fastcall CNWSCreature__SummonFamiliar_Hook(CNWSCreature *pThis, void*)
 		}
 		else if(level > 40) level = 40;
 		C2DA *fam2da = NWN_Rules->ru_2das->tda_hen_familiar;
-		int familiar_type = pThis->cre_stats->cs_famil_type;
 		CExoString *base = new CExoString();
 		if(!fam2da->GetCExoStringEntry(pThis->cre_stats->cs_famil_type,CExoString("BASERESREF"),base))
 		{
