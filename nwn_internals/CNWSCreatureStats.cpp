@@ -42,7 +42,7 @@ int 			(__thiscall *CNWSCreatureStats__GetIsWeaponOfChoice)(CNWSCreatureStats *p
 unsigned char	(__thiscall *CNWSCreatureStats__GetLevel)(CNWSCreatureStats *pThis, int bCountNegativeLevels) = (unsigned char (__thiscall*)(CNWSCreatureStats *pThis, int bCountNegativeLevels))0x0046DB40;
 int				(__thiscall *CNWSCreatureStats__GetMeleeAttackBonus)(CNWSCreatureStats *, int, int, int) = (int (__thiscall *)(CNWSCreatureStats *, int, int, int))0x0046FB40;
 unsigned char 	(__thiscall *CNWSCreatureStats__GetFeatSourceClass)(CNWSCreatureStats *pThis, unsigned short nFeat) = (unsigned char(__thiscall*)(CNWSCreatureStats *pThis, unsigned short))0x48DF60;
-CNWSCreatureClass* (__thiscall *CNWSCreatureStats__GetClassInfo)(CNWSCreatureStats *pTHIS, unsigned char cls) = (CNWSCreatureClass* (__thiscall*)(CNWSCreatureStats*, unsigned char))0x4732A0;
+CNWSCreatureStats_ClassInfo* (__thiscall *CNWSCreatureStats__GetClassInfo)(CNWSCreatureStats *pTHIS, unsigned char cls) = (CNWSCreatureStats_ClassInfo* (__thiscall*)(CNWSCreatureStats*, unsigned char))0x4732A0;
 unsigned char	(__thiscall *CNWSCreatureStats__GetClassLevel)(CNWSCreatureStats *pThis, unsigned char, int) = (unsigned char (__thiscall*)(CNWSCreatureStats *pThis, unsigned char, int))0x474B80;
 int 			(__thiscall *CNWSCreatureStats__GetNumLevelsOfClass)(CNWSCreatureStats *pThis, unsigned char) = (int (__thiscall*)(CNWSCreatureStats *pThis, unsigned char))0x0048F400;
 int 			(__thiscall *CNWSCreatureStats__GetNumLevelsOfClass2)(CNWSCreatureStats *pThis, unsigned char, int) = (int (__thiscall*)(CNWSCreatureStats *pThis, unsigned char, int))0x0048F240;
@@ -93,7 +93,7 @@ void (__thiscall *CNWSCreatureStats__AdjustSpellUsesPerDay)(CNWSCreatureStats*) 
 
 void (__thiscall *CNWSCreatureStats__ComputeFeatBonuses)(CNWSCreatureStats*, CExoArrayList_uint16*, int, int) = (void (__thiscall*)(CNWSCreatureStats*, CExoArrayList_uint16*, int, int))0x48E850;
 
-CNWSCreatureClass* CNWSCreatureStats::GetInfo(unsigned char cls)
+CNWSCreatureStats_ClassInfo* CNWSCreatureStats::GetInfo(unsigned char cls)
 {	
 	return CNWSCreatureStats__GetClassInfo(this, cls);
 }

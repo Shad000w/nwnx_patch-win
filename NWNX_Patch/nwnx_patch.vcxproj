@@ -80,7 +80,7 @@
   <ItemGroup>
     <ClCompile Include="..\nwn_internals\CItemRepository.cpp" />
     <ClCompile Include="..\nwn_internals\CNWSCombatAttackData.cpp" />
-    <ClCompile Include="..\nwn_internals\CNWSCreatureClass.cpp" />
+    <ClCompile Include="..\nwn_internals\CNWSCreatureStats_ClassInfo.cpp" />
     <ClCompile Include="..\nwn_internals\CNWSModule.cpp" />
     <ClCompile Include="..\nwn_internals\CNWSpell.cpp" />
     <ClCompile Include="nwn_internals.cpp" />
@@ -176,9 +176,9 @@
     <ClInclude Include="..\nwn_internals\CNWSCombatAttackData.h" />
     <ClInclude Include="..\nwn_internals\CNWSCombatRound.h" />
     <ClInclude Include="..\nwn_internals\CNWSCreature.h" />
+    <ClInclude Include="..\nwn_internals\CNWSCreatureStats_ClassInfo.h" />
     <ClInclude Include="..\nwn_internals\CNWSCreature_vtable.h" />
     <ClInclude Include="..\nwn_internals\CNWSCreatureAppearanceInfo.h" />
-    <ClInclude Include="..\nwn_internals\CNWSCreatureClass.h" />
     <ClInclude Include="..\nwn_internals\CNWSCreatureEventHandler.h" />
     <ClInclude Include="..\nwn_internals\CNWSCreatureStats.h" />
     <ClInclude Include="..\nwn_internals\CNWSDoor.h" />
@@ -233,7 +233,6 @@
     <ClInclude Include="..\nwn_internals\nwnx_funcs_const.h" />
     <ClInclude Include="..\nwn_internals\Vector.h" />
     <ClInclude Include="nwn_internals.h" />
-    <ClInclude Include="StdAfx.h" />
     <ClInclude Include="types.h" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />

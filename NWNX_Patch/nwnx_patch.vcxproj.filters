@@ -162,9 +162,6 @@
     <ClCompile Include="..\nwn_internals\CWorldTimer.cpp">
       <Filter>Source Files\nwn_internals</Filter>
     </ClCompile>
-    <ClCompile Include="..\nwn_internals\CNWSCreatureClass.cpp">
-      <Filter>Source Files\nwn_internals</Filter>
-    </ClCompile>
     <ClCompile Include="patch.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
@@ -178,6 +175,9 @@
       <Filter>Source Files\nwn_internals</Filter>
     </ClCompile>
     <ClCompile Include="..\nwn_internals\CNWSModule.cpp">
+      <Filter>Source Files\nwn_internals</Filter>
+    </ClCompile>
+    <ClCompile Include="..\nwn_internals\CNWSCreatureStats_ClassInfo.cpp">
       <Filter>Source Files\nwn_internals</Filter>
     </ClCompile>
   </ItemGroup>
@@ -300,9 +300,6 @@
       <Filter>Source Files\nwn_internals</Filter>
     </ClInclude>
     <ClInclude Include="..\nwn_internals\CNWSCreatureAppearanceInfo.h">
-      <Filter>Source Files\nwn_internals</Filter>
-    </ClInclude>
-    <ClInclude Include="..\nwn_internals\CNWSCreatureClass.h">
       <Filter>Source Files\nwn_internals</Filter>
     </ClInclude>
     <ClInclude Include="..\nwn_internals\CNWSCreatureEventHandler.h">
@@ -461,9 +458,6 @@
     <ClInclude Include="nwn_internals.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="StdAfx.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
     <ClInclude Include="types.h">
       <Filter>Header Files</Filter>
     </ClInclude>
@@ -483,6 +477,9 @@
       <Filter>Source Files\nwn_internals</Filter>
     </ClInclude>
     <ClInclude Include="..\nwn_internals\CNWSModule.h">
+      <Filter>Source Files\nwn_internals</Filter>
+    </ClInclude>
+    <ClInclude Include="..\nwn_internals\CNWSCreatureStats_ClassInfo.h">
       <Filter>Source Files\nwn_internals</Filter>
     </ClInclude>
   </ItemGroup>

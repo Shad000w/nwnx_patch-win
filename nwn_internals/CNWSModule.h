@@ -3,19 +3,19 @@
 
 struct CNWSModule_s{
 	uint32_t obj_type;
-	nwn_objid_t					obj_id			/* 0x004 */;
+	uint32_t					obj_id			/* 0x004 */;
 	uint32_t					field_08;
 	uint32_t					field_0C;
 	uint32_t					field_10;
 	uint32_t					field_14;
-	nwn_objid_t					*xmod_areas;//18
-	uint32_t					xmod_areas_len;//1c
-	uint32_t					xmod_areas_alloc;//20
+	uint32_t					field_18;
+	uint32_t					field_1C;
+	uint32_t					field_20;
 	uint32_t					field_24;
 	uint32_t					field_28;
 	uint32_t					field_2C;
 	uint32_t					field_30;
-	nwn_objid_t					*mod_areas;//34
+	uint32_t					*mod_areas;
 	uint32_t					mod_areas_len;
 	uint32_t					mod_areas_alloc;
 	uint32_t					field_40;
@@ -67,83 +67,79 @@ struct CNWSModule_s{
 	CExoString					Mod_OnPlrUnEqItm;
 	CExoString					Mod_OnPlrChat;  
 */
-	uint32_t					field_140;
-	uint32_t					field_144;
+    uint32_t m_nLastHeartbeatScriptCalendarDay;
+    uint32_t m_nLastHeartbeatScriptTimeOfDay;
 	uint32_t					field_148;
 	uint32_t					field_14C;
 	uint32_t					field_150;//CExoArrayList_ptr			mod_lookuptable;/* 0x0150 */
 	uint32_t					field_154;
 	uint32_t					field_158;
 	uint32_t					field_15C;
-	uint32_t					field_160;
-	nwn_objid_t					mod_last_enter;/* 0x0164 */
-	nwn_objid_t					mod_last_exit;/* 0x0168 */
-	nwn_objid_t					mod_last_item_aquired;/* 0x016C */
-	nwn_objid_t					mod_last_item_aquired_from;/* 0x0170 */
-	nwn_objid_t					mod_last_item_aquired_by;/* 0x0174 */
-	uint32_t					field_178;
-	uint32_t					field_17C;
-	uint32_t					mod_last_item_aquired_stack_size;/* 0x0180 */
-	uint32_t					field_184;
-	uint32_t					field_188;
-	uint32_t					field_18C;
-	uint32_t					field_190;
-	uint32_t					field_194;
-	nwn_objid_t					mod_last_rested;//198
-	uint32_t					field_19C;
-	nwn_objid_t					mod_last_player_died;//1A0
-	nwn_objid_t					mod_last_player_dying;//1A4
-	uint32_t					field_1A8;
-	uint32_t					field_1AC;
-	uint32_t					field_1B0;
-	uint32_t					field_1B4;
-	uint32_t					field_1B8;
-	uint32_t					field_1BC;//hodnota 127?
-	uint32_t					field_1C0;
-	uint32_t					field_1C4;
-	uint32_t					field_1C8;
-	uint32_t					field_1CC;
-	uint8_t						mod_min_per_hour;//1D0
-	uint8_t						mod_dawnhour;//1D1
-	uint8_t						mod_duskhour;//1D2
-	uint8_t						mod_start_month;//1D3
-	uint8_t						mod_start_day;//1D4
-	uint8_t						mod_start_hour;//1D5
-	uint8_t						mod_xp_scale;//1D6
-	uint8_t						field_1D7;//1D7
-	uint32_t					mod_date_year;//1D8
-	uint32_t					mod_date_month;//1DC
-	uint32_t					mod_date_day;//1E0
-	uint32_t					mod_time_hour;//1E4
-	uint32_t					field_1E8;
-	uint32_t					field_1EC;//1?
-	uint32_t					field_1F0;//461132?
-	uint32_t					field_1F4;//1584496?
-	uint32_t					field_1F8;
+	int32_t m_nCustomScriptEventId;
+	uint32_t m_oidLastEnter;
+    uint32_t m_oidLastExit;
+    uint32_t m_oidLastItemAcquired;
+    uint32_t m_oidLastItemAcquiredFrom;
+    uint32_t m_oidLastItemAcquiredBy;
+    uint32_t m_oidLastItemLost;
+    uint32_t m_oidLastItemLoser;
+	int32_t m_nLastItemAcquiredSize;//0x180
+	int32_t m_nLastItemLostSize;
+	uint32_t m_oidLastItemEquipped;
+    uint32_t m_oidLastItemEquippedBy;
+    uint32_t m_oidLastItemUnequipped;
+    uint32_t m_oidLastItemUnequippedBy;
+    uint32_t m_oidLastRested;
+	uint8_t m_nLastRestEventType;
+    uint32_t m_oidLastPlayerDied;
+    uint32_t m_oidLastPlayerDying;
+    uint32_t m_oidLastRespawnButtonPresser;
+    uint32_t m_oidLastItemActivated;
+    uint32_t m_oidLastItemActivator;
+    uint32_t m_oidLastItemActivatedArea;
+	uint32_t m_oidLastItemActivatedTarget;
+	Vector m_vLastItemActivatedPosition;
+	uint32_t m_oidLastPCLevellingUp;
+    uint32_t m_oidLastPCCancelCutscene;
+	uint8_t m_nMinutesPerHour;
+    uint8_t m_nDawnHour;
+    uint8_t m_nDuskHour;
+    uint8_t m_nStartMonth;
+    uint8_t m_nStartDay;
+    uint8_t m_nStartHour;
+    uint8_t m_nXPScale;
+    uint32_t m_nCurrentYear;
+    uint32_t m_nCurrentMonth;
+    uint32_t m_nCurrentDay;
+    uint32_t m_nCurrentHour;
+	uint32_t m_nTimeIntoTransition;
+    uint8_t m_nTimeOfDayState;
+    uint32_t m_nLastUpdateCalendarDay;
+    uint32_t m_nLastUpdateTimeOfDay;
+    int32_t m_bIsSaveGame;
+	
 	uint32_t					field_1FC;
 	uint32_t					field_200;
 	uint32_t					field_204;
-	uint32_t					field_208;//1?
-	uint32_t					mod_max_henchmen;
-	nwn_objid_t					*mod_limbo_list;//todo verify
+    int32_t m_bModuleLoadFinished;
+    int32_t m_nMaxHenchmen;
+	uint32_t					*mod_limbo_list;//todo verify
 	uint32_t					mod_limbo_list_len;//todo verify
 	uint32_t					mod_limbo_list_alloc;//todo verify
 	uint32_t					field_21C;
 	uint32_t					field_220;
 	uint32_t					field_224;
 	uint32_t					field_228;
-	CExoString					mod_tag;//230-234
-	uint32_t					mod_is_official_campaign;//238
-	CExoString					mod_nwm_res_name;//23C-240
-	uint32_t					mod_table_count; //244
-	uint8_t						mod_pc_pathfind_rule;//248
-	uint8_t						mod_enable_script_debugger;//249
-	uint8_t						field_24A;
-	uint8_t						field_24B;
-	nwn_objid_t					mod_last_pc_chat_obj;//24C
-	CExoString					mod_last_pc_chat;//250-254
-	uint32_t					mod_last_pc_chat_type;//258
-	uint32_t					field_258;
+
+	CExoString m_sTag;
+    int32_t m_bIsNWMFile;
+    CExoString m_sNWMResName;
+    int32_t m_nResourceCount;
+    uint8_t m_nPlayerPathfindRule;
+    uint8_t m_nEnableScriptDebugger;
+    uint32_t m_oidLastPlayerChatObjectId;
+    CExoString m_sLastPlayerChatMessage;
+    uint8_t m_nLastPlayerChatType;
 
 	nwn_objid_t			FindObjectByTagTypeOrdinal(CExoString *tag, int type, unsigned long nth);
 	void				AddObjectToLimbo(nwn_objid_t oID);

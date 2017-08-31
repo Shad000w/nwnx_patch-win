@@ -7,7 +7,7 @@
 #pragma comment(lib, "madCHook.lib")
 
 const int   VERSION_MAJOR = 1;
-const int   VERSION_MINOR = 31;
+const int   VERSION_MINOR = 32;
 const char *VERSION_PATCH = "";
 DWORD *heapAddress = NULL;
 FILE *logFile;
@@ -48,12 +48,31 @@ unsigned char NumTilesExplored = 0;
 int Hook_integer = 0;
 CNWClass *hook_Class;
 CNWSpell *hook_Spell;
+CNWSModule *module;
+CExoString *script;
 CExoString script_dthattk = "70_s2_dthattk";
 CExoString script_devast = "70_s2_devattk";
 CExoString script_defarrow = "70_s2_defarrow";
 CExoString script_healkit = "70_s3_healkit";
 CExoString SpontaneouslyCast = "SpontaneouslyCast";
 CExoString SpellsLearned = "SpellsLearned";
+CExoString bypass_event = "BYPASS_EVENT";
+CExoString script_equ = "70_mod_def_equ";
+CExoString script_rest = "70_mod_def_rest";
+CExoString script_act = "70_mod_def_act";
+CExoString script_aqu = "70_mod_def_aqu";
+CExoString script_unaqu = "70_mod_def_unaqu";
+CExoString script_dying = "70_mod_def_dying";
+CExoString script_death = "70_mod_def_death";
+CExoString script_respawn = "70_mod_def_resp";
+CExoString script_enter = "70_mod_def_enter";
+CExoString script_lvup = "70_mod_def_lvup";
+CExoString script_unequ = "70_mod_def_unequ";
+CExoString script_chat = "70_mod_def_chat";
+CExoString script_abort = "70_mod_def_abort";
+CExoString script_leave = "70_mod_def_leave";
+CExoString script_load = "70_mod_def_load";
+CExoString script_user = "70_mod_def_user";
 
 bool pole[3][3];
 C2DA *weaponfeats_2da,*racialtypes_2da,*spells_2da,*spells_level_2da,*classes_2da;
@@ -276,7 +295,7 @@ int (__fastcall *CNWSCreature__ToggleMode)(CNWSCreature *pThis, void*, unsigned 
 void (__fastcall *CNWSCreature__ResolveAmmunition)(CNWSCreature *pThis, void*, unsigned long l);
 void (__fastcall *CNWSCreature__BroadcastAttackOfOpportunity)(CNWSCreature *pThis, void*, unsigned long targetID, int arg1);
 void (__fastcall *CNWSCombatRound__AddAttackOfOpportunity)(CNWSCombatRound *pThis, void*, unsigned long lTarget);
-void (__fastcall *CNWSCreatureStats_ClassInfo__SetNumberMemorizedSpellSlots)(CNWSCreatureClass *pThis, void *,unsigned char spell_level, unsigned char spell_num);
+void (__fastcall *CNWSCreatureStats_ClassInfo__SetNumberMemorizedSpellSlots)(CNWSCreatureStats_ClassInfo *pThis, void *,unsigned char spell_level, unsigned char spell_num);
 int (__fastcall *CNWSItemPropertyHandler__ApplyBonusSpellOfLevel)(CNWSItemPropertyHandler *pThis, void*, CNWSItem *item, int *ip, CNWSCreature *cre, unsigned long l, int i);
 int (__fastcall *CNWSItemPropertyHandler__RemoveBonusSpellOfLevel)(CNWSItemPropertyHandler *pThis, void*, CNWSItem *item, int *ip, CNWSCreature *cre, unsigned long l);
 void (__fastcall *CNWSCreature__UpdateAttributesOnEffect)(CNWSCreature *pThis, void*, CGameEffect *eff, int arg1);
@@ -311,7 +330,7 @@ unsigned char (__fastcall *CNWSCreatureStats__GetSpellGainWithBonusAfterLevelUp)
 int (__fastcall *CNWSCreatureStats__GetSpellMinAbilityMet)(CNWSCreatureStats *pThis, void *, unsigned char cls_pos, unsigned char spell_lvl);
 void (__fastcall *CNWSCreatureStats__UpdateNumberMemorizedSpellSlots)(CNWSCreatureStats *pThis, void *);
 unsigned char (__fastcall *CNWSCreatureStats__ComputeNumberKnownSpellsLeft)(CNWSCreatureStats *pThis, void *, unsigned char cls_pos, unsigned char spell_lvl);
-int (__fastcall *CNWSCreatureStats_ClassInfo__ConfirmDomainSpell)(CNWSCreatureClass *pThis, void *, unsigned char domain_lvl, long spell_id);
+int (__fastcall *CNWSCreatureStats_ClassInfo__ConfirmDomainSpell)(CNWSCreatureStats_ClassInfo *pThis, void *, unsigned char domain_lvl, long spell_id);
 unsigned char (__fastcall *CNWSCreatureStats__GetSpellUsesLeft)(CNWSCreatureStats *pThis, void *, long spell_id, unsigned char cls_pos, unsigned char spell_lvl, unsigned char metamagic);
 int (__fastcall *CNWSCreature__LearnScroll)(CNWSCreature *pThis, void*, unsigned long itemID);
 void (__fastcall *CNWSCreatureStats__AdjustSpellUsesPerDay)(CNWSCreatureStats *pThis, void *);
@@ -563,7 +582,7 @@ char __fastcall CNWSCreatureStats__GetBaseWillSavingThrow_Hook(CNWSCreatureStats
 int __fastcall CNWSCreatureStats__CanLevelUp_Hook(CNWSCreatureStats *pThis, void*)
 {
 	Log(2,"o CNWSCreatureStats__CanLevelUp start\n");
-	if(pThis->cs_original->GetIsPossessedFamiliar()) 
+	if(pThis->cs_original->GetIsPossessedFamiliar() || pThis->cs_original->cre_pm_IsPolymorphed) 
 		return 0;
 	return CNWSCreatureStats__CanLevelUp(pThis,NULL);
 }
@@ -831,6 +850,7 @@ unsigned char __fastcall CNWSCreatureStats__GetSpellUsesLeft_Hook(CNWSCreatureSt
 		unsigned char newLevel = nLevel+NWN_Rules->GetMetaMagicLevelCost(metamagic);
 		if(nLevel < 10 && newLevel < 10 && pThis->GetSpellMinAbilityMet(cls_pos,newLevel))
 		{
+			if(cClass->GetSpellGain(pThis->cs_classes[cls_pos].cl_level,newLevel) == 255 && newLevel < cClass->NumSpellLevels[pThis->cs_classes[cls_pos].cl_level-1]) return 1;
 			if(cls_cast_type[cls_id] & CAST_TYPE_SPONTANEOUS)
 			{
 				unsigned char left = pThis->cs_classes[cls_pos].cl_spells_left[newLevel];
@@ -869,7 +889,7 @@ unsigned char __fastcall CNWSCreatureStats__GetSpellUsesLeft_Hook(CNWSCreatureSt
 	return retVal;
 }
 
-int __fastcall CNWSCreatureStats_ClassInfo__ConfirmDomainSpell_Hook(CNWSCreatureClass *pThis, void *, unsigned char domain_lvl, unsigned long spell_id)
+int __fastcall CNWSCreatureStats_ClassInfo__ConfirmDomainSpell_Hook(CNWSCreatureStats_ClassInfo *pThis, void *, unsigned char domain_lvl, unsigned long spell_id)
 {
 	Log(2,"o CNWSCreatureStats_ClassInfo__ConfirmDomainSpell start\n");
 	if(!classes_2da)
@@ -1027,7 +1047,7 @@ void __fastcall CNWSCreatureStats__UpdateNumberMemorizedSpellSlots_Hook(CNWSCrea
 			for(spell_lvl = 0;spell_lvl < 10;spell_lvl++)
 			{
 				num_slots = pThis->GetSpellGainWithBonus(x,spell_lvl)+pThis->cs_classes[x].cl_spells_bonus[spell_lvl];
-				pThis->GetInfo(x)->SetNumberMemorizedSpellSlots(spell_lvl,num_slots);
+				pThis->cs_classes[x].SetNumberMemorizedSpellSlots(spell_lvl,num_slots);
 			}
 		}
 	}
@@ -1326,10 +1346,18 @@ void __fastcall CServerExoAppInternal__RemovePCFromWorld_Hook(CServerExoAppInter
 {
 	Log(2,"o CServerExoAppInternal__RemovePCFromWorld start\n");
 	CNWSModule *mod = srv->GetModule();
-	if(mod->mod_scripts[5] != NULL && mod->mod_scripts[5].text != "")
+	if(mod)
 	{		
-		mod->mod_last_exit = player->m_oidNWSObject;
-		NWN_VirtualMachine->Runscript(&mod->mod_scripts[5],mod->obj_id);
+		mod->m_oidLastExit = player->m_oidNWSObject;
+		NWN_VirtualMachine->Runscript(&script_leave,mod->obj_id);
+		if(mod && mod->mod_vartable.GetInt(bypass_event) == 1)
+		{
+			mod->mod_vartable.DestroyInt(bypass_event);
+		}
+		else
+		{	
+			NWN_VirtualMachine->Runscript(&mod->mod_scripts[5],mod->obj_id);
+		}
 	}
 	CServerExoAppInternal__RemovePCFromWorld(srv, NULL, player);
 }
@@ -2019,6 +2047,10 @@ void NWNXPatch_Funcs(CNWSScriptVarTable *pThis, int nFunc, char *Params)
 			fprintf(logFile, "ERROR: SetDisableObjectHighlight(%08X,%i) used with incorrect parameters!\n",oID,val);
 		}
 	}
+	if(nFunc == 12)
+	{
+		pThis->SetInt(VarName,VERSION_MAJOR*100+VERSION_MINOR,0);
+	}
 	else if(nFunc == 101)//GetNumAreas
 	{
 		CNWSModule *cModule = NWN_AppManager->app_server->srv_internal->GetModule();
@@ -2339,16 +2371,16 @@ void NWNXPatch_Funcs(CNWSScriptVarTable *pThis, int nFunc, char *Params)
 							area->are_terrain&= ~1024;
 							area->are_terrain&= ~2048;
 							unsigned long hour = NWN_AppManager->app_server->GetWorldTimer()->GetWorldTimeHour();
-							if(hour >= mod->mod_dawnhour && hour <= mod->mod_duskhour)
+							if(hour >= mod->m_nDawnHour && hour <= mod->m_nDuskHour)
 							{
 								area->IsNight = 0;
-								if(hour == mod->mod_dawnhour) daytime = 1;
+								if(hour == mod->m_nDawnHour) daytime = 1;
 								else daytime = 0;
 							}
 							else
 							{
 								area->IsNight = 1;
-								if(hour == mod->mod_duskhour) daytime = 2;
+								if(hour == mod->m_nDuskHour) daytime = 2;
 								else daytime = 3;							
 							}
 						}
@@ -4561,7 +4593,7 @@ unsigned long __fastcall CNWSModule__LoadModuleFinish_Hook(CNWSModule *pThis, vo
 	Log(2,"o CNWSModule__LoadModuleFinish start\n");
 	//DisableHighlightObjects = false;
 	unsigned long retVal = CNWSModule__LoadModuleFinish(pThis,NULL);
-	NWN_VirtualMachine->Runscript(&CExoString("70_mod_init"),pThis->obj_id);
+	NWN_VirtualMachine->Runscript(&script_load,pThis->obj_id);
 	InitializeWeaponFeats2DA();
 	InitializeRacialTypes2DA();
 	InitializeClasses2DA();
@@ -4956,7 +4988,7 @@ int __fastcall CNWSItemPropertyHandler__RemoveBonusSpellOfLevel_Hook(CNWSItemPro
 	return retVal;
 }
 
-void __fastcall CNWSCreatureStats_ClassInfo__SetNumberMemorizedSpellSlots_Hook(CNWSCreatureClass *pThis, void*, unsigned char spell_level, unsigned char spell_num)
+void __fastcall CNWSCreatureStats_ClassInfo__SetNumberMemorizedSpellSlots_Hook(CNWSCreatureStats_ClassInfo *pThis, void*, unsigned char spell_level, unsigned char spell_num)
 {
 	Log(2,"o CNWSCreatureStats_ClassInfo__SetNumberMemorizedSpellSlots start\n");
 	if(helper == 39)
@@ -6371,6 +6403,124 @@ void Hook_OnClientExit()//0x45BB7B - CServerExoAppInternal::RemovePCFromWorld
 	__asm jmp Hook_ret;
 }
 
+void Hook_ModuleEvents()//0x4D224E - CNWSModule::EventHandler
+{
+	__asm leave
+	__asm pop eax
+	__asm pop ebx
+	__asm mov test32, eax
+	__asm mov DWORD PTR script, esi
+	__asm mov ax, [edi]
+	__asm mov orig_eax, eax
+
+	//fprintf_s(logFile, "o Hook_ModuleEvents, test1: %i, %i, %s, %i\n",test32,test33,script->text,orig_eax);fflush(logFile);
+	
+	if(orig_eax == 35)//OnRest
+	{
+		NWN_VirtualMachine->Runscript(&script_rest,test32);
+	}
+	else if(orig_eax == 39)//equip
+	{
+		NWN_VirtualMachine->Runscript(&script_equ,test32);
+	}
+	else if(orig_eax == 19)
+	{
+		NWN_VirtualMachine->Runscript(&script_aqu,test32);
+	}
+	else if(orig_eax == 20)
+	{
+		NWN_VirtualMachine->Runscript(&script_unaqu,test32);
+	}
+	else if(orig_eax == 32)
+	{
+		NWN_VirtualMachine->Runscript(&script_dying,test32);
+	}
+	else if(orig_eax == 10)
+	{
+		NWN_VirtualMachine->Runscript(&script_death,test32);
+	}
+	else if(orig_eax == 33)
+	{
+		NWN_VirtualMachine->Runscript(&script_respawn,test32);
+	}
+	else if(orig_eax == 14)
+	{
+		NWN_VirtualMachine->Runscript(&script_enter,test32);
+	}
+	else if(orig_eax == 18)
+	{
+		NWN_VirtualMachine->Runscript(&script_act,test32);
+	}
+	else if(orig_eax == 37)
+	{
+		NWN_VirtualMachine->Runscript(&script_lvup,test32);
+	}
+	else if(orig_eax == 38)
+	{
+		NWN_VirtualMachine->Runscript(&script_abort,test32);
+	}
+	else if(orig_eax == 11)
+	{
+		NWN_VirtualMachine->Runscript(&script_user,test32);
+	}
+
+	module = NWN_AppManager->app_server->srv_internal->GetModule();
+	
+	if(module && module->mod_vartable.GetInt(bypass_event) == 1)
+	{
+		module->mod_vartable.DestroyInt(bypass_event);
+	}
+	else
+	{
+		NWN_VirtualMachine->Runscript(script,test32);
+	}
+
+	Hook_ret = 0x4D225A;
+	__asm jmp Hook_ret;
+}
+
+void Hook_OnPlayerUnEquip()//0x49637D - CNWSCreature::UnequipItem
+{
+	__asm leave
+	__asm mov DWORD PTR module, eax
+
+	//fprintf_s(logFile, "o Hook_Unequip, test1: %i, %s\n",module->obj_id,module->mod_scripts[16].text);fflush(logFile);
+
+	NWN_VirtualMachine->Runscript(&script_unequ,module->obj_id);
+	if(module && module->mod_vartable.GetInt(bypass_event) == 1)
+	{
+		module->mod_vartable.DestroyInt(bypass_event);
+	}
+	else
+	{
+		NWN_VirtualMachine->Runscript(&module->mod_scripts[16],module->obj_id);
+	}
+
+	Hook_ret = 0x496394;
+	__asm jmp Hook_ret;
+}
+
+void Hook_OnPlayerChat()//0x534F70 - CNWSMessage::HandlePlayerToServerChatMessage
+{
+	__asm leave
+	__asm mov DWORD PTR module, esi
+
+	//fprintf_s(logFile, "o Hook_Chat, test1: %i, %s\n",module->obj_id,module->mod_scripts[17].text);fflush(logFile);
+
+	NWN_VirtualMachine->Runscript(&script_chat,module->obj_id);
+	if(module && module->mod_vartable.GetInt(bypass_event) == 1)
+	{
+		module->mod_vartable.DestroyInt(bypass_event);
+	}
+	else
+	{
+		NWN_VirtualMachine->Runscript(&module->mod_scripts[17],module->obj_id);
+	}
+
+	Hook_ret = 0x534F88;
+	__asm jmp Hook_ret;
+}
+
 void Hook_SpellcasterType7()//480408 - CNWSCreatureStats::AddKnownSpell
 {
 	__asm leave
@@ -7173,6 +7323,29 @@ void PatchImage()
 		*((uint32_t *)(pPatch + 1)) = (uint32_t)Hook_OnClientExit - (uint32_t)(pPatch + 5);
 		VirtualProtect((DWORD*)pPatch, 1, DefaultPrivs, NULL);
 		fprintf(logFile, "o Removing vanilla OnClientExit call.\n");
+	}
+
+	if(!GetPrivateProfileInt("Community Patch","DisableModuleEvents",0,"./nwnplayer.ini"))
+	{
+		pPatch = (unsigned char *) 0x4D224E;//CNWSModule::EventHandler
+		VirtualProtect((DWORD*)pPatch, 1, PAGE_EXECUTE_READWRITE, &DefaultPrivs);
+		memset((PVOID)pPatch, '\x90', 8);
+		pPatch[0] = 0xE9;
+		*((uint32_t *)(pPatch + 1)) = (uint32_t)Hook_ModuleEvents - (uint32_t)(pPatch + 5);
+		VirtualProtect((DWORD*)pPatch, 1, DefaultPrivs, NULL);
+		pPatch = (unsigned char *) 0x534F70;//CNWSMessage::HandlePlayerToServerChatMessage
+		VirtualProtect((DWORD*)pPatch, 1, PAGE_EXECUTE_READWRITE, &DefaultPrivs);
+		memset((PVOID)pPatch, '\x90', 8);
+		pPatch[0] = 0xE9;
+		*((uint32_t *)(pPatch + 1)) = (uint32_t)Hook_OnPlayerChat - (uint32_t)(pPatch + 5);
+		VirtualProtect((DWORD*)pPatch, 1, DefaultPrivs, NULL);
+		pPatch = (unsigned char *) 0x49637D;//CNWSCreature::UnequipItem
+		VirtualProtect((DWORD*)pPatch, 1, PAGE_EXECUTE_READWRITE, &DefaultPrivs);
+		memset((PVOID)pPatch, '\x90', 8);
+		pPatch[0] = 0xE9;
+		*((uint32_t *)(pPatch + 1)) = (uint32_t)Hook_OnPlayerUnEquip - (uint32_t)(pPatch + 5);
+		VirtualProtect((DWORD*)pPatch, 1, DefaultPrivs, NULL);
+		fprintf(logFile, "o Enabling module events duplicates.\n");
 	}
 
 	pPatch = (unsigned char *) 0x53F564;

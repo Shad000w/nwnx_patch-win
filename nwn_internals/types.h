@@ -100,7 +100,7 @@ struct CNWSTrigger_s;                     	typedef struct CNWSTrigger_s         
 struct CNWSPlaceable_s;                   	typedef struct CNWSPlaceable_s                  CNWSPlaceable; 
 struct CGenericObject_s;					typedef struct CGenericObject_s					CGenericObject;
 struct CNWSCreatureAppearanceInfo_s;      	typedef struct CNWSCreatureAppearanceInfo_s     CNWSCreatureAppearanceInfo;
-struct CNWSCreatureClass_s;               	typedef struct CNWSCreatureClass_s              CNWSCreatureClass;
+struct CNWSCreatureStats_ClassInfo_s;      	typedef struct CNWSCreatureStats_ClassInfo_s    CNWSCreatureStats_ClassInfo;
 struct CNWSCreatureStats_s;               	typedef struct CNWSCreatureStats_s              CNWSCreatureStats;
 struct CNWSCreature_s;                    	typedef struct CNWSCreature_s                   CNWSCreature; 
 class CQuickbarExtension;
@@ -159,7 +159,7 @@ struct CEffectsStore_s; typedef struct CEffectsStore_s CEffectsStore;
 #include ".\CNWSCreature.h"
 #include ".\CNWSStats_Spell.h"
 #include ".\CNWSStats_Level.h"
-#include ".\CNWSCreatureClass.h"
+#include ".\CNWSCreatureStats_ClassInfo.h"
 #include ".\CNWSCreatureStats.h"
 #include ".\CGameEffect.h"
 #include ".\CItemRepository.h" 

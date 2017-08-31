@@ -43,7 +43,7 @@ struct CNWSCreatureStats_s {
   char cs_classes_len;
   unsigned __int8 field_9A;
   unsigned __int8 field_9B;
-  CNWSCreatureClass cs_classes[3];
+  CNWSCreatureStats_ClassInfo cs_classes[3];
   unsigned __int16 cs_race;
   unsigned __int16 field_3EE;
   CExoString cs_subrace;
@@ -230,7 +230,7 @@ char				GetTotalWISBonus();
 char				GetTotalCHABonus();
 
 int16_t				GetDamageRoll(CNWSObject *Defender, int bOffHand, int AttackResult, int SneakAttack, int DeathAttack, int a7);
-CNWSCreatureClass*	GetInfo(unsigned char cls);
+CNWSCreatureStats_ClassInfo*	GetInfo(unsigned char cls);
 unsigned char		GetClassLevel(unsigned char cls_pos, int bCountNegativeLevels);
 int GetNumLevelsOfClass(unsigned char nClassType);
 int GetNumLevelsOfClass(unsigned char nClassType, int bPreEpicOnly); 
