@@ -5849,14 +5849,13 @@ void HookFunctions()
 	CreateHook(0x482280,CNWSCreatureStats__GetEpicWeaponDevastatingCritical_Hook, (PVOID*)&CNWSCreatureStats__GetEpicWeaponDevastatingCritical, "DisableWeaponHooks","GetEpicWeaponDevastatingCritical function");
 	CreateHook(0x48CB10,CNWSCreatureStats__GetIsWeaponOfChoice_Hook, (PVOID*)&CNWSCreatureStats__GetIsWeaponOfChoice, "DisableWeaponHooks","GetIsWeaponOfChoice function");
 	CreateHook(0x470730,CNWSCreatureStats__GetUseMonkAttackTables_Hook, (PVOID*)&CNWSCreatureStats__GetUseMonkAttackTables, "DisableWeaponHooks","GetUseMonkAttackTables function");
+	CreateHook(0x4778B0,CNWSCreatureStats__GetCriticalHitRoll_Hook, (PVOID*)&CNWSCreatureStats__GetCriticalHitRoll, "DisableWeaponHooks","Ki critical offhand bug");
+	CreateHook(0x477A20,CNWSCreatureStats__GetCriticalHitMultiplier_Hook, (PVOID*)&CNWSCreatureStats__GetCriticalHitMultiplier, "DisableWeaponHooks","Enabling critical hit multiplier modification");
 
 	//other
 	CreateHook(0x551250,CNWSCreature__GetFlanked_Hook, (PVOID*)&CNWSCreature__GetFlanked, "DisableUncannyDodge", "Enabling hardcore DnD uncanny dodge 2 rule.");
 	CreateHook(0x48E050,CNWSCreatureStats__GetTotalACSkillMod_Hook, (PVOID*)&CNWSCreatureStats__GetTotalACSkillMod, "DisableGetTotalACSkillModHook","Tumble AC");
 	CreateHook(0x49E370,CNWSCreature__GetUseMonkAbilities_Hook, (PVOID*)&CNWSCreature__GetUseMonkAbilities, "DisableGetUseMonkAbilitiesHook","Monk abilities in polymorph");
-
-	CreateHook(0x4778B0,CNWSCreatureStats__GetCriticalHitRoll_Hook, (PVOID*)&CNWSCreatureStats__GetCriticalHitRoll, "DisableGetCriticalHitRollHook","Ki critical offhand bug");
-	CreateHook(0x477A20,CNWSCreatureStats__GetCriticalHitMultiplier_Hook, (PVOID*)&CNWSCreatureStats__GetCriticalHitMultiplier, "DisableGetCriticalHitRollHook","Enabling critical hit multiplier modification");
 
 	CreateHook(0x547580,CNWSCreature__ResolveAttack_Hook, (PVOID*)&CNWSCreature__ResolveAttack, "DisableResolveAttackHook","Circle kick");
 	CreateHook(0x491F10,CNWSCreature__AddEquipItemActions_Hook, (PVOID*)&CNWSCreature__AddEquipItemActions, "DisableAddEquipItemActionsHook","Double equip exploit");
@@ -5910,7 +5909,7 @@ void HookFunctions()
 	CreateHook(0x548100,CNWSCreature__ResolveAmmunition_Hook, (PVOID*)&CNWSCreature__ResolveAmmunition, "DisableResolveAmmunitionHook","Boomerang item property");
 	CreateHook(0x490690,CNWSCreature__SetActivity_Hook, (PVOID*)&CNWSCreature__SetActivity, "DisableSetActivityHook","Defensive stance not canceling properly");
 	CreateHook(0x4FA850,CNWSEffectListHandler__OnApplyDefensiveStance_Hook,(PVOID*)&CNWSEffectListHandler__OnApplyDefensiveStance, "DisableDefensiveStance", "Defensive Stance feat softcoding");
-	CreateHook(0x474710,CNWSCreatureStats__ResolveSpecialAttackDamageBonus_Hook, (PVOID*)&CNWSCreatureStats__ResolveSpecialAttackDamageBonus, "DisableResolveSpecialAttackDamageBonusHook","Crash exploit no#1");
+	CreateHook(0x474710,CNWSCreatureStats__ResolveSpecialAttackDamageBonus_Hook, (PVOID*)&CNWSCreatureStats__ResolveSpecialAttackDamageBonus, "DisableSpecialAttacks","Crash exploit no#1");
 	CreateHook(0x4A8800,CNWSCreature__StartBarter_Hook, (PVOID*)&CNWSCreature__StartBarter, "DisableStartBarterHook","Crash exploit no#2");
 	CreateHook(0x5017A0,CNWSItem__GetMinEquipLevel_Hook, (PVOID*)&CNWSItem__GetMinEquipLevel, "DisableGetMinEquipLevelHook", "Item level restriction");//run only at ILR=1 when acquire/move curson onto item/examine
 	CreateHook(0x4DFA60,CNWSObject__ClearAllPartyInvalidActions_Hook, (PVOID*)&CNWSObject__ClearAllPartyInvalidActions, "DisableClearAllPartyInvalidActionsHook", "Party actions canceling");
@@ -5929,10 +5928,10 @@ void HookFunctions()
 	CreateHook(0x530E40,CNWSCombatRound__InitializeNumberOfAttacks_Hook,(PVOID*)&CNWSCombatRound__InitializeNumberOfAttacks,"DisableInitializeNumberOfAttacks","Enabling number of attacks modifications.");
 
 	//special attacks
-	CreateHook(0x549FC0,CNWSCreature__ResolveMeleeSpecialAttack_Hook,(PVOID*)&CNWSCreature__ResolveMeleeSpecialAttack,"DisableResolveMeleeSpecialAttack","Enabling custom special attacks.");
-	CreateHook(0x547A50,CNWSCreature__ResolveRangedSpecialAttack_Hook,(PVOID*)&CNWSCreature__ResolveRangedSpecialAttack,"DisableResolveMeleeSpecialAttack","Enabling custom special attacks.");
-	CreateHook(0x4A3700,CNWSCreature__UseFeat_Hook,(PVOID*)&CNWSCreature__UseFeat,"DisableUseFeat","Enabling custom special attacks.");
-	CreateHook(0x4744F0,CNWSCreatureStats__ResolveSpecialAttackAttackBonus_Hook, (PVOID*)&CNWSCreatureStats__ResolveSpecialAttackAttackBonus, "DisableResolveSpecialAttackAttackBonus","Enabling custom special attacks.");
+	CreateHook(0x549FC0,CNWSCreature__ResolveMeleeSpecialAttack_Hook,(PVOID*)&CNWSCreature__ResolveMeleeSpecialAttack,"DisableSpecialAttacks","Enabling custom special attacks #1");
+	CreateHook(0x547A50,CNWSCreature__ResolveRangedSpecialAttack_Hook,(PVOID*)&CNWSCreature__ResolveRangedSpecialAttack,"DisableSpecialAttacks","Enabling custom special attacks #2");
+	CreateHook(0x4744F0,CNWSCreatureStats__ResolveSpecialAttackAttackBonus_Hook, (PVOID*)&CNWSCreatureStats__ResolveSpecialAttackAttackBonus, "DisableSpecialAttacks","Enabling custom special attacks #3");
+	CreateHook(0x4A3700,CNWSCreature__UseFeat_Hook,(PVOID*)&CNWSCreature__UseFeat,"DisableSpecialAttacks","Enabling custom special attacks #4");
 	
 	//spellcasting
 	CreateHook(0x4828A0,CNWSCreatureStats__GetSpellMinAbilityMet_Hook,(PVOID*)&CNWSCreatureStats__GetSpellMinAbilityMet, "DisableCustomSpellCasters", "Enabling custom spellcasters #1");
