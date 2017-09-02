@@ -255,11 +255,10 @@ void (__fastcall *CServerExoAppInternal__RemovePCFromWorld)(CServerExoAppInterna
 int (__fastcall *CNWVirtualMachineCommands__ExecuteCommandGetAssociateType)(CVirtualMachineCommands *vm_cmds, void*, int arg1, int arg2);
 int (__fastcall *CNWVirtualMachineCommands__ExecuteCommandGetAssociate)(CVirtualMachineCommands *vm_cmds, void*, int arg1, int arg2);
 int (__fastcall *CNWVirtualMachineCommands__ExecuteCommandApplyEffectOnObject)(CVirtualMachineCommands *vm_cmds, void*, int cmd, int args);
-int (__fastcall *CNWVirtualMachineCommands__ExecuteCommandSetSubType)(CVirtualMachineCommands *vm_cmds, void*, int cmd, int args);
 int (__fastcall *CNWVirtualMachineCommands__ExecuteCommandGetEffectSubType)(CVirtualMachineCommands *vm_cmds, void*, int cmd, int args);
+int (__fastcall *CNWVirtualMachineCommands__ExecuteCommandVersusEffect)(CVirtualMachineCommands *vm_cmds, void*, int cmd, int args);
 //effects
 void (__fastcall *CGameEffect__SetCreator)(CGameEffect *pThis, void*, unsigned long creatorID);
-int (__fastcall *CNWSCreatureStats__GetEffectImmunity)(CNWSCreatureStats *pThis, void*, unsigned char immunity_type, CNWSCreature *cre);
 int (__fastcall *CNWSEffectListHandler__OnEffectApplied)(CNWSEffectListHandler *pThis, void*, CNWSObject *obj, CGameEffect *eff, int arg1);
 int (__fastcall *CNWSEffectListHandler__OnEffectRemoved)(CNWSEffectListHandler *pThis, void*, CNWSObject *obj, CGameEffect *eff);
 int (__fastcall *CNWSEffectListHandler__OnApplyAbilityDecrease)(CNWSEffectListHandler *pThis, void*, CNWSObject *obj, CGameEffect *eff, int i);
@@ -268,6 +267,13 @@ int (__fastcall *CNWSEffectListHandler__OnApplyPolymorph)(CNWSEffectListHandler 
 int (__fastcall *CNWSEffectListHandler__OnRemovePolymorph)(CNWSEffectListHandler *pThis, void*, CNWSObject *obj, CGameEffect *eff);
 int (__fastcall *CNWSEffectListHandler__OnApplyDefensiveStance) (CNWSEffectListHandler *pThis, void*, CNWSObject *obj, CGameEffect *eff, int n);
 int (__fastcall *CNWSEffectListHandler__OnApplyDeath)(CNWSEffectListHandler *pThis, void*, CNWSObject *obj, CGameEffect *eff, int arg1);
+int (__fastcall *CNWSCreature__GetTotalEffectBonus)(CNWSCreature *pThis, void*, char a2, CNWSObject *obj_a, int a4, int a5, unsigned __int8 a6, unsigned __int8 a7, unsigned __int8 a8, unsigned __int8 a9, int a10);
+int (__fastcall *CNWSCreatureStats__GetEffectImmunity)(CNWSCreatureStats *pThis, void*, unsigned char immunity_type, CNWSCreature *cre);
+//itemproperties
+int (__fastcall *CNWSItemPropertyHandler__ApplyHolyAvenger)(CNWSItemPropertyHandler *pThis, void*, CNWSItem *item, int *ip, CNWSCreature *cre, unsigned long l, int i);
+int (__fastcall *CNWSItemPropertyHandler__RemoveHolyAvenger)(CNWSItemPropertyHandler *pThis, void*, CNWSItem *item, int *ip, CNWSCreature *cre, unsigned long l);
+int (__fastcall *CNWSItemPropertyHandler__ApplyBonusSpellOfLevel)(CNWSItemPropertyHandler *pThis, void*, CNWSItem *item, int *ip, CNWSCreature *cre, unsigned long l, int i);
+int (__fastcall *CNWSItemPropertyHandler__RemoveBonusSpellOfLevel)(CNWSItemPropertyHandler *pThis, void*, CNWSItem *item, int *ip, CNWSCreature *cre, unsigned long l);
 //weapons
 int (__fastcall *CNWSCreatureStats__GetWeaponFinesse)(CNWSCreatureStats *pThis, void*, CNWSItem *item);
 int (__fastcall *CNWSCreatureStats__GetWeaponFocus)(CNWSCreatureStats *pThis, void*, CNWSItem *item);
@@ -279,6 +285,9 @@ int (__fastcall *CNWSCreatureStats__GetEpicWeaponOverwhelmingCritical)(CNWSCreat
 int (__fastcall *CNWSCreatureStats__GetEpicWeaponDevastatingCritical)(CNWSCreatureStats *pThis, void*, CNWSItem *item);
 int (__fastcall *CNWSCreatureStats__GetIsWeaponOfChoice)(CNWSCreatureStats *pThis, void*, uint32_t BaseItemType);
 int (__fastcall *CNWSCreatureStats__GetUseMonkAttackTables)(CNWSCreatureStats *pThis, void*, int a2);
+int (__fastcall *CNWSCreatureStats__GetCriticalHitRoll)(CNWSCreatureStats *pThis, void*, int n);
+int (__fastcall *CNWSCreatureStats__GetCriticalHitMultiplier)(CNWSCreatureStats *pThis, void*, int n);
+int (__fastcall *CNWSCreature__GetRelativeWeaponSize)(CNWSCreature *pThis, void*, CNWSItem *weapon);
 //other
 void (__fastcall *CNWSCreature__ResolveAttack)(CNWSCreature *pThis, void*, unsigned long target, int i, int i2);
 int (__fastcall *CNWSCreature__CanUseItem)(CNWSCreature *pThis, void*, CNWSItem *item, int a1);
@@ -287,18 +296,11 @@ void (__fastcall *CNWSCreature__SummonAnimalCompanion)(CNWSCreature *pThis, void
 void (__fastcall *CNWSCreature__SummonFamiliar)(CNWSCreature *pThis, void*);
 unsigned long (__fastcall *CNWSCreature__GetAssociateId)(CNWSCreature *pThis, void*, unsigned short type, int th);
 int (__fastcall *CNWSCreature__AddEquipItemActions)(CNWSCreature *pThis, void*, CNWSItem *item, unsigned long l1, int i1, int i2, unsigned long l2);
-int (__fastcall *CNWSCreatureStats__GetCriticalHitRoll)(CNWSCreatureStats *pThis, void*, int n);
-int (__fastcall *CNWSCreatureStats__GetCriticalHitMultiplier)(CNWSCreatureStats *pThis, void*, int n);
 void (__fastcall *CNWSCreature__ResolveDamageShields)(CNWSCreature *pThis, void*, CNWSCreature *attacker);
-int (__fastcall *CNWSCreature__GetRelativeWeaponSize)(CNWSCreature *pThis, void*, CNWSItem *weapon);
-int (__fastcall *CNWSItemPropertyHandler__ApplyHolyAvenger)(CNWSItemPropertyHandler *pThis, void*, CNWSItem *item, int *ip, CNWSCreature *cre, unsigned long l, int i);
-int (__fastcall *CNWSItemPropertyHandler__RemoveHolyAvenger)(CNWSItemPropertyHandler *pThis, void*, CNWSItem *item, int *ip, CNWSCreature *cre, unsigned long l);
 void (__fastcall *CNWSCreature__SetCombatMode)(CNWSCreature *pThis, void*, unsigned char arg1, int arg2);
 int (__fastcall *CNWSCreature__ToggleMode)(CNWSCreature *pThis, void*, unsigned char arg1);
 void (__fastcall *CNWSCreature__ResolveAmmunition)(CNWSCreature *pThis, void*, unsigned long l);
 void (__fastcall *CNWSCreatureStats_ClassInfo__SetNumberMemorizedSpellSlots)(CNWSCreatureStats_ClassInfo *pThis, void *,unsigned char spell_level, unsigned char spell_num);
-int (__fastcall *CNWSItemPropertyHandler__ApplyBonusSpellOfLevel)(CNWSItemPropertyHandler *pThis, void*, CNWSItem *item, int *ip, CNWSCreature *cre, unsigned long l, int i);
-int (__fastcall *CNWSItemPropertyHandler__RemoveBonusSpellOfLevel)(CNWSItemPropertyHandler *pThis, void*, CNWSItem *item, int *ip, CNWSCreature *cre, unsigned long l);
 void (__fastcall *CNWSCreature__UpdateAttributesOnEffect)(CNWSCreature *pThis, void*, CGameEffect *eff, int arg1);
 void (__fastcall *CNWSCreature__ResolveMeleeSpecialAttack)(CNWSCreature *pThis, void*, int a1, int a2, CNWSObject *target, int a4);
 void (__fastcall *CNWSCreature__ResolveRangedSpecialAttack)(CNWSCreature *pThis, void*, CNWSObject *target, int a1);
@@ -341,19 +343,11 @@ void (__fastcall *CNWSCreature__PossessFamiliar)(CNWSCreature *pThis, void*);
 void (__fastcall *CNWSCreature__UnpossessFamiliar)(CNWSCreature *pThis, void*);
 int (__fastcall *CNWSCreature__GetIsPossessedFamiliar)(CNWSCreature *pThis, void*);
 int (__fastcall *CNWSCreatureStats__CanLevelUp)(CNWSCreatureStats *pThis, void*);
-
 void (__fastcall *CNWSCombatRound__StartCombatRound)(CNWSCombatRound *pThis, void *, unsigned long a1);
-
 void (__fastcall *CNWSCreature__ApplyOnHitCastSpell)(CNWSCreature *pThis, void*, CNWSObject *obj, int *ip, CNWSItem *item);
-
 void (__fastcall *CNWSCombatRound__InitializeNumberOfAttacks)(CNWSCombatRound *pThis, void*);
-
 int (__fastcall *CNWSCreature__UseFeat)(CNWSCreature *pThis, void*, unsigned short nFeat, unsigned short subradial, unsigned long targetID, unsigned long a4, Vector *a5);
-
-int (__fastcall *CNWSCreature__GetTotalEffectBonus)(CNWSCreature *pThis, void*, char a2, CNWSObject *obj_a, int a4, int a5, unsigned __int8 a6, unsigned __int8 a7, unsigned __int8 a8, unsigned __int8 a9, int a10);
-
 int (__fastcall *CNWSCreatureStats__GetBaseAttackBonus)(CNWSCreatureStats *pThis, void*, int bPreEpicOnly);
-
 int (__fastcall *CNWSCreature__GetFlanked)(CNWSCreature *pThis, void*, CNWSCreature *target);
 
 int __fastcall CNWSCreature__GetFlanked_Hook(CNWSCreature *pThis, void*, CNWSCreature *target)
@@ -1472,97 +1466,6 @@ void __fastcall CGameEffect__SetCreator_Hook(CGameEffect *pThis, void*, unsigned
 	}
 }
 
-int __fastcall CNWVirtualMachineCommands__ExecuteCommandSetSubType_Hook(CVirtualMachineCommands *, void*, int cmd, int)
-{
-	Log(2,"o CNWVirtualMachineCommands__ExecuteCommandSetSubType start\n");
-	CGameEffect *eff;
-	if(!NWN_VirtualMachine->StackPopEngineStructure(0,(void **)&eff))
-	{
-		return -638;
-	}
-	CNWSModule *mod = NWN_AppManager->app_server->srv_internal->GetModule();
-	if(mod && mod->mod_vartable.MatchIndex(CExoString("GetEffectEventEffect"),VARIABLE_TYPE_INT,0) != NULL && helper_effect != NULL)
-	{
-		if(!NWN_VirtualMachine->StackPushEngineStructure(0,helper_effect))
-		{
-			return -638;
-		}
-		eff->dtor();
-		return 0;
-	}
-	if(mod && mod->mod_vartable.MatchIndex(CExoString("SetEffectTrueType"),VARIABLE_TYPE_INT,0) != NULL)
-	{
-		eff->eff_type = (unsigned short)mod->mod_vartable.GetInt(CExoString("SetEffectTrueType"));
-	}
-	else if(mod && mod->mod_vartable.MatchIndex(CExoString("SetEffectSpellId"),VARIABLE_TYPE_INT,0) != NULL)
-	{
-		eff->eff_spellid = mod->mod_vartable.GetInt(CExoString("SetEffectSpellId"));
-	}
-	else if(mod && mod->mod_vartable.MatchIndex(CExoString("SetEffectCasterLevel"),VARIABLE_TYPE_INT,0) != NULL)
-	{
-		eff->eff_casterlvl = mod->mod_vartable.GetInt(CExoString("SetEffectCasterLevel"));
-	}
-	else if(mod && mod->mod_vartable.MatchIndex(CExoString("SetEffectInteger"),VARIABLE_TYPE_INT,0) != NULL)
-	{
-		int nValue = mod->mod_vartable.GetInt(CExoString("SetEffectInteger"));
-		int nInteger = nValue/1000;
-		nValue = nValue-nInteger*1000;
-		eff->eff_integers[nInteger] = nValue;
-	}
-	else if(mod && mod->mod_vartable.MatchIndex(CExoString("SetEffectCreator"),VARIABLE_TYPE_OBJECT,0) != NULL)
-	{
-		eff->eff_creator = mod->mod_vartable.GetObject(CExoString("SetEffectCreator"));
-	}
-	else if(mod && mod->mod_vartable.MatchIndex(CExoString("GetEffect"),VARIABLE_TYPE_INT,0) != NULL && mod->mod_vartable.MatchIndex(CExoString("GetEffect"),VARIABLE_TYPE_OBJECT,0) != NULL)
-	{
-		unsigned long id = mod->mod_vartable.GetObject(CExoString("GetEffect"));
-		unsigned int th = (unsigned int)mod->mod_vartable.GetInt(CExoString("GetEffect"));
-		CNWSObject *obj = (CNWSObject*)NWN_AppManager->app_server->srv_internal->GetGameObject(id);
-		if(obj)
-		{
-			for(unsigned int nEffect = 0;nEffect < obj->obj_effects_len;nEffect++)
-			{
-				CGameEffect* eEffect = *(obj->obj_effects+nEffect);
-				if(nEffect == th)
-				{
-					if(!NWN_VirtualMachine->StackPushEngineStructure(0,eEffect))
-					{
-						return -638;
-					}
-					eff->dtor();
-					return 0;
-				}
-			}
-			eff->eff_type = 0;
-		}
-	}
-	else
-	{
-		switch(cmd)
-		{
-		case 112:
-			eff->eff_dursubtype = eff->eff_dursubtype & 0xFFEF | 8;
-			break;
-		case 113:
-			eff->eff_dursubtype = eff->eff_dursubtype & 0xFFF7 | 0x10;
-			break;
-		case 114:
-			eff->eff_dursubtype|= 0x18u;
-			break;
-		}
-	}
-	if(eff->eff_type == EFFECT_TRUETYPE_LINK)
-	{
-		eff->UpdateLinked();
-	}	
-	if(!NWN_VirtualMachine->StackPushEngineStructure(0,eff))
-	{
-		return -638;
-	}
-	eff->dtor();
-	return 0;
-}
-
 int __fastcall CNWVirtualMachineCommands__ExecuteCommandGetEffectSubType_Hook(CVirtualMachineCommands *, void*, int, int)
 {
 	Log(2,"o CNWVirtualMachineCommands__ExecuteCommandGetEffectSubType start\n");
@@ -1599,6 +1502,120 @@ int __fastcall CNWVirtualMachineCommands__ExecuteCommandGetEffectSubType_Hook(CV
 		}
 	}
 	if(!NWN_VirtualMachine->StackPushInteger(retVal))
+	{
+		return -638;
+	}
+	eff->dtor();
+	return 0;
+}
+
+int __fastcall CNWVirtualMachineCommands__ExecuteCommandVersusEffect_Hook(CVirtualMachineCommands *vm_cmds, void*, int cmd, int args)
+{
+	Log(2,"o CNWVirtualMachineCommands__ExecuteCommandVersusEffect start\n");
+	CGameEffect *eff;
+	int arg1,arg2;
+	if(!NWN_VirtualMachine->StackPopEngineStructure(0,(void **)&eff) || (args > 1 && !NWN_VirtualMachine->StackPopInteger(&arg1)) || (args > 2 && !NWN_VirtualMachine->StackPopInteger(&arg2)))
+	{
+		return -638;
+	}
+	if((cmd == 355 && arg1 > -1 && arg1 < 6) || (cmd == 356 && arg1 > -1 && arg1 <= NWN_Rules->ru_races_len))
+	{
+		int integer_index = 0;
+		switch(eff->eff_type)
+		{
+		case EFFECT_TRUETYPE_INVISIBILITY:
+		case EFFECT_TRUETYPE_SANCTUARY:
+		case EFFECT_TRUETYPE_IMMUNITY:
+		case EFFECT_TRUETYPE_CONCEALMENT:
+			integer_index = 1;
+			break;
+		case EFFECT_TRUETYPE_ATTACK_INCREASE:
+		case EFFECT_TRUETYPE_ATTACK_DECREASE:
+		case EFFECT_TRUETYPE_AC_INCREASE:
+		case EFFECT_TRUETYPE_AC_DECREASE:
+		case EFFECT_TRUETYPE_SKILL_INCREASE:
+		case EFFECT_TRUETYPE_SKILL_DECREASE:
+		case EFFECT_TRUETYPE_DAMAGE_INCREASE:
+		case EFFECT_TRUETYPE_DAMAGE_DECREASE:
+			integer_index = 2;
+			break;
+		case EFFECT_TRUETYPE_DAMAGE_SHIELD:
+			if(cmd==356) eff->SetInteger(6,1);
+		case EFFECT_TRUETYPE_SAVING_THROW_INCREASE:
+		case EFFECT_TRUETYPE_SAVING_THROW_DECREASE:
+			integer_index = 3;
+			break;
+		}
+		if(integer_index)
+		{
+			if(cmd == 356)//vs racial type
+			{
+				eff->SetInteger(integer_index,arg1);
+			}
+			else//if(cmd == 355) - vs alignment
+			{
+				eff->SetInteger(integer_index+1,arg1);
+				eff->SetInteger(integer_index+2,arg2);
+			}
+		}
+	}
+	else if(cmd == 357)
+	{
+		CNWSModule *mod = NWN_AppManager->app_server->srv_internal->GetModule();
+		if(mod && mod->mod_vartable.MatchIndex(CExoString("GetEffectEventEffect"),VARIABLE_TYPE_INT,0) != NULL && helper_effect != NULL)
+		{
+			if(!NWN_VirtualMachine->StackPushEngineStructure(0,helper_effect))
+			{
+				return -638;
+			}
+			eff->dtor();
+			return 0;
+		}
+		if(mod && mod->mod_vartable.MatchIndex(CExoString("SetEffectTrueType"),VARIABLE_TYPE_INT,0) != NULL)
+		{
+			eff->eff_type = (unsigned short)mod->mod_vartable.GetInt(CExoString("SetEffectTrueType"));
+		}
+		else if(mod && mod->mod_vartable.MatchIndex(CExoString("SetEffectSpellId"),VARIABLE_TYPE_INT,0) != NULL)
+		{
+			eff->eff_spellid = mod->mod_vartable.GetInt(CExoString("SetEffectSpellId"));
+		}
+		else if(mod && mod->mod_vartable.MatchIndex(CExoString("SetEffectCasterLevel"),VARIABLE_TYPE_INT,0) != NULL)
+		{
+			eff->eff_casterlvl = mod->mod_vartable.GetInt(CExoString("SetEffectCasterLevel"));
+		}
+		else if(mod && mod->mod_vartable.MatchIndex(CExoString("SetEffectInteger"),VARIABLE_TYPE_INT,0) != NULL)
+		{
+			int nValue = mod->mod_vartable.GetInt(CExoString("SetEffectInteger"));
+			int nInteger = nValue/1000;
+			nValue = nValue-nInteger*1000;
+			eff->eff_integers[nInteger] = nValue;
+		}
+		else if(mod && mod->mod_vartable.MatchIndex(CExoString("SetEffectCreator"),VARIABLE_TYPE_OBJECT,0) != NULL)
+		{
+			eff->eff_creator = mod->mod_vartable.GetObject(CExoString("SetEffectCreator"));
+		}
+		else if(mod && mod->mod_vartable.MatchIndex(CExoString("GetEffect"),VARIABLE_TYPE_INT,0) != NULL && mod->mod_vartable.MatchIndex(CExoString("GetEffect"),VARIABLE_TYPE_OBJECT,0) != NULL)
+		{
+			unsigned long id = mod->mod_vartable.GetObject(CExoString("GetEffect"));
+			unsigned int th = (unsigned int)mod->mod_vartable.GetInt(CExoString("GetEffect"));
+			CNWSObject *obj = (CNWSObject*)NWN_AppManager->app_server->srv_internal->GetGameObject(id);
+			if(obj)
+			{
+				if(th < obj->obj_effects_len)
+				{
+					CGameEffect* eEffect = *(obj->obj_effects+th);
+					if(!NWN_VirtualMachine->StackPushEngineStructure(0,eEffect))
+					{
+						return -638;
+					}
+					eff->dtor();
+					return 0;				
+				}
+				eff->eff_type = 0;
+			}
+		}	
+	}
+	if(!NWN_VirtualMachine->StackPushEngineStructure(0,eff))
 	{
 		return -638;
 	}
@@ -5887,14 +5904,14 @@ void HookFunctions()
 	CreateHook(0x4A5080,CNWSCreature__ToggleMode_Hook, (PVOID*)&CNWSCreature__ToggleMode, "DisableToggleModeHook","ToggleMode function");
 	CreateHook(0x4BB4D0,CNWSCreature__SetCombatMode_Hook, (PVOID*)&CNWSCreature__SetCombatMode, "DisableToggleModeHook","Flurry of blows modification");
 
-	CreateHook(0x489890,CNWSCreatureStats__GetSpellResistance_Hook,(PVOID*)&CNWSCreatureStats__GetSpellResistance, "DisableSRHook" , "Spell Resistance override");
+	CreateHook(0x489890,CNWSCreatureStats__GetSpellResistance_Hook,(PVOID*)&CNWSCreatureStats__GetSpellResistance, "DisableSRHook", "Spell Resistance override");
 
-	CreateHook(0x577DF0,CNWVirtualMachineCommands__ExecuteCommandApplyEffectOnObject_Hook,(PVOID*)&CNWVirtualMachineCommands__ExecuteCommandApplyEffectOnObject, "DisableApplyEffectOnObject" , "ApplyEffectToObject extension");
-	CreateHook(0x571160,CNWVirtualMachineCommands__ExecuteCommandSetSubType_Hook,(PVOID*)&CNWVirtualMachineCommands__ExecuteCommandSetSubType, "DisableGetSetSubType" , "Enabling effect modifications");
-	CreateHook(0x5700A0,CNWVirtualMachineCommands__ExecuteCommandGetEffectSubType_Hook,(PVOID*)&CNWVirtualMachineCommands__ExecuteCommandGetEffectSubType, "DisableGetSetSubType" , "Enabling additional effect information functions");
+	CreateHook(0x577DF0,CNWVirtualMachineCommands__ExecuteCommandApplyEffectOnObject_Hook,(PVOID*)&CNWVirtualMachineCommands__ExecuteCommandApplyEffectOnObject, "DisableApplyEffectOnObject", "ApplyEffectToObject extension");
+	CreateHook(0x5700A0,CNWVirtualMachineCommands__ExecuteCommandGetEffectSubType_Hook,(PVOID*)&CNWVirtualMachineCommands__ExecuteCommandGetEffectSubType, "DisableEffects", "Enabling effect modifications and additional effect information functions");
+	CreateHook(0x57F5E0,CNWVirtualMachineCommands__ExecuteCommandVersusEffect_Hook,(PVOID*)&CNWVirtualMachineCommands__ExecuteCommandVersusEffect, "DisableEffects", "Enabling VersusEffect to work with EffectDamageShield");
 	CreateHook(0x4AB140,CNWSCreature__GetTotalEffectBonus_Hook,(PVOID*)&CNWSCreature__GetTotalEffectBonus, "DisableGetTotalEffectBonus", "Enabling uncapped EffectAttackIncrease");
 	CreateHook(0x46ED40,CNWSCreatureStats__GetBaseAttackBonus_Hook,(PVOID*)&CNWSCreatureStats__GetBaseAttackBonus, "DisableGetBaseAttackBonus", "Enabling EffectModifyBAB");
-	CreateHook(0x45B990,CServerExoAppInternal__RemovePCFromWorld_Hook,(PVOID*)&CServerExoAppInternal__RemovePCFromWorld, "DisablePlayerLeave" , "OnClientLeave extension");
+	CreateHook(0x45B990,CServerExoAppInternal__RemovePCFromWorld_Hook,(PVOID*)&CServerExoAppInternal__RemovePCFromWorld, "DisablePlayerLeave", "OnClientLeave extension");
 	CreateHook(0x454610,CServerExoAppInternal__ValidateCreateServerCharacter_Hook,(PVOID*)&CServerExoAppInternal__ValidateCreateServerCharacter, "DisableValidateServerCharacter", "Disallow New Characters server option");
 	
 	CreateHook(0x4E8C00,CGameEffect__SetCreator_Hook,(PVOID*)&CGameEffect__SetCreator, "DisableEffectCasterLevel" , "Effect caster level bug");
