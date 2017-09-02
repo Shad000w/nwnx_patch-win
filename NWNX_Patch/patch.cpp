@@ -539,7 +539,8 @@ char __fastcall CNWSCreatureStats__GetBaseReflexSavingThrow_Hook(CNWSCreatureSta
 		return nSave;
 	}
 	char retVal = CNWSCreatureStats__GetBaseReflexSavingThrow(pThis,NULL);
-	return pThis->HasFeat(487) ? retVal+2 : retVal;
+	unsigned char cls_pos = pThis->GetIsClass(CLASS_TYPE_EYE_OF_GRUUMSH);	
+	return cls_pos != 255 && pThis->GetClassLevel(cls_pos,0) > 9 ? retVal+2 : retVal;
 }
 
 char __fastcall CNWSCreatureStats__GetBaseFortSavingThrow_Hook(CNWSCreatureStats *pThis, void*)
@@ -555,7 +556,8 @@ char __fastcall CNWSCreatureStats__GetBaseFortSavingThrow_Hook(CNWSCreatureStats
 		return nSave;
 	}
 	char retVal = CNWSCreatureStats__GetBaseFortSavingThrow(pThis,NULL);
-	return pThis->HasFeat(487) ? retVal+2 : retVal;
+	unsigned char cls_pos = pThis->GetIsClass(CLASS_TYPE_EYE_OF_GRUUMSH);	
+	return cls_pos != 255 && pThis->GetClassLevel(cls_pos,0) > 9 ? retVal+2 : retVal;
 }
 
 char __fastcall CNWSCreatureStats__GetBaseWillSavingThrow_Hook(CNWSCreatureStats *pThis, void*)
@@ -571,7 +573,8 @@ char __fastcall CNWSCreatureStats__GetBaseWillSavingThrow_Hook(CNWSCreatureStats
 		return nSave;
 	}
 	char retVal = CNWSCreatureStats__GetBaseWillSavingThrow(pThis,NULL);
-	return pThis->HasFeat(487) ? retVal+2 : retVal;
+	unsigned char cls_pos = pThis->GetIsClass(CLASS_TYPE_EYE_OF_GRUUMSH);	
+	return cls_pos != 255 && pThis->GetClassLevel(cls_pos,0) > 9 ? retVal+2 : retVal;
 }
 
 int __fastcall CNWSCreatureStats__CanLevelUp_Hook(CNWSCreatureStats *pThis, void*)
