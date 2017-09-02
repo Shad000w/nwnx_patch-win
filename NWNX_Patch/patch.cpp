@@ -4064,6 +4064,58 @@ void NWNXPatch_Funcs(CNWSScriptVarTable *pThis, int nFunc, char *Params)
 			fprintf(logFile, "ERROR: TakeItemFromCreature(%08X,%08X) used with incorrect parameters!\n",oID,oItem);
 		}
 	}
+	else if(nFunc == 441)//GetBaseAC
+	{
+		unsigned long oID = OBJECT_INVALID, nType = OBJECT_INVALID;
+		sscanf_s(Params,"%x|%i",&oID,&nType);
+		CNWSCreature *cre = NWN_AppManager->app_server->srv_internal->GetCreatureByGameObjectID(oID);
+		if(oID != OBJECT_INVALID && cre && nType > 0 && nType < 4)
+		{
+			switch(nType)
+			{
+			case AC_NATURAL_BONUS:
+				retVal = cre->cre_stats->cs_ac_natural_base;
+				break;
+			case AC_ARMOUR_ENCHANTMENT_BONUS:
+				retVal = cre->cre_stats->cs_ac_armour_base;
+				break;
+			case AC_SHIELD_ENCHANTMENT_BONUS:
+				retVal = cre->cre_stats->cs_ac_shield_base;
+				break;
+			}
+		}
+		else
+		{
+			fprintf(logFile, "ERROR: GetBaseAC(%08X,%i) used with incorrect parameters!\n",oID,nType);
+		}
+		pThis->SetInt(VarName,retVal,0);
+	}
+	else if(nFunc == 442)//SetBaseAC
+	{
+		unsigned long oID = OBJECT_INVALID, nType = OBJECT_INVALID;
+		int nAC = 255;
+		sscanf_s(Params,"%x|%i|%i",&oID,&nType,&nAC);
+		CNWSCreature *cre = NWN_AppManager->app_server->srv_internal->GetCreatureByGameObjectID(oID);
+		if(oID != OBJECT_INVALID && cre && nType > 0 && nType < 4 && nAC > -127 && nAC < 127)
+		{
+			switch(nType)
+			{
+			case AC_NATURAL_BONUS:
+				cre->cre_stats->cs_ac_natural_base = (char)nAC;
+				break;
+			case AC_ARMOUR_ENCHANTMENT_BONUS:
+				cre->cre_stats->cs_ac_armour_base = (char)nAC;
+				break;
+			case AC_SHIELD_ENCHANTMENT_BONUS:
+				cre->cre_stats->cs_ac_shield_base = (char)nAC;
+				break;
+			}
+		}
+		else
+		{
+			fprintf(logFile, "ERROR: SetBaseAC(%08X,%i,%i) used with incorrect parameters!\n",oID,nType,nAC);
+		}
+	}
 	else if(nFunc == 501)//GetKnowsSpell
 	{
 		unsigned long oID = OBJECT_INVALID;
