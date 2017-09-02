@@ -320,7 +320,7 @@ int (__fastcall *CNWSCreatureStats__GetSpellResistance)(CNWSCreatureStats *pThis
 int (__fastcall *CNWSCreature__AddPickPocketAction)(CNWSCreature *pThis, void*, unsigned long targetID);
 int (__fastcall *CNWSCreature__AddTauntActions)(CNWSCreature *pThis, void*, unsigned long targetID);
 int (__fastcall *CNWSCreature__StartBarter)(CNWSCreature *pThis, void*, unsigned long targetID, unsigned long itemID, int arg1);
-int (__fastcall *CNWSCreature__EventHandler)(CNWSCreature *pThis, void*, int arg1, int arg2, float arg3, int arg4, int arg5);
+int (__fastcall *CNWSCreature__EventHandler)(CNWSCreature *pThis, void*, int arg1, int arg2, void *arg3, int arg4, int arg5);
 void (__fastcall *CNWSCreatureStats__LevelDown)(CNWSCreatureStats *pThis, void*, CNWLevelStats *CNWLevelStats);
 void (__fastcall *CNWSCreatureStats__LevelUp)(CNWSCreatureStats *pThis, void*, CNWLevelStats *CNWLevelStats, unsigned char domain1, unsigned char domain2, unsigned char spellschool, int num_levels);
 int (__fastcall *CNWSStore__SellItem)(CNWSStore *pThis, void *, CNWSItem *item, CNWSCreature *buyer, unsigned char a1, unsigned char a2);
@@ -344,7 +344,6 @@ void (__fastcall *CNWSCreature__UnpossessFamiliar)(CNWSCreature *pThis, void*);
 int (__fastcall *CNWSCreature__GetIsPossessedFamiliar)(CNWSCreature *pThis, void*);
 int (__fastcall *CNWSCreatureStats__CanLevelUp)(CNWSCreatureStats *pThis, void*);
 void (__fastcall *CNWSCombatRound__StartCombatRound)(CNWSCombatRound *pThis, void *, unsigned long a1);
-void (__fastcall *CNWSCreature__ApplyOnHitCastSpell)(CNWSCreature *pThis, void*, CNWSObject *obj, int *ip, CNWSItem *item);
 void (__fastcall *CNWSCombatRound__InitializeNumberOfAttacks)(CNWSCombatRound *pThis, void*);
 int (__fastcall *CNWSCreature__UseFeat)(CNWSCreature *pThis, void*, unsigned short nFeat, unsigned short subradial, unsigned long targetID, unsigned long a4, Vector *a5);
 int (__fastcall *CNWSCreatureStats__GetBaseAttackBonus)(CNWSCreatureStats *pThis, void*, int bPreEpicOnly);
@@ -496,15 +495,6 @@ void __fastcall CNWSCombatRound__InitializeNumberOfAttacks_Hook(CNWSCombatRound 
 		pThis->OffHandAttacks = pThis->Creature->obj.obj_vartable.GetInt(CExoString("NUM_OFFHAND"));
 	if(pThis->Creature->obj.obj_vartable.MatchIndex(CExoString("NUM_EXTRA"),VARIABLE_TYPE_INT,0) != NULL)
 		pThis->AdditAttacks = pThis->Creature->obj.obj_vartable.GetInt(CExoString("NUM_EXTRA"));
-}
-
-void __fastcall CNWSCreature__ApplyOnHitCastSpell_Hook(CNWSCreature *pThis, void*, CNWSObject *obj, int *ip, CNWSItem *item)
-{
-	Log(2,"o CNWSCreature__ApplyOnHitCastSpell start\n");
-	CNWSCreature__ApplyOnHitCastSpell(pThis,NULL,obj,ip,item);
-	CNWSCombatAttackData *attack = pThis->cre_combat_round->GetAttack(pThis->cre_combat_round->CurrentAttack);
-	bool isSneak = (attack->SneakAttack || attack->DeathAttack);
-	pThis->obj.obj_vartable.SetInt(CExoString("GetLastAttackSneak"),isSneak,1);
 }
 
 void __fastcall CNWSCombatRound__StartCombatRound_Hook(CNWSCombatRound *pThis, void *, unsigned long a1)
@@ -1669,7 +1659,7 @@ int __fastcall CNWVirtualMachineCommands__ExecuteCommandApplyEffectOnObject_Hook
 	return 0;
 }
 
-int __fastcall CNWSCreature__EventHandler_Hook(CNWSCreature *pThis, void*, int arg1, int arg2, float arg3, int arg4, int arg5)
+int __fastcall CNWSCreature__EventHandler_Hook(CNWSCreature *pThis, void*, int arg1, int arg2, void *arg3, int arg4, int arg5)
 {
 	Log(2,"o CNWSCreature__EventHandler start\n");
 	if(arg1 == 19)//19 onhitcast spell, 27 boot pc, 5 apply effect, 14 remove effect, 4 remove from area, 9 play animation, 1 timed event, 20 broadcast aoo, 21 broadcast safe projectile, 8 spell impact, 10 signal event, 11 destroy object
@@ -1685,6 +1675,29 @@ int __fastcall CNWSCreature__EventHandler_Hook(CNWSCreature *pThis, void*, int a
 		pThis->cre_item_spell_item = spell_item_item;
 		pThis->obj.obj_last_spell_location = spell_loc;
 		return retVal;
+	}
+	else if(arg1 == 15)//onattacked
+	{
+		CNWSCombatAttackData *data = (CNWSCombatAttackData*)arg3;
+		if(data)
+		{		
+			pThis->obj.obj_vartable.SetInt(CExoString("AttackDeflected"),data->AttackDeflected,1);
+			pThis->obj.obj_vartable.SetInt(CExoString("AttackResult"),data->AttackResult,1);
+			pThis->obj.obj_vartable.SetInt(CExoString("Concealment"),data->Concealment,1);
+			pThis->obj.obj_vartable.SetInt(CExoString("CoupDeGrace"),data->CoupDeGrace,1);
+			pThis->obj.obj_vartable.SetInt(CExoString("CriticalThreat"),data->CriticalThreat,1);
+			pThis->obj.obj_vartable.SetInt(CExoString("DeathAttack"),data->DeathAttack,1);
+			pThis->obj.obj_vartable.SetInt(CExoString("KillingBlow"),data->KillingBlow,1);
+			pThis->obj.obj_vartable.SetInt(CExoString("MissedBy"),data->MissedBy,1);
+			pThis->obj.obj_vartable.SetInt(CExoString("SneakAttack"),data->SneakAttack,1);
+			pThis->obj.obj_vartable.SetInt(CExoString("ThreatRoll"),data->ThreatRoll,1);
+			pThis->obj.obj_vartable.SetInt(CExoString("ToHitMod"),data->ToHitMod,1);
+			pThis->obj.obj_vartable.SetInt(CExoString("ToHitRoll"),data->ToHitRoll,1);
+			if(pThis->cre_is_pc)
+			{
+				NWN_VirtualMachine->Runscript(&CExoString("70_mod_attacked"),pThis->obj.obj_generic.obj_id);
+			}
+		}	
 	}
 	return CNWSCreature__EventHandler(pThis,NULL,arg1,arg2,arg3,arg4,arg5);
 }
@@ -5915,7 +5928,6 @@ void HookFunctions()
 	CreateHook(0x47DED0,CNWSCreatureStats__GetBaseWillSavingThrow_Hook,(PVOID*)&CNWSCreatureStats__GetBaseWillSavingThrow, "DisableSavingThrows", "Enabling modifications into will saving throw");
 
 	CreateHook(0x52FA00,CNWSCombatRound__StartCombatRound_Hook,(PVOID*)&CNWSCombatRound__StartCombatRound, "DisableStartCombatRound", "Enabling combat round modifications.");
-	CreateHook(0x54D120,CNWSCreature__ApplyOnHitCastSpell_Hook,(PVOID*)&CNWSCreature__ApplyOnHitCastSpell,"DisableApplyOnHitCastSpell","Enabling GetIsAttackSneakAttack function.");
 	CreateHook(0x530E40,CNWSCombatRound__InitializeNumberOfAttacks_Hook,(PVOID*)&CNWSCombatRound__InitializeNumberOfAttacks,"DisableInitializeNumberOfAttacks","Enabling number of attacks modifications.");
 
 	//special attacks
