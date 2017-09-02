@@ -5910,9 +5910,9 @@ void HookFunctions()
 	CreateHook(0x4A5D90,CNWSCreature__AddTauntActions_Hook,(PVOID*)&CNWSCreature__AddTauntActions, "DisableAddTauntActions", "Taunt skill softcoding");
 	CreateHook(0x4B1F70,CNWSCreature__LearnScroll_Hook,(PVOID*)&CNWSCreature__LearnScroll, "DisableLearnScroll", "Learn scroll sofcoding");
 
-	CreateHook(0x47E020,CNWSCreatureStats__GetBaseReflexSavingThrow_Hook,(PVOID*)&CNWSCreatureStats__GetBaseReflexSavingThrow, "DisableSavingThrows", "Sight of Gruumsh +2bonus to reflex.");
-	CreateHook(0x47DD90,CNWSCreatureStats__GetBaseFortSavingThrow_Hook,(PVOID*)&CNWSCreatureStats__GetBaseFortSavingThrow, "DisableSavingThrows", "Sight of Gruumsh +2bonus to fortitude.");
-	CreateHook(0x47DED0,CNWSCreatureStats__GetBaseWillSavingThrow_Hook,(PVOID*)&CNWSCreatureStats__GetBaseWillSavingThrow, "DisableSavingThrows", "Sight of Gruumsh +2bonus to will.");
+	CreateHook(0x47E020,CNWSCreatureStats__GetBaseReflexSavingThrow_Hook,(PVOID*)&CNWSCreatureStats__GetBaseReflexSavingThrow, "DisableSavingThrows", "Enabling modifications into reflex saving throw");
+	CreateHook(0x47DD90,CNWSCreatureStats__GetBaseFortSavingThrow_Hook,(PVOID*)&CNWSCreatureStats__GetBaseFortSavingThrow, "DisableSavingThrows", "Enabling modifications into fortitude saving throw");
+	CreateHook(0x47DED0,CNWSCreatureStats__GetBaseWillSavingThrow_Hook,(PVOID*)&CNWSCreatureStats__GetBaseWillSavingThrow, "DisableSavingThrows", "Enabling modifications into will saving throw");
 
 	CreateHook(0x52FA00,CNWSCombatRound__StartCombatRound_Hook,(PVOID*)&CNWSCombatRound__StartCombatRound, "DisableStartCombatRound", "Enabling combat round modifications.");
 	CreateHook(0x54D120,CNWSCreature__ApplyOnHitCastSpell_Hook,(PVOID*)&CNWSCreature__ApplyOnHitCastSpell,"DisableApplyOnHitCastSpell","Enabling GetIsAttackSneakAttack function.");
