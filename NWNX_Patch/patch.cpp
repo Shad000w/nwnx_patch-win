@@ -5086,57 +5086,34 @@ int __fastcall CNWSCreature__GetUseMonkAbilities_Hook(CNWSCreature *pThis, void*
 	return CNWSCreature__GetUseMonkAbilities(pThis,NULL);
 }
 
-void __fastcall CNWSCreature__ResolveDamageShields_Hook(CNWSCreature *pThis, void*, CNWSCreature *attacker)
+void __fastcall CNWSCreature__ResolveDamageShields_Hook(CNWSCreature *pThis, void*, CNWSCreature *attacker)//todo make dynamic
 {
 	Log(2,"o CNWSCreature__ResolveDamageShields start\n");
 	bool change = false;
-	if(pThis != NULL && attacker != NULL)
+	if(pThis != NULL && attacker != NULL && pThis->cre_stats->m_nDamageShieldPtr > 0)
 	{
-		for(unsigned int nEffect = 0; nEffect < pThis->obj.obj_effects_len; nEffect++)
+		for(unsigned int nEffect = pThis->cre_stats->m_nDamageShieldPtr; nEffect < pThis->obj.obj_effects_len; nEffect++)
 		{
 			CGameEffect* e = *(pThis->obj.obj_effects+nEffect);
-			if(e->eff_type == EFFECT_TRUETYPE_DAMAGE_SHIELD)
+			//0: nDamageAmount 1: nRandomAmount 2: nDamageType 3: racialtype 4: alignment_chaoslawful 5: alignment_goodevil 6: isvsracial
+			if(e->eff_type == EFFECT_TRUETYPE_DAMAGE_SHIELD && ((e->eff_integers[6] == 1 && e->eff_integers[4] != RACIAL_TYPE_INVALID && attacker->cre_stats->cs_race != e->eff_integers[4]) ||
+			(e->eff_integers[4] != 0 && attacker->cre_stats->GetSimpleAlignmentLawChaos() != e->eff_integers[4]) ||
+			(e->eff_integers[5] != 0 && attacker->cre_stats->GetSimpleAlignmentGoodEvil() != e->eff_integers[5])))
 			{
-				if(e->eff_spellid == 84)//holy aura
-				{
-					if(attacker->cre_stats->GetSimpleAlignmentGoodEvil() != ALIGNMENT_EVIL)
-					{
-						e->eff_integers[3] = e->eff_integers[0];
-						e->eff_integers[4] = e->eff_integers[1];
-						e->eff_integers[5] = e->eff_integers[2];
-						e->eff_integers[0] = 0;
-						e->eff_integers[1] = 0;
-						e->eff_integers[2] = 0;
-						change = true;
-					}
-				}
-				else if(e->eff_spellid == 187)//unholy aura
-				{
-					if(attacker->cre_stats->GetSimpleAlignmentGoodEvil() != ALIGNMENT_GOOD)
-					{
-						e->eff_integers[3] = e->eff_integers[0];
-						e->eff_integers[4] = e->eff_integers[1];
-						e->eff_integers[5] = e->eff_integers[2];
-						e->eff_integers[0] = 0;
-						e->eff_integers[1] = 0;
-						e->eff_integers[2] = 0;
-						change = true;
-					}
-				}
+				e->eff_type = EFFECT_TRUETYPE_DEATH;
+				change = true;
 			}
 		}
 	}
 	CNWSCreature__ResolveDamageShields(pThis, NULL, attacker);
 	if(change)
 	{
-		for(unsigned int nEffect = 0; nEffect < pThis->obj.obj_effects_len; nEffect++)
+		for(unsigned int nEffect = pThis->cre_stats->m_nDamageShieldPtr; nEffect < pThis->obj.obj_effects_len; nEffect++)
 		{
 			CGameEffect* e = *(pThis->obj.obj_effects+nEffect);
-			if(e->eff_type == 61 && e->eff_integers[0] == 0)
+			if(e->eff_type == EFFECT_TRUETYPE_DEATH)
 			{
-					e->eff_integers[0] = e->eff_integers[3];
-					e->eff_integers[1] = e->eff_integers[4];
-					e->eff_integers[2] = e->eff_integers[5];
+				e->eff_type = EFFECT_TRUETYPE_DAMAGE_SHIELD;
 			}
 		}
 	}

@@ -101,7 +101,7 @@ struct CNWSCreatureStats_s {
   unsigned int field_460;
   unsigned __int16 field_464;
   unsigned __int16 field_466;
-  unsigned __int16 field_468;
+  unsigned __int16 m_nDamageShieldPtr;
   unsigned __int16 effect_index_SKILL_INCREASE;
   unsigned __int16 effect_index_SAVINGTHROW_INCREASE;
   unsigned __int16 field_46E;
