@@ -14,7 +14,8 @@
   unsigned __int32 ToHitMod;
   unsigned __int8 MissedBy;
   unsigned __int8 field_15;
-  unsigned __int16 Damage_Bludgeoning;
+  unsigned __int16 Damage[13];
+  /*unsigned __int16 Damage_Bludgeoning;
   unsigned __int16 Damage_Piercing;
   unsigned __int16 Damage_Slashing;
   unsigned __int16 Damage_Magical;
@@ -26,7 +27,7 @@
   unsigned __int16 Damage_Negative;
   unsigned __int16 Damage_Positive;
   unsigned __int16 Damage_Sonic;
-  unsigned __int16 BaseDamage;
+  unsigned __int16 BaseDamage;*/
   unsigned __int8 WeaponAttackType;
   unsigned __int8 AttackMode;
   unsigned __int8 Concealment;

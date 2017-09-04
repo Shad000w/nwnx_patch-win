@@ -1694,11 +1694,35 @@ int __fastcall CNWSCreature__EventHandler_Hook(CNWSCreature *pThis, void*, int a
 			pThis->obj.obj_vartable.SetInt(CExoString("ToHitRoll"),data->ToHitRoll,1);
 			if(pThis->cre_is_pc)
 			{
+					pThis->obj.obj_last_damager = arg2;
+					for(unsigned char x=0;x < 13;x++)
+					{
+						pThis->obj.obj_last_damage[x] = (short)data->Damage[x];
+					}
 				int retVal = CNWSCreature__EventHandler(pThis,NULL,arg1,arg2,arg3,arg4,arg5);
 				NWN_VirtualMachine->Runscript(&CExoString("70_mod_attacked"),pThis->obj.obj_generic.obj_id);
 				return retVal;
 			}
 		}	
+	}
+	else if(arg1 == 5)//arg2 targetid arg3 effect
+	{
+		CGameEffect *eff = (CGameEffect*)arg3;
+		if(eff)
+		{
+			if(eff->eff_type == EFFECT_TRUETYPE_DAMAGE)
+			{
+				if(pThis->cre_is_pc)
+				{
+					pThis->obj.obj_last_damager = arg2;
+					for(unsigned char x=0;x < 13;x++)
+					{
+						pThis->obj.obj_last_damage[x] = eff->eff_integers[x];
+					}
+					NWN_VirtualMachine->Runscript(&CExoString("70_mod_damaged"),pThis->obj.obj_generic.obj_id);
+				}
+			}
+		}
 	}
 	return CNWSCreature__EventHandler(pThis,NULL,arg1,arg2,arg3,arg4,arg5);
 }
