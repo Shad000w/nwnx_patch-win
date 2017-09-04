@@ -520,46 +520,49 @@ void __fastcall CNWSCombatRound__StartCombatRound_Hook(CNWSCombatRound *pThis, v
 char __fastcall CNWSCreatureStats__GetBaseReflexSavingThrow_Hook(CNWSCreatureStats *pThis, void*)
 {
 	Log(2,"o CNWSCreatureStats__GetBaseReflexSavingThrow start\n");
+	int nMod = pThis->cs_original->obj.obj_vartable.GetInt(CExoString("ReflexSaveModifier"));
 	if(pThis->cs_original->obj.obj_vartable.MatchIndex(CExoString("ReflexSaveOverride"),VARIABLE_TYPE_INT,0) != NULL)
 	{
-		int nSave = pThis->cs_original->obj.obj_vartable.GetInt(CExoString("ReflexSaveOverride"));
+		int nSave = pThis->cs_original->obj.obj_vartable.GetInt(CExoString("ReflexSaveOverride"))+nMod;
 		if(nSave > 127)
 			return 127;
 		else if(nSave < -127)
 			return -127;
 		return nSave;
 	}
-	return CNWSCreatureStats__GetBaseReflexSavingThrow(pThis,NULL);
+	return CNWSCreatureStats__GetBaseReflexSavingThrow(pThis,NULL)+nMod;
 }
 
 char __fastcall CNWSCreatureStats__GetBaseFortSavingThrow_Hook(CNWSCreatureStats *pThis, void*)
 {
 	Log(2,"o CNWSCreatureStats__GetBaseFortSavingThrow start\n");
+	int nMod = pThis->cs_original->obj.obj_vartable.GetInt(CExoString("FortitudeSaveModifier"));
 	if(pThis->cs_original->obj.obj_vartable.MatchIndex(CExoString("FortitudeSaveOverride"),VARIABLE_TYPE_INT,0) != NULL)
 	{
-		int nSave = pThis->cs_original->obj.obj_vartable.GetInt(CExoString("FortitudeSaveOverride"));
+		int nSave = pThis->cs_original->obj.obj_vartable.GetInt(CExoString("FortitudeSaveOverride"))+nMod;
 		if(nSave > 127)
 			return 127;
 		else if(nSave < -127)
 			return -127;
 		return nSave;
 	}
-	return CNWSCreatureStats__GetBaseFortSavingThrow(pThis,NULL);
+	return CNWSCreatureStats__GetBaseFortSavingThrow(pThis,NULL)+nMod;
 }
 
 char __fastcall CNWSCreatureStats__GetBaseWillSavingThrow_Hook(CNWSCreatureStats *pThis, void*)
 {
 	Log(2,"o CNWSCreatureStats__GetBaseWillSavingThrow start\n");
+	int nMod = pThis->cs_original->obj.obj_vartable.GetInt(CExoString("WillSaveModifier"));
 	if(pThis->cs_original->obj.obj_vartable.MatchIndex(CExoString("WillSaveOverride"),VARIABLE_TYPE_INT,0) != NULL)
 	{
-		int nSave = pThis->cs_original->obj.obj_vartable.GetInt(CExoString("WillSaveOverride"));
+		int nSave = pThis->cs_original->obj.obj_vartable.GetInt(CExoString("WillSaveOverride"))+nMod;
 		if(nSave > 127)
 			return 127;
 		else if(nSave < -127)
 			return -127;
 		return nSave;
 	}
-	return CNWSCreatureStats__GetBaseWillSavingThrow(pThis,NULL);
+	return CNWSCreatureStats__GetBaseWillSavingThrow(pThis,NULL)+nMod;
 }
 
 int __fastcall CNWSCreatureStats__CanLevelUp_Hook(CNWSCreatureStats *pThis, void*)
