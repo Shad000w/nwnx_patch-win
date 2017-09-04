@@ -1705,23 +1705,17 @@ int __fastcall CNWSCreature__EventHandler_Hook(CNWSCreature *pThis, void*, int a
 			}
 		}	
 	}
-	else if(arg1 == 5)//arg2 targetid arg3 effect
+	else if(arg1 == 5 && pThis->cre_is_pc)//arg2 targetid arg3 effect
 	{
 		CGameEffect *eff = (CGameEffect*)arg3;
-		if(eff)
+		if(eff && eff->eff_type == EFFECT_TRUETYPE_DAMAGE)
 		{
-			if(eff->eff_type == EFFECT_TRUETYPE_DAMAGE)
+			pThis->obj.obj_last_damager = arg2;
+			for(unsigned char x=0;x < 13;x++)
 			{
-				if(pThis->cre_is_pc)
-				{
-					pThis->obj.obj_last_damager = arg2;
-					for(unsigned char x=0;x < 13;x++)
-					{
-						pThis->obj.obj_last_damage[x] = eff->eff_integers[x];
-					}
-					NWN_VirtualMachine->Runscript(&CExoString("70_mod_damaged"),pThis->obj.obj_generic.obj_id);
-				}
+				pThis->obj.obj_last_damage[x] = eff->eff_integers[x];
 			}
+			NWN_VirtualMachine->Runscript(&CExoString("70_mod_damaged"),pThis->obj.obj_generic.obj_id);
 		}
 	}
 	return CNWSCreature__EventHandler(pThis,NULL,arg1,arg2,arg3,arg4,arg5);
