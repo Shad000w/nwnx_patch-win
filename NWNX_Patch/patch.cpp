@@ -6127,7 +6127,7 @@ void HookFunctions()
 	CreateHook(0x48B920,CNWSCreatureStats__AdjustSpellUsesPerDay_Hook,(PVOID*)&CNWSCreatureStats__AdjustSpellUsesPerDay, "DisableAdjustSpellUses", "Spontaneous casters spell uses correction.");
 	CreateHook(0x48E850,CNWSCreatureStats__ComputeFeatBonuses_Hook, (PVOID*)&CNWSCreatureStats__ComputeFeatBonuses, "DisableComputeFeatBonuses","Fixed losing spellslots/spelluses upon login from Great Ability feats.");
 	CreateHook(0x499500,CNWSCreature__ReadItemsFromGff_Hook, (PVOID*)&CNWSCreature__ReadItemsFromGff, "DisableReadItemsFromGff","Fixed losing spelluses upon login from multiple items with charisma bonus.");
-	CreateHook(0x496CE0,CNWSCreature__EventHandler_Hook,(PVOID*)&CNWSCreature__EventHandler, "DisableOnHitCastSpellHook" , "OnHitSpellCast bug");
+	CreateHook(0x496CE0,CNWSCreature__EventHandler_Hook,(PVOID*)&CNWSCreature__EventHandler, "DisableEventHandler" , "OnHitSpellCast bugfix and OnAttacked/OnDamaged events for player");
 	CreateHook(0x465B30,CNWSStore__SellItem_Hook,(PVOID*) &CNWSStore__SellItem, "DisableSellItem", "Buying with full inventory bug");
 	CreateHook(0x484F50,CNWSCreatureStats__LevelDown_Hook,(PVOID*) &CNWSCreatureStats__LevelDown, "DisableLevelDownHook", "Fixed combat info update after level down");
 	CreateHook(0x4847F0,CNWSCreatureStats__LevelUp_Hook,(PVOID*) &CNWSCreatureStats__LevelUp, "DisableLevelUpHook", "Support for spontaneous non-learner custom spellcaster class.");
