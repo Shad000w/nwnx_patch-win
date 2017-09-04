@@ -12,7 +12,10 @@ __declspec( naked ) CExoString CNWSCreature_s::GetAnimalCompanionName(){__asm{ j
 
 int					(__thiscall *CNWSCreature__AddAttackActions)(CNWSCreature*, unsigned long, int, int, int) = (int(__thiscall*)(CNWSCreature*, unsigned long, int, int, int))0x493810;
 void				(__thiscall *CNWSCreature__ActivityManager)(CNWSCreature *pThis, unsigned long Activity) = (void(__thiscall*)(CNWSCreature *pThis, unsigned long Activity))0x00490630;
+unsigned char		(__thiscall *CNWSCreature__CanEquipItem)(CNWSCreature *, CNWSItem *, unsigned long *, int, int, int, CNWSPlayer *) = (unsigned char(__thiscall*)(CNWSCreature *, CNWSItem *, unsigned long *, int, int, int, CNWSPlayer *))0x4C0110;
 signed int 			(__thiscall *CNWSCreature__AcquireItem)(CNWSCreature *pThis, CNWSItem **Item, nwn_objid_t From_oID, nwn_objid_t a4, char a5, char a6, int a7, int a8) = (signed int (__thiscall*)(CNWSCreature *pThis, CNWSItem **Item, nwn_objid_t From_oID, nwn_objid_t a4, char a5, char a6, int a7, int a8))0x004C0580;
+int					(__thiscall *CNWSCreature__EquipItem)(CNWSCreature *, unsigned long, CNWSItem *, int, int) = (int (__thiscall*)(CNWSCreature *, unsigned long, CNWSItem *, int, int))0x4961E0;
+int					(__thiscall *CNWSCreature__UnequipItem)(CNWSCreature *, CNWSItem *, int) = (int (__thiscall*)(CNWSCreature *, CNWSItem *, int))0x496330;
 int 				(__thiscall *CNWSCreature__ApplyDiseasePayload)(CNWSCreature *pThis, CGameEffect *eff, unsigned long a3, unsigned long a4) = (int(__thiscall*)(CNWSCreature *pThis, CGameEffect *eff, unsigned long a3, unsigned long a4))0x004B0170;
 int 				(__thiscall *CNWSCreature__ApplyPoisonPayload)(CNWSCreature *pThis, CGameEffect *eff, unsigned long t1, unsigned long t2) = (int(__thiscall*)(CNWSCreature *pThis, CGameEffect *eff, unsigned long t1, unsigned long t2))0x004B0770;
 void				(__thiscall *CNWSCreature__CancelRest)(CNWSCreature *pThis, unsigned short a1) = (void(__thiscall*)(CNWSCreature *pThis, unsigned short a1))0x004A6840;
@@ -39,6 +42,7 @@ void 				(__thiscall *CNWSCreature__ReceiveAssociateCommand)(CNWSCreature *pThis
 void				(__thiscall *CNWSCreature__RemoveBadEffects)(CNWSCreature *pThis) = (void(__thiscall*)(CNWSCreature *pThis))0x004A6C20;
 void				(__thiscall *CNWSCreature__RemoveFromArea)(CNWSCreature*, int AreaID) = (void (__thiscall *)(CNWSCreature*, int AreaID))0x004964C0;
 signed int 			(__thiscall *CNWSCreature__RemoveItem)(CNWSCreature *pThis, CNWSItem *a2, int a3, int bSendFeedBack, int a5, int a6) = (signed int (__thiscall*)(CNWSCreature *pThis, CNWSItem *a2, int a3, int bSendFeedBack, int a5, int a6))0x004C0830;
+int		 			(__thiscall *CNWSCreature__RemoveItemFromRepository)(CNWSCreature *, CNWSItem *, int) = (int (__thiscall*)(CNWSCreature *, CNWSItem *, int))0x4B2870;
 void				(__thiscall *CNWSCreature__ResolveAttack)(CNWSCreature *pThis, int a2_target_oid, signed int a3, int a4) = (void (__thiscall*)(CNWSCreature *pThis, int a2_target_oid, signed int a3, int a4))0x00547580;
 int					(__thiscall *CNWSCreature__ResolveRangedAttack)(CNWSCreature *Attacker_this, CNWSObject *Defender_a2, int nAttacks_a3, int a4) = (int (__thiscall*)(CNWSCreature *Attacker_this, CNWSObject *Defender_a2, int nAttacks_a3, int a4))0x00547880;
 int					(__thiscall *CNWSCreature__ResolveInitiative)(CNWSCreature *pThis) = (int (__thiscall*)(CNWSCreature *pThis))0x4A2440;
@@ -178,6 +182,16 @@ signed int CNWSCreature_s::AcquireItem(CNWSItem **Item, nwn_objid_t From_oID, nw
 	return CNWSCreature__AcquireItem(this, Item, From_oID, a4, a5, a6, a7, bUpdateEncumbrance);
 }
 
+int CNWSCreature::EquipItem(unsigned long slot, CNWSItem *item, int a1, int a2)
+{
+	return CNWSCreature__EquipItem(this,slot,item,a1,a2);
+}
+
+int CNWSCreature::UnequipItem(CNWSItem *item, int a1)
+{
+	return CNWSCreature__UnequipItem(this,item,a1);
+}
+
 int CNWSCreature_s::GetBlind() {
 	return CNWSCreature__GetBlind(this);
 }
@@ -228,6 +242,10 @@ void CNWSCreature_s::RemoveFromArea(int AreaID) {
 
 signed int CNWSCreature_s::RemoveItem(CNWSItem *a2, int a3, int bSendFeedBack, int a5, int a6) {
 	return CNWSCreature__RemoveItem(this, a2, a3, bSendFeedBack, a5, a6);
+}
+
+int CNWSCreature::RemoveItemFromRepository(CNWSItem *item, int a1) {
+	return CNWSCreature__RemoveItemFromRepository(this, item,a1);
 }
 
 void CNWSCreature_s::ResolveAttack(int a2_target_oid, signed int a3, int a4) {
@@ -405,6 +423,11 @@ int CNWSCreature_s::GetIsPossessedFamiliar()
 int CNWSCreature_s::CanUseItem(CNWSItem *item, int a1)
 {
 	return CNWSCreature__CanUseItem(this,item,a1);
+}
+
+unsigned char CNWSCreature::CanEquipItem(CNWSItem *item, unsigned long *a1, int a2, int a3, int a4, CNWSPlayer *player)
+{
+	return CNWSCreature__CanEquipItem(this,item,a1,2,3,4,player);
 }
 
 unsigned long CNWSCreature_s::GetAssociateId(unsigned short type, int nTh)

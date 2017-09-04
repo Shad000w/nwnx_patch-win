@@ -299,7 +299,8 @@ int (__fastcall *CNWSCreature__AddEquipItemActions)(CNWSCreature *pThis, void*, 
 void (__fastcall *CNWSCreature__ResolveDamageShields)(CNWSCreature *pThis, void*, CNWSCreature *attacker);
 void (__fastcall *CNWSCreature__SetCombatMode)(CNWSCreature *pThis, void*, unsigned char arg1, int arg2);
 int (__fastcall *CNWSCreature__ToggleMode)(CNWSCreature *pThis, void*, unsigned char arg1);
-void (__fastcall *CNWSCreature__ResolveAmmunition)(CNWSCreature *pThis, void*, unsigned long l);
+void (__fastcall *CNWSCreature__ResolveAmmunition)(CNWSCreature *pThis, void*, unsigned long num_attacks);
+int (__fastcall *CNWSCreature__GetAmmunitionAvailable)(CNWSCreature *pThis, void*, int num_attacks);
 void (__fastcall *CNWSCreatureStats_ClassInfo__SetNumberMemorizedSpellSlots)(CNWSCreatureStats_ClassInfo *pThis, void *,unsigned char spell_level, unsigned char spell_num);
 void (__fastcall *CNWSCreature__UpdateAttributesOnEffect)(CNWSCreature *pThis, void*, CGameEffect *eff, int arg1);
 void (__fastcall *CNWSCreature__ResolveMeleeSpecialAttack)(CNWSCreature *pThis, void*, int a1, int a2, CNWSObject *target, int a4);
@@ -1693,7 +1694,9 @@ int __fastcall CNWSCreature__EventHandler_Hook(CNWSCreature *pThis, void*, int a
 			pThis->obj.obj_vartable.SetInt(CExoString("ToHitRoll"),data->ToHitRoll,1);
 			if(pThis->cre_is_pc)
 			{
+				int retVal = CNWSCreature__EventHandler(pThis,NULL,arg1,arg2,arg3,arg4,arg5);
 				NWN_VirtualMachine->Runscript(&CExoString("70_mod_attacked"),pThis->obj.obj_generic.obj_id);
+				return retVal;
 			}
 		}	
 	}
@@ -5129,9 +5132,9 @@ int __fastcall CNWSItemPropertyHandler__ApplyHolyAvenger_Hook(CNWSItemPropertyHa
 int __fastcall CNWSCreature__GetRelativeWeaponSize_Hook(CNWSCreature *pThis, void*, CNWSItem *weapon)
 {//NOTE: good place for Oversized two weapon fighting feat
 	Log(2,"o CNWSCreature__GetRelativeWeaponSize start\n");
-	if(pThis != NULL && weapon != NULL && weapon->it_container_obj != pThis->obj.obj_generic.obj_id)
+	if(pThis != NULL && weapon != NULL && weapon->m_oidPossessor != pThis->obj.obj_generic.obj_id)
 	{
-		return CNWSCreature__GetRelativeWeaponSize((CNWSCreature*)NWN_AppManager->app_server->srv_internal->GetGameObject(weapon->it_container_obj), NULL, weapon);
+		return CNWSCreature__GetRelativeWeaponSize((CNWSCreature*)NWN_AppManager->app_server->srv_internal->GetGameObject(weapon->m_oidPossessor), NULL, weapon);
 	}
 	return CNWSCreature__GetRelativeWeaponSize(pThis, NULL, weapon);
 }
@@ -5829,22 +5832,172 @@ void __fastcall CNWSCreature__SummonFamiliar_Hook(CNWSCreature *pThis, void*)
 	}
 }
 
-void __fastcall CNWSCreature__ResolveAmmunition_Hook(CNWSCreature *pThis, void*, unsigned long l)
+void __fastcall CNWSCreature__ResolveAmmunition_Hook(CNWSCreature *pThis, void*, unsigned long num_attacks)
 {
 	Log(2,"o CNWSCreature__ResolveAmmunition start\n");
 	CNWSItem *item = pThis->cre_equipment->GetItemInSlot(16);
-	if(item != NULL)
+	if(!item) return;
+	unsigned long slot = 0, baseitem_ammo = BASE_ITEM_INVALID, baseitem_wpn = item->it_baseitemtype;
+    switch(baseitem_wpn)
 	{
-		int bt = item->it_baseitemtype;
-		if(bt == 31 || bt == 59 || bt == 63)//throwing weapon
-		{
-			if(item->GetPropertyByTypeExists(14,0))//boomerang
-			{
-				return;//do nothing
-			}
-		}
+        case 6:
+		case 7:
+            slot = EQUIPMENT_SLOT_BOLTS;
+            baseitem_ammo = BASE_ITEM_BOLT;
+        break;
+        case 8:
+		case 11:
+            slot = EQUIPMENT_SLOT_ARROWS;
+            baseitem_ammo = BASE_ITEM_ARROW;
+        break;
+        case 31:
+            slot = EQUIPMENT_SLOT_RIGHTHAND;
+            baseitem_ammo = BASE_ITEM_DART;
+        break;
+        case 59:
+            slot = EQUIPMENT_SLOT_RIGHTHAND;
+            baseitem_ammo = BASE_ITEM_SHURIKEN;
+        break;
+		case 61:
+            slot = EQUIPMENT_SLOT_BULLETS;
+            baseitem_ammo = BASE_ITEM_BULLET;
+        break;
+        case 63:
+            slot = EQUIPMENT_SLOT_RIGHTHAND;
+            baseitem_ammo = BASE_ITEM_THROWINGAXE;
+        break;
+		default:
+			baseitem_ammo = NWN_Rules->ru_baseitems->GetBaseItem(baseitem_wpn)->RangedWeapon;
+			slot = NWN_Rules->ru_baseitems->GetBaseItem(baseitem_ammo)->equipableSlots;
+		break;
+    }
+	if(baseitem_ammo == BASE_ITEM_INVALID || !slot) return;
+	else if(baseitem_ammo == baseitem_wpn)//throwing weapon
+	{
+		if(item->GetPropertyByTypeExists(14,0)) return;//boomerang
 	}
-	CNWSCreature__ResolveAmmunition(pThis, NULL,l);
+	else//normal ranged weapon
+	{
+		if(item->GetPropertyByTypeExists(61,0)) return;//unlimited ammo
+	}
+	CNWSItem *ammo = pThis->cre_equipment->GetItemInSlot(slot);
+    if(ammo)
+	{
+		NWN_AppManager->app_server->GetServerAIMaster()->AddEventDeltaTime(0,num_attacks,pThis->obj.obj_generic.obj_id,ammo->obj.obj_generic.obj_id,16,0);
+    }
+}
+
+int __fastcall CNWSCreature__GetAmmunitionAvailable_Hook(CNWSCreature *pThis, void*, int num_attacks)
+{
+	Log(2,"o CNWSCreature__GetAmmunitionAvailable start\n");
+	CNWSItem *item = pThis->cre_equipment->GetItemInSlot(EQUIPMENT_SLOT_RIGHTHAND);
+	if(!item)
+	{
+		return num_attacks;
+	}
+	unsigned long slot = 0, baseitem_ammo = BASE_ITEM_INVALID, baseitem_wpn = item->it_baseitemtype;
+    switch(baseitem_wpn)
+	{
+        case 6:
+		case 7:
+            slot = EQUIPMENT_SLOT_BOLTS;
+            baseitem_ammo = BASE_ITEM_BOLT;
+        break;
+        case 8:
+		case 11:
+            slot = EQUIPMENT_SLOT_ARROWS;
+            baseitem_ammo = BASE_ITEM_ARROW;
+        break;
+        case 31:
+            slot = EQUIPMENT_SLOT_RIGHTHAND;
+            baseitem_ammo = BASE_ITEM_DART;
+        break;
+        case 59:
+            slot = EQUIPMENT_SLOT_RIGHTHAND;
+            baseitem_ammo = BASE_ITEM_SHURIKEN;
+        break;
+		case 61:
+            slot = EQUIPMENT_SLOT_BULLETS;
+            baseitem_ammo = BASE_ITEM_BULLET;
+        break;
+        case 63:
+            slot = EQUIPMENT_SLOT_RIGHTHAND;
+            baseitem_ammo = BASE_ITEM_THROWINGAXE;
+        break;
+		default:
+			baseitem_ammo = NWN_Rules->ru_baseitems->GetBaseItem(baseitem_wpn)->RangedWeapon;
+			slot = NWN_Rules->ru_baseitems->GetBaseItem(baseitem_ammo)->equipableSlots;
+		break;
+    }
+	if(baseitem_ammo == BASE_ITEM_INVALID || !slot) return 0;
+	else if(baseitem_ammo == baseitem_wpn)//throwing weapon
+	{
+		if(item->GetPropertyByTypeExists(14,0)) return num_attacks;//boomerang
+	}
+	else//normal ranged weapon
+	{
+		if(item->GetPropertyByTypeExists(61,0)) return num_attacks;//unlimited ammo
+	}
+	CNWSItem *ammo = pThis->cre_equipment->GetItemInSlot(slot);
+	unsigned long stacksize = 0;
+    if(ammo)
+	{
+		stacksize = ammo->it_stacksize;
+    }
+    if(stacksize <= 0) 
+	{
+        int i = 0;
+        unsigned long id;
+        do
+		{
+			id = pThis->cre_inventory->FindItemWithBaseItemId(baseitem_ammo,i++);
+			item = NWN_AppManager->app_server->srv_internal->GetItemByGameObjectID(id);
+			if(item && pThis->CanEquipItem(item,&slot,1,0,0,0) == 1)
+			{
+				pThis->RemoveItemFromRepository(item,1);
+				if(item->m_oidPossessor != pThis->obj.obj_generic.obj_id) 
+				{
+					item->SetPossessor(pThis->obj.obj_generic.obj_id, 0, 0, 0);
+                }
+				pThis->EquipItem(slot,item,1,0);
+                stacksize = item->it_stacksize;
+				pThis->cre_last_ammo_warning = stacksize;
+				if(baseitem_wpn == 30) return 0;
+                break;
+            }
+        }while(id != OBJECT_INVALID);
+    }
+    if(stacksize > 0 && stacksize < 20 && pThis->cre_last_ammo_warning >= stacksize + 5)
+    {
+        pThis->cre_last_ammo_warning = stacksize;
+		HANDLE sharedHeap = (HANDLE) *heapAddress;
+        CNWCCMessageData *msg;// = new CNWCCMessageData();
+		msg = (CNWCCMessageData *)HeapAlloc(sharedHeap, NULL, 0x34);
+		msg->SetInteger(0,stacksize);
+		pThis->SendFeedbackMessage(0x18,msg,0);
+    }
+    if(stacksize < (uint32_t) num_attacks) 
+	{
+		if(pThis->cre_is_pc || pThis->GetIsPossessedFamiliar())
+		{
+			pThis->SendFeedbackMessage(0x19,0,0);
+        }
+		else if(pThis->cre_MasterID != OBJECT_INVALID)
+		{
+			CNWSCreature *master = NWN_AppManager->app_server->srv_internal->GetCreatureByGameObjectID(pThis->cre_MasterID);
+            if(master)
+			{
+				HANDLE sharedHeap = (HANDLE) *heapAddress;
+				CNWCCMessageData *msg;// = new CNWCCMessageData();
+				msg = (CNWCCMessageData *)HeapAlloc(sharedHeap, NULL, 0x34);
+				msg->SetObjectID(0,pThis->obj.obj_generic.obj_id);
+				master->SendFeedbackMessage(0xF1,msg,0);
+				delete msg;
+            }
+        }
+		num_attacks = stacksize;
+    }
+    return num_attacks;
 }
 
 void __fastcall CNWSCreature__SetActivity_Hook(CNWSCreature *pThis, void*, int nActivity, int bOn)
@@ -5960,7 +6113,8 @@ void HookFunctions()
 	CreateHook(0x484F50,CNWSCreatureStats__LevelDown_Hook,(PVOID*) &CNWSCreatureStats__LevelDown, "DisableLevelDownHook", "Fixed combat info update after level down");
 	CreateHook(0x4847F0,CNWSCreatureStats__LevelUp_Hook,(PVOID*) &CNWSCreatureStats__LevelUp, "DisableLevelUpHook", "Support for spontaneous non-learner custom spellcaster class.");
 
-	CreateHook(0x548100,CNWSCreature__ResolveAmmunition_Hook, (PVOID*)&CNWSCreature__ResolveAmmunition, "DisableResolveAmmunitionHook","Boomerang item property");
+	CreateHook(0x548220,CNWSCreature__GetAmmunitionAvailable_Hook, (PVOID*)&CNWSCreature__GetAmmunitionAvailable, "DisableRangedWeapons","Enabling custom ranged weapons");
+	CreateHook(0x548100,CNWSCreature__ResolveAmmunition_Hook, (PVOID*)&CNWSCreature__ResolveAmmunition, "DisableRangedWeapons","Enabling Boomerang item property");
 	CreateHook(0x490690,CNWSCreature__SetActivity_Hook, (PVOID*)&CNWSCreature__SetActivity, "DisableSetActivityHook","Defensive stance not canceling properly");
 	CreateHook(0x4FA850,CNWSEffectListHandler__OnApplyDefensiveStance_Hook,(PVOID*)&CNWSEffectListHandler__OnApplyDefensiveStance, "DisableDefensiveStance", "Defensive Stance feat softcoding");
 	CreateHook(0x474710,CNWSCreatureStats__ResolveSpecialAttackDamageBonus_Hook, (PVOID*)&CNWSCreatureStats__ResolveSpecialAttackDamageBonus, "DisableSpecialAttacks","Crash exploit no#1");

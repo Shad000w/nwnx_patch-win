@@ -873,7 +873,10 @@ struct CNWSCreature_s {
 	void				AddToAssociateList(nwn_objid_t oID);
 	void				AddAssociate(nwn_objid_t oID, unsigned short nType);
 	void				ActivityManager(unsigned long Activity);
-	signed int 			AcquireItem(CNWSItem **Item, nwn_objid_t From_oID, nwn_objid_t a4, char a5, char a6, int a7, int bUpdateEncumbrance);
+	unsigned char		CanEquipItem(CNWSItem *item, unsigned long *a1, int a2, int a3, int a4, CNWSPlayer *player);
+	signed int 			AcquireItem(CNWSItem **Item, uint32_t From_oID, uint32_t a4, char a5, char a6, int a7, int bUpdateEncumbrance);
+	int					EquipItem(unsigned long slot, CNWSItem *item, int a1, int a2);
+	int					UnequipItem(CNWSItem *item, int a1);	
 	int					ApplyDiseasePayload(CGameEffect *eff, unsigned long a3, unsigned long a4);
 	int 				ApplyPoisonPayload(CGameEffect *eff, unsigned long t1, unsigned long t2);
 	void 				CancelRest(unsigned short a1);
@@ -897,6 +900,7 @@ struct CNWSCreature_s {
 	void 				RemoveBadEffects();
 	void				RemoveFromArea(int AreaID);
 	signed int 			RemoveItem(CNWSItem *a2, int a3, int bSendFeedBack, int a5, int a6);
+	int					RemoveItemFromRepository(CNWSItem *item, int a1);
 	void				ResolveAttack(int a2_target_oid, signed int a3, int a4);
 	int					ResolveRangedAttack(CNWSObject *Defender_a2, int nAttacks_a3, int a4);
 	void				ResolveInitiative();

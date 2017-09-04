@@ -68,7 +68,7 @@ struct CNWSItem_s {
     uint8_t                     field_23E;
     uint8_t						field_23F;
     
-    nwn_objid_t					it_container_obj;		/* 0x0240 */
+    nwn_objid_t					m_oidPossessor;		/* 0x0240 */
     
     CItemRepository				*it_itemrepository;				/* 0x0244 */
     
