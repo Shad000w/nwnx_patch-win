@@ -634,42 +634,40 @@ void __fastcall CNWSCreatureStats__AdjustSpellUsesPerDay_Hook(CNWSCreatureStats 
 int __fastcall CNWSEffectListHandler__OnEffectApplied_Hook(CNWSEffectListHandler *pThis, void*, CNWSObject *obj, CGameEffect *eff, int n)
 {
 	Log(3,"o CNWSEffectListHandler__OnEffectApplied start\n");
-	if(eff->eff_type >= 96) 
+	if(eff->eff_type >= 96 || eff->eff_type == EFFECT_TRUETYPE_ABILITY_INCREASE || eff->eff_type == EFFECT_TRUETYPE_ABILITY_DECREASE) 
 	{
-		if(eff->eff_type == 96)
+		CNWSCreature *cre = NWN_AppManager->app_server->srv_internal->GetCreatureByGameObjectID(obj->obj_generic.obj_id);
+		if(eff->eff_type >= 96 || (cre && cre->cre_is_pc))
 		{
-			CNWSCreature *cre = NWN_AppManager->app_server->srv_internal->GetCreatureByGameObjectID(obj->obj_generic.obj_id);
-			if(cre) cre->m_bUpdateCombatInformation = 1;
+			if(eff->eff_type == 96 && cre) cre->m_bUpdateCombatInformation = 1;	
+			obj->obj_vartable.SetInt(CExoString("EFFECT_EVENT_EVENT_TYPE"),1,1);
+			helper_effect = eff;
+			NWN_VirtualMachine->Runscript(&CExoString("70_mod_effects"),obj->obj_generic.obj_id,1);
+			helper_effect = NULL;
+			obj->obj_vartable.DestroyInt(CExoString("EFFECT_EVENT_EVENT_TYPE"));
+			if(eff->eff_type >= 96) return 0;
 		}
-		obj->obj_vartable.SetInt(CExoString("EFFECT_EVENT_EVENT_TYPE"),1,1);
-		helper_effect = eff;
-		NWN_VirtualMachine->Runscript(&CExoString("70_mod_effects"),obj->obj_generic.obj_id,1);
-		helper_effect = NULL;
-		obj->obj_vartable.DestroyInt(CExoString("EFFECT_EVENT_EVENT_TYPE"));
-		return 0;
 	}
-	int retVal = CNWSEffectListHandler__OnEffectApplied(pThis,NULL,obj,eff,n);
-	return retVal;
+	return CNWSEffectListHandler__OnEffectApplied(pThis,NULL,obj,eff,n);
 }
 
 int __fastcall CNWSEffectListHandler__OnEffectRemoved_Hook(CNWSEffectListHandler *pThis, void*, CNWSObject *obj, CGameEffect *eff)
 {
 	Log(3,"o CNWSEffectListHandler__OnEffectRemoved start\n");
-	if(eff->eff_type >= 96)
+	if(eff->eff_type >= 96 || eff->eff_type == EFFECT_TRUETYPE_ABILITY_INCREASE || eff->eff_type == EFFECT_TRUETYPE_ABILITY_DECREASE) 
 	{
-		if(eff->eff_type == 96)
+		CNWSCreature *cre = NWN_AppManager->app_server->srv_internal->GetCreatureByGameObjectID(obj->obj_generic.obj_id);
+		if(eff->eff_type >= 96 || (cre && cre->cre_is_pc))
 		{
-			CNWSCreature *cre = NWN_AppManager->app_server->srv_internal->GetCreatureByGameObjectID(obj->obj_generic.obj_id);
-			if(cre) cre->m_bUpdateCombatInformation = 1;
+			if(eff->eff_type == 96 && cre) cre->m_bUpdateCombatInformation = 1;	
+			obj->obj_vartable.SetInt(CExoString("EFFECT_EVENT_EVENT_TYPE"),2,1);
+			helper_effect = eff;
+			NWN_VirtualMachine->Runscript(&CExoString("70_mod_effects"),obj->obj_generic.obj_id,1);
+			helper_effect = NULL;
+			obj->obj_vartable.DestroyInt(CExoString("EFFECT_EVENT_EVENT_TYPE"));
 		}
-		obj->obj_vartable.SetInt(CExoString("EFFECT_EVENT_EVENT_TYPE"),2,1);
-		helper_effect = eff;
-		NWN_VirtualMachine->Runscript(&CExoString("70_mod_effects"),obj->obj_generic.obj_id,1);
-		helper_effect = NULL;
-		obj->obj_vartable.DestroyInt(CExoString("EFFECT_EVENT_EVENT_TYPE"));
 	}
-	int retVal = CNWSEffectListHandler__OnEffectRemoved(pThis,NULL,obj,eff);
-	return retVal;
+	return CNWSEffectListHandler__OnEffectRemoved(pThis,NULL,obj,eff);
 }
 
 int __fastcall CNWSEffectListHandler__OnApplyDeath_Hook(CNWSEffectListHandler *pThis, void*, CNWSObject *obj, CGameEffect *eff, int n)//required for PossessCreature custom function
