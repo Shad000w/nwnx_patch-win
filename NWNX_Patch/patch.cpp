@@ -507,6 +507,14 @@ void __fastcall CNWSCombatRound__StartCombatRound_Hook(CNWSCombatRound *pThis, v
 		NWN_VirtualMachine->Runscript(&CExoString("70_mod_cmbround"),pThis->Creature->obj.obj_generic.obj_id,1);//probably useless
 	}*/
 	CNWSCombatRound__StartCombatRound(pThis,NULL,a1);
+	if(pThis->Creature->obj.obj_vartable.MatchIndex(CExoString("NUM_ED"),VARIABLE_TYPE_INT,0) != NULL)
+	{
+		pThis->Creature->obj.obj_vartable.SetInt(CExoString("NUM_ED_Used"),pThis->Creature->obj.obj_vartable.GetInt(CExoString("NUM_ED")),1);
+	}
+	if(pThis->Creature->obj.obj_vartable.MatchIndex(CExoString("NUM_DEFLECT"),VARIABLE_TYPE_INT,0) != NULL)
+	{
+		pThis->Creature->obj.obj_vartable.SetInt(CExoString("NUM_DEFLECT_Used"),pThis->Creature->obj.obj_vartable.GetInt(CExoString("NUM_DEFLECT")),1);
+	}
 	if(pThis->Creature->obj.obj_vartable.MatchIndex(CExoString("NUM_AOO"),VARIABLE_TYPE_INT,0) != NULL)
 	{
 		int numAOOs = pThis->Creature->obj.obj_vartable.GetInt(CExoString("NUM_AOO"));
@@ -1685,6 +1693,7 @@ int __fastcall CNWSCreature__EventHandler_Hook(CNWSCreature *pThis, void*, int a
 		{		
 			pThis->obj.obj_vartable.SetInt(CExoString("AttackDeflected"),data->AttackDeflected,1);
 			pThis->obj.obj_vartable.SetInt(CExoString("AttackResult"),data->AttackResult,1);
+			pThis->obj.obj_vartable.SetInt(CExoString("AttackType"),data->AttackType,1);
 			pThis->obj.obj_vartable.SetInt(CExoString("Concealment"),data->Concealment,1);
 			pThis->obj.obj_vartable.SetInt(CExoString("CoupDeGrace"),data->CoupDeGrace,1);
 			pThis->obj.obj_vartable.SetInt(CExoString("CriticalThreat"),data->CriticalThreat,1);
@@ -1695,13 +1704,14 @@ int __fastcall CNWSCreature__EventHandler_Hook(CNWSCreature *pThis, void*, int a
 			pThis->obj.obj_vartable.SetInt(CExoString("ThreatRoll"),data->ThreatRoll,1);
 			pThis->obj.obj_vartable.SetInt(CExoString("ToHitMod"),data->ToHitMod,1);
 			pThis->obj.obj_vartable.SetInt(CExoString("ToHitRoll"),data->ToHitRoll,1);
+			//filling up OnDamaged event values so the damage dealth will be readable in OnAttacked already
+			pThis->obj.obj_last_damager = arg2;
+			for(unsigned char x=0;x < 13;x++)
+			{
+				pThis->obj.obj_last_damage[x] = (short)data->Damage[x];
+			}
 			if(pThis->cre_is_pc)
 			{
-					pThis->obj.obj_last_damager = arg2;
-					for(unsigned char x=0;x < 13;x++)
-					{
-						pThis->obj.obj_last_damage[x] = (short)data->Damage[x];
-					}
 				int retVal = CNWSCreature__EventHandler(pThis,NULL,arg1,arg2,arg3,arg4,arg5);
 				NWN_VirtualMachine->Runscript(&CExoString("70_mod_attacked"),pThis->obj.obj_generic.obj_id);
 				return retVal;
@@ -3497,42 +3507,6 @@ void NWNXPatch_Funcs(CNWSScriptVarTable *pThis, int nFunc, char *Params)
 			fprintf(logFile, "ERROR: BroadcastAttackOfOpportunity(%08X,%08X,%i) used on wrong object type!\n",oID,oTarget,bAllowRanged);
 		}
 	}
-	else if(nFunc == 413)//GetUsedDeflectArrows
-	{
-		unsigned long oID = OBJECT_INVALID;
-		sscanf_s(Params,"%x",&oID);
-		CNWSCreature *cre = NWN_AppManager->app_server->srv_internal->GetCreatureByGameObjectID(oID);
-		if(oID != OBJECT_INVALID && cre)
-		{
-			retVal = cre->cre_combat_round->DeflectArrow;
-		}
-		else
-		{
-			fprintf(logFile, "ERROR: GetUsedDeflectArrows(%08X) used on wrong object type!\n",oID);
-		}
-		pThis->SetInt(VarName,retVal,0);
-	}
-	else if(nFunc == 414)//SetUsedDeflectArrows
-	{
-		unsigned long oID = OBJECT_INVALID, DeflectArrow = OBJECT_INVALID;
-		sscanf_s(Params,"%x|%i",&oID,&DeflectArrow);
-		CNWSCreature *cre = NWN_AppManager->app_server->srv_internal->GetCreatureByGameObjectID(oID);
-		if(oID != OBJECT_INVALID && cre)
-		{
-			if(DeflectArrow < 255)
-			{
-				cre->cre_combat_round->DeflectArrow = DeflectArrow;
-			}
-			else
-			{
-				fprintf(logFile, "ERROR: SetUsedDeflectArrows(%08X,%i) used with incorrect parameters!\n",oID,DeflectArrow);
-			}
-		}
-		else
-		{
-			fprintf(logFile, "ERROR: SetUsedDeflectArrows(%08X,%i) used on wrong object type!\n",oID,DeflectArrow);
-		}
-	}
 	else if(nFunc == 415)//SetRacialType
 	{
 		unsigned long oID = OBJECT_INVALID, nRace = OBJECT_INVALID;
@@ -3659,43 +3633,6 @@ void NWNXPatch_Funcs(CNWSScriptVarTable *pThis, int nFunc, char *Params)
 			fprintf(logFile, "ERROR: SetAbilityScore(%08X,%i,%i) used on wrong object type!\n",oID,nAbility,nScore);
 		}
 	}
-	else if(nFunc == 420)//GetUsedEpicDodge
-	{
-		unsigned long oID = OBJECT_INVALID;
-		sscanf_s(Params,"%x",&oID);
-		CNWSCreature *cre = NWN_AppManager->app_server->srv_internal->GetCreatureByGameObjectID(oID);
-		if(oID != OBJECT_INVALID && cre)
-		{
-			retVal = cre->cre_combat_round->EpicDodgeUsed;
-		}
-		else
-		{
-			fprintf(logFile, "ERROR: GetUsedEpicDodge(%08X) used on wrong object type!\n",oID);
-		}
-		pThis->SetInt(VarName,retVal,0);
-	}
-	else if(nFunc == 421)//SetUsedEpicDodge
-	{
-		unsigned long oID = OBJECT_INVALID;
-		unsigned long EpicDodge = 255;
-		sscanf_s(Params,"%x|%i",&oID,&EpicDodge);
-		CNWSCreature *cre = NWN_AppManager->app_server->srv_internal->GetCreatureByGameObjectID(oID);
-		if(oID != OBJECT_INVALID && cre)
-		{
-			if(EpicDodge < 255)
-			{
-				cre->cre_combat_round->EpicDodgeUsed = EpicDodge;
-			}
-			else
-			{
-				fprintf(logFile, "ERROR: SetUsedEpicDodge(%08X,%i) used with incorrect parameters!\n",oID,EpicDodge);
-			}
-		}
-		else
-		{
-			fprintf(logFile, "ERROR: SetUsedEpicDodge(%08X,%i) used on wrong object type!\n",oID,EpicDodge);
-		}
-	}
 	else if(nFunc == 422)//GetEncounterFrom
 	{
 		unsigned long oID = OBJECT_INVALID;
@@ -3746,7 +3683,7 @@ void NWNXPatch_Funcs(CNWSScriptVarTable *pThis, int nFunc, char *Params)
 		}
 		else
 		{
-			fprintf(logFile, "ERROR: SetUsedEpicDodge(%08X,%i) used on wrong object type!\n",oID,BodyBag);
+			fprintf(logFile, "ERROR: SetBodyBag(%08X,%i) used on wrong object type!\n",oID,BodyBag);
 		}
 	}
 	else if(nFunc == 425)//GetFactionId
@@ -5375,6 +5312,22 @@ void __fastcall CNWSCreature__ResolveAttack_Hook(CNWSCreature *pThis, void*, uns
 			{
 				action->act_target = target_prev;
 			}
+		}
+	}
+	CNWSCreature *cre = NWN_AppManager->app_server->srv_internal->GetCreatureByGameObjectID(target);
+	if(cre)
+	{
+		int num_used = cre->obj.obj_vartable.GetInt(CExoString("NUM_ED_Used"));
+		if(cre->cre_combat_round->EpicDodgeUsed == 1 && num_used > 0)
+		{
+			cre->cre_combat_round->EpicDodgeUsed = 0;
+			cre->obj.obj_vartable.SetInt(CExoString("NUM_ED_Used"),num_used-1,1);
+		}
+		num_used = cre->obj.obj_vartable.GetInt(CExoString("NUM_DEFLECT_Used"));
+		if(cre->cre_combat_round->DeflectArrow == 0)
+		{
+			cre->cre_combat_round->DeflectArrow = 1;
+			cre->obj.obj_vartable.SetInt(CExoString("NUM_DEFLECT_Used"),num_used-1,1);
 		}
 	}
 }
