@@ -5975,6 +5975,7 @@ int __fastcall CNWSCreature__GetAmmunitionAvailable_Hook(CNWSCreature *pThis, vo
 		msg = (CNWCCMessageData *)HeapAlloc(sharedHeap, NULL, 0x34);
 		msg->SetInteger(0,stacksize);
 		pThis->SendFeedbackMessage(0x18,msg,0);
+		//delete msg;
     }
     if(stacksize < (uint32_t) num_attacks) 
 	{
@@ -5992,7 +5993,7 @@ int __fastcall CNWSCreature__GetAmmunitionAvailable_Hook(CNWSCreature *pThis, vo
 				msg = (CNWCCMessageData *)HeapAlloc(sharedHeap, NULL, 0x34);
 				msg->SetObjectID(0,pThis->obj.obj_generic.obj_id);
 				master->SendFeedbackMessage(0xF1,msg,0);
-				delete msg;
+				//delete msg;
             }
         }
 		num_attacks = stacksize;
