@@ -3845,45 +3845,52 @@ void NWNXPatch_Funcs(CNWSScriptVarTable *pThis, int nFunc, char *Params)
 			switch(type)
 			{
 			case 1:
-				retVal = cre->cre_combat_round->GetAttack(cre->cre_combat_round->CurrentAttack)->Damage_Bludgeoning;
+				retVal = cre->cre_combat_round->GetAttack(cre->cre_combat_round->CurrentAttack)->Damage[0];
 			break;
 			case 2:
-				retVal = cre->cre_combat_round->GetAttack(cre->cre_combat_round->CurrentAttack)->Damage_Piercing;
+				retVal = cre->cre_combat_round->GetAttack(cre->cre_combat_round->CurrentAttack)->Damage[1];
 			break;
 			case 4:
-				retVal = cre->cre_combat_round->GetAttack(cre->cre_combat_round->CurrentAttack)->Damage_Slashing;
+				retVal = cre->cre_combat_round->GetAttack(cre->cre_combat_round->CurrentAttack)->Damage[2];
 			break;
 			case 8:
-				retVal = cre->cre_combat_round->GetAttack(cre->cre_combat_round->CurrentAttack)->Damage_Magical;
+				retVal = cre->cre_combat_round->GetAttack(cre->cre_combat_round->CurrentAttack)->Damage[3];
 			break;
 			case 16:
-				retVal = cre->cre_combat_round->GetAttack(cre->cre_combat_round->CurrentAttack)->Damage_Acid;
+				retVal = cre->cre_combat_round->GetAttack(cre->cre_combat_round->CurrentAttack)->Damage[4];
 			break;
 			case 32:
-				retVal = cre->cre_combat_round->GetAttack(cre->cre_combat_round->CurrentAttack)->Damage_cold;
+				retVal = cre->cre_combat_round->GetAttack(cre->cre_combat_round->CurrentAttack)->Damage[5];
 			break;
 			case 64:
-				retVal = cre->cre_combat_round->GetAttack(cre->cre_combat_round->CurrentAttack)->Damage_Divine;
+				retVal = cre->cre_combat_round->GetAttack(cre->cre_combat_round->CurrentAttack)->Damage[6];
 			break;
 			case 128:
-				retVal = cre->cre_combat_round->GetAttack(cre->cre_combat_round->CurrentAttack)->Damage_Electrical;
+				retVal = cre->cre_combat_round->GetAttack(cre->cre_combat_round->CurrentAttack)->Damage[7];
 			break;
 			case 256:
-				retVal = cre->cre_combat_round->GetAttack(cre->cre_combat_round->CurrentAttack)->Damage_Fire;
+				retVal = cre->cre_combat_round->GetAttack(cre->cre_combat_round->CurrentAttack)->Damage[8];
 			break;
 			case 512:
-				retVal = cre->cre_combat_round->GetAttack(cre->cre_combat_round->CurrentAttack)->Damage_Negative;
+				retVal = cre->cre_combat_round->GetAttack(cre->cre_combat_round->CurrentAttack)->Damage[9];
 			break;
 			case 1024:
-				retVal = cre->cre_combat_round->GetAttack(cre->cre_combat_round->CurrentAttack)->Damage_Positive;
+				retVal = cre->cre_combat_round->GetAttack(cre->cre_combat_round->CurrentAttack)->Damage[10];
 			break;
 			case 2048:
-				retVal = cre->cre_combat_round->GetAttack(cre->cre_combat_round->CurrentAttack)->Damage_Sonic;
+				retVal = cre->cre_combat_round->GetAttack(cre->cre_combat_round->CurrentAttack)->Damage[11];
 			break;
 			case 4096:
-				retVal = cre->cre_combat_round->GetAttack(cre->cre_combat_round->CurrentAttack)->BaseDamage;
+				retVal = cre->cre_combat_round->GetAttack(cre->cre_combat_round->CurrentAttack)->Damage[12];
+			break;
+			default:
+				fprintf(logFile, "ERROR: SetTotalDamageDealtByType(%08X,%i) used with incorrect parameters!\n",oID,type);
 			break;
 			}
+		}
+		else
+		{
+			fprintf(logFile, "ERROR: SetTotalDamageDealtByType(%08X,%i) used with incorrect parameters!\n",oID,type);
 		}
 		pThis->SetInt(VarName,retVal,0);
 	}
@@ -3899,45 +3906,52 @@ void NWNXPatch_Funcs(CNWSScriptVarTable *pThis, int nFunc, char *Params)
 			switch(type)
 			{
 			case 1:
-				cre->cre_combat_round->GetAttack(cre->cre_combat_round->CurrentAttack)->Damage_Bludgeoning = (unsigned short)damage;
+				cre->cre_combat_round->GetAttack(cre->cre_combat_round->CurrentAttack)->Damage[0] = (unsigned short)damage;
 			break;
 			case 2:
-				cre->cre_combat_round->GetAttack(cre->cre_combat_round->CurrentAttack)->Damage_Piercing = (unsigned short)damage;
+				cre->cre_combat_round->GetAttack(cre->cre_combat_round->CurrentAttack)->Damage[1] = (unsigned short)damage;
 			break;
 			case 4:
-				cre->cre_combat_round->GetAttack(cre->cre_combat_round->CurrentAttack)->Damage_Slashing = (unsigned short)damage;
+				cre->cre_combat_round->GetAttack(cre->cre_combat_round->CurrentAttack)->Damage[2] = (unsigned short)damage;
 			break;
 			case 8:
-				cre->cre_combat_round->GetAttack(cre->cre_combat_round->CurrentAttack)->Damage_Magical = (unsigned short)damage;
+				cre->cre_combat_round->GetAttack(cre->cre_combat_round->CurrentAttack)->Damage[3] = (unsigned short)damage;
 			break;
 			case 16:
-				cre->cre_combat_round->GetAttack(cre->cre_combat_round->CurrentAttack)->Damage_Acid = (unsigned short)damage;
+				cre->cre_combat_round->GetAttack(cre->cre_combat_round->CurrentAttack)->Damage[4] = (unsigned short)damage;
 			break;
 			case 32:
-				cre->cre_combat_round->GetAttack(cre->cre_combat_round->CurrentAttack)->Damage_cold = (unsigned short)damage;
+				cre->cre_combat_round->GetAttack(cre->cre_combat_round->CurrentAttack)->Damage[5] = (unsigned short)damage;
 			break;
 			case 64:
-				cre->cre_combat_round->GetAttack(cre->cre_combat_round->CurrentAttack)->Damage_Divine = (unsigned short)damage;
+				cre->cre_combat_round->GetAttack(cre->cre_combat_round->CurrentAttack)->Damage[6] = (unsigned short)damage;
 			break;
 			case 128:
-				cre->cre_combat_round->GetAttack(cre->cre_combat_round->CurrentAttack)->Damage_Electrical = (unsigned short)damage;
+				cre->cre_combat_round->GetAttack(cre->cre_combat_round->CurrentAttack)->Damage[7] = (unsigned short)damage;
 			break;
 			case 256:
-				cre->cre_combat_round->GetAttack(cre->cre_combat_round->CurrentAttack)->Damage_Fire = (unsigned short)damage;
+				cre->cre_combat_round->GetAttack(cre->cre_combat_round->CurrentAttack)->Damage[8] = (unsigned short)damage;
 			break;
 			case 512:
-				cre->cre_combat_round->GetAttack(cre->cre_combat_round->CurrentAttack)->Damage_Negative = (unsigned short)damage;
+				cre->cre_combat_round->GetAttack(cre->cre_combat_round->CurrentAttack)->Damage[9] = (unsigned short)damage;
 			break;
 			case 1024:
-				cre->cre_combat_round->GetAttack(cre->cre_combat_round->CurrentAttack)->Damage_Positive = (unsigned short)damage;
+				cre->cre_combat_round->GetAttack(cre->cre_combat_round->CurrentAttack)->Damage[10] = (unsigned short)damage;
 			break;
 			case 2048:
-				cre->cre_combat_round->GetAttack(cre->cre_combat_round->CurrentAttack)->Damage_Sonic = (unsigned short)damage;
+				cre->cre_combat_round->GetAttack(cre->cre_combat_round->CurrentAttack)->Damage[11] = (unsigned short)damage;
 			break;
 			case 4096:
-				cre->cre_combat_round->GetAttack(cre->cre_combat_round->CurrentAttack)->BaseDamage = (unsigned short) damage;
+				cre->cre_combat_round->GetAttack(cre->cre_combat_round->CurrentAttack)->Damage[12] = (unsigned short) damage;
+			break;
+			default:
+				fprintf(logFile, "ERROR: SetTotalDamageDealtByType(%08X,%i,%i) used with incorrect parameters!\n",oID,type,damage);
 			break;
 			}
+		}
+		else
+		{
+			fprintf(logFile, "ERROR: SetTotalDamageDealtByType(%08X,%i,%i) used with incorrect parameters!\n",oID,type,damage);
 		}
 	}
 	else if(nFunc == 431)//ActionUseSpecialAttack
@@ -3953,6 +3967,10 @@ void NWNXPatch_Funcs(CNWSScriptVarTable *pThis, int nFunc, char *Params)
 			cre->AddAttackActions(oTarget,0,0,0);
 			cre->cre_combat_round->AddSpecialAttack((unsigned short)feat);
 		}
+		else
+		{
+			fprintf(logFile, "ERROR: ActionUseSpecialAttack(%08X,%08X,%i) used with incorrect parameters!\n",oID,oTarget,feat);
+		}
 	}
 	else if(nFunc == 432)//SetAttackRoll
 	{
@@ -3963,6 +3981,10 @@ void NWNXPatch_Funcs(CNWSScriptVarTable *pThis, int nFunc, char *Params)
 		if(oID != OBJECT_INVALID && cre && nRoll != OBJECT_INVALID && nRoll > 0 && nRoll < 256)
 		{
 			cre->cre_combat_round->GetAttack(cre->cre_combat_round->CurrentAttack)->ToHitRoll = (char) nRoll;
+		}
+		else
+		{
+			fprintf(logFile, "ERROR: SetAttackRoll(%08X,%i) used with incorrect parameters!\n",oID,nRoll);
 		}
 	}
 	else if(nFunc == 433)//SetAttackSneak
@@ -3989,6 +4011,10 @@ void NWNXPatch_Funcs(CNWSScriptVarTable *pThis, int nFunc, char *Params)
 					attack_data->SneakAttack = true;			
 			}
 		}
+		else
+		{
+			fprintf(logFile, "ERROR: SetAttackSneak(%08X,%i) used with incorrect parameters!\n",oID,nSneak);
+		}
 	}
 	else if(nFunc == 434)//SetAttackCriticalThreatRoll
 	{
@@ -3999,6 +4025,10 @@ void NWNXPatch_Funcs(CNWSScriptVarTable *pThis, int nFunc, char *Params)
 		if(oID != OBJECT_INVALID && cre && nRoll > 0 && nRoll < 256)
 		{
 			cre->cre_combat_round->GetAttack(cre->cre_combat_round->CurrentAttack)->ThreatRoll = (char) nRoll;
+		}
+		else
+		{
+			fprintf(logFile, "ERROR: SetAttackCriticalThreatRoll(%08X,%i) used with incorrect parameters!\n",oID,nRoll);
 		}
 	}
 	else if(nFunc == 435)//SetAttackKillingBlow
@@ -4011,6 +4041,10 @@ void NWNXPatch_Funcs(CNWSScriptVarTable *pThis, int nFunc, char *Params)
 		{
 			cre->cre_combat_round->GetAttack(cre->cre_combat_round->CurrentAttack)->KillingBlow = nKill;
 		}
+		else
+		{
+			fprintf(logFile, "ERROR: SetAttackKillingBlow(%08X,%i) used with incorrect parameters!\n",oID,nKill);
+		}
 	}
 	else if(nFunc == 436)//SetAttackCoupeDeGrace
 	{
@@ -4022,6 +4056,10 @@ void NWNXPatch_Funcs(CNWSScriptVarTable *pThis, int nFunc, char *Params)
 		{
 			cre->cre_combat_round->GetAttack(cre->cre_combat_round->CurrentAttack)->CoupDeGrace = nValue;
 			cre->cre_combat_round->GetAttack(cre->cre_combat_round->CurrentAttack)->KillingBlow = 1;
+		}
+		else
+		{
+			fprintf(logFile, "ERROR: SetAttackCoupeDeGrace(%08X,%i) used with incorrect parameters!\n",oID,nValue);
 		}
 	}
 	else if(nFunc == 437)//SetAttackResult todo copy to server
