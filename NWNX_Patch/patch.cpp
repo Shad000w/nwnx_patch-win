@@ -2,12 +2,13 @@
 #include "stdlib.h"
 #include "nwn_internals.h"
 #include "types.h"
+#include "../nwn_internals/CNWSStats_FeatUses.h"
 #include "madCHook.h"
 #include <iostream>
 #pragma comment(lib, "madCHook.lib")
 
 const int   VERSION_MAJOR = 1;
-const int   VERSION_MINOR = 32;
+const int   VERSION_MINOR = 33;
 const char *VERSION_PATCH = "";
 DWORD *heapAddress = NULL;
 FILE *logFile;
@@ -16,6 +17,7 @@ volatile uint8_t Hook_uint8;
 volatile uint8_t test1;
 volatile uint8_t test2;
 volatile uint8_t test3;
+volatile uint16_t test16;
 volatile uint32_t test32;
 volatile uint32_t test33;
 volatile uint32_t Hook_ret;
@@ -78,7 +80,7 @@ CExoString script_load = "70_mod_def_load";
 CExoString script_user = "70_mod_def_user";
 
 bool pole[3][3];
-C2DA *weaponfeats_2da,*racialtypes_2da,*spells_2da,*spells_level_2da,*classes_2da;
+C2DA *weaponfeats_2da,*racialtypes_2da,*spells_2da,*spells_level_2da,*classes_2da,*effects_2da;
 C2DA *cls_spkn_2da[255];
 unsigned int cls_cast_type[255];
 
@@ -104,6 +106,30 @@ void InitializeWeaponFeats2DA()
 	{
 		weaponfeats_2da->Load2DArray();
 		fprintf(logFile, "o  weaponfeats.2da loaded.\n");fflush(logFile);
+	}
+	fprintf(logFile, "o  done.\n");fflush(logFile);
+}
+
+void InitializeEffects2DA()
+{
+	fprintf(logFile, "o Initializing effects.2da.\n");fflush(logFile);
+	if(effects_2da)
+	{
+		effects_2da->Unload2DArray();
+		fprintf(logFile, "o  effects.2da already initialized. Unloading content.\n");fflush(logFile);
+	}
+	else
+	{
+		CResRef resref;
+		std::fill_n(resref.resref, 16, 0);
+		sprintf_s(resref.resref,16,"%s","effects");
+		effects_2da = new C2DA();
+		effects_2da->C2DA(resref,0);
+	}
+	if(effects_2da)
+	{
+		effects_2da->Load2DArray();
+		fprintf(logFile, "o  effects.2da loaded.\n");fflush(logFile);
 	}
 	fprintf(logFile, "o  done.\n");fflush(logFile);
 }
@@ -349,6 +375,49 @@ void (__fastcall *CNWSCombatRound__InitializeNumberOfAttacks)(CNWSCombatRound *p
 int (__fastcall *CNWSCreature__UseFeat)(CNWSCreature *pThis, void*, unsigned short nFeat, unsigned short subradial, unsigned long targetID, unsigned long a4, Vector *a5);
 int (__fastcall *CNWSCreatureStats__GetBaseAttackBonus)(CNWSCreatureStats *pThis, void*, int bPreEpicOnly);
 int (__fastcall *CNWSCreature__GetFlanked)(CNWSCreature *pThis, void*, CNWSCreature *target);
+unsigned char (__fastcall *CNWSCreatureStats__GetFeatTotalUses)(CNWSCreatureStats *pThis, void *, unsigned short feat_id);
+unsigned char (__fastcall *CNWSCreatureStats__GetFeatRemainingUses)(CNWSCreatureStats *pThis, void *, unsigned short feat_id);
+
+unsigned char __fastcall CNWSCreatureStats__GetFeatRemainingUses_Hook(CNWSCreatureStats *pThis, void *, unsigned short feat_id)
+{
+	Log(2,"o CNWSCreatureStats__GetFeatRemainingUses start\n");
+	if(feat_id == 331 && pThis->HasFeat(feat_id))
+	{
+		unsigned char level_gruumsh = pThis->GetNumLevelsOfClass(CLASS_TYPE_EYE_OF_GRUUMSH,0);
+		if(level_gruumsh > 0)
+		{
+			unsigned int th = 0;
+			unsigned char used_times = 0;
+			CNWSStats_FeatUses *featuses = (CNWSStats_FeatUses*)(CExoArrayList_ptr_get(&(pThis->cs_featuses), th));
+			while(featuses)
+			{
+				if(featuses->m_nFeat == feat_id)
+				{
+					used_times = featuses->m_nUsedToday;
+					break;
+				}
+				featuses = (CNWSStats_FeatUses*)(CExoArrayList_ptr_get(&(pThis->cs_featuses), ++th));
+			}
+			unsigned char newVal = 1+(level_gruumsh+pThis->GetNumLevelsOfClass(CLASS_TYPE_BARBARIAN,0))/4;
+			return used_times > newVal ? 0 : newVal-used_times;
+		}
+	}
+	return CNWSCreatureStats__GetFeatRemainingUses(pThis,NULL,feat_id);
+}
+
+unsigned char __fastcall CNWSCreatureStats__GetFeatTotalUses_Hook(CNWSCreatureStats *pThis, void *, unsigned short feat_id)
+{
+	Log(2,"o CNWSCreatureStats__GetFeatTotalUses start\n");
+	if(feat_id == 331 && pThis->HasFeat(feat_id))
+	{
+		unsigned char level_gruumsh = pThis->GetNumLevelsOfClass(CLASS_TYPE_EYE_OF_GRUUMSH,0);
+		if(level_gruumsh > 0)
+		{
+			return 1+(level_gruumsh+pThis->GetNumLevelsOfClass(CLASS_TYPE_BARBARIAN,0))/4;
+		}
+	}
+	return CNWSCreatureStats__GetFeatTotalUses(pThis,NULL,feat_id);
+}
 
 int __fastcall CNWSCreature__GetFlanked_Hook(CNWSCreature *pThis, void*, CNWSCreature *target)
 {
@@ -646,7 +715,8 @@ void __fastcall CNWSCreatureStats__AdjustSpellUsesPerDay_Hook(CNWSCreatureStats 
 int __fastcall CNWSEffectListHandler__OnEffectApplied_Hook(CNWSEffectListHandler *pThis, void*, CNWSObject *obj, CGameEffect *eff, int n)
 {
 	Log(3,"o CNWSEffectListHandler__OnEffectApplied start\n");
-	if(eff->eff_type >= 96 || eff->eff_type == EFFECT_TRUETYPE_ABILITY_INCREASE || eff->eff_type == EFFECT_TRUETYPE_ABILITY_DECREASE) 
+	int nRun = 0;
+	if(eff->eff_type >= 96 || (effects_2da && effects_2da->GetINTEntry_intcol(eff->eff_type,1,&nRun) && nRun == 1)) 
 	{
 		CNWSCreature *cre = NWN_AppManager->app_server->srv_internal->GetCreatureByGameObjectID(obj->obj_generic.obj_id);
 		if(eff->eff_type >= 96 || (cre && cre->cre_is_pc))
@@ -658,6 +728,11 @@ int __fastcall CNWSEffectListHandler__OnEffectApplied_Hook(CNWSEffectListHandler
 			helper_effect = NULL;
 			obj->obj_vartable.DestroyInt(CExoString("EFFECT_EVENT_EVENT_TYPE"));
 			if(eff->eff_type >= 96) return 0;
+			else if(obj->obj_vartable.GetInt(CExoString("EFFECT_EVENT_BYPASS")) > 0)
+			{
+				obj->obj_vartable.DestroyInt(CExoString("EFFECT_EVENT_BYPASS"));
+				return 0;
+			}
 		}
 	}
 	return CNWSEffectListHandler__OnEffectApplied(pThis,NULL,obj,eff,n);
@@ -666,7 +741,8 @@ int __fastcall CNWSEffectListHandler__OnEffectApplied_Hook(CNWSEffectListHandler
 int __fastcall CNWSEffectListHandler__OnEffectRemoved_Hook(CNWSEffectListHandler *pThis, void*, CNWSObject *obj, CGameEffect *eff)
 {
 	Log(3,"o CNWSEffectListHandler__OnEffectRemoved start\n");
-	if(eff->eff_type >= 96 || eff->eff_type == EFFECT_TRUETYPE_ABILITY_INCREASE || eff->eff_type == EFFECT_TRUETYPE_ABILITY_DECREASE) 
+	int nRun = 0;
+	if(eff->eff_type >= 96 || (effects_2da && effects_2da->GetINTEntry_intcol(eff->eff_type,1,&nRun) && nRun == 1)) 
 	{
 		CNWSCreature *cre = NWN_AppManager->app_server->srv_internal->GetCreatureByGameObjectID(obj->obj_generic.obj_id);
 		if(eff->eff_type >= 96 || (cre && cre->cre_is_pc))
@@ -677,6 +753,11 @@ int __fastcall CNWSEffectListHandler__OnEffectRemoved_Hook(CNWSEffectListHandler
 			NWN_VirtualMachine->Runscript(&CExoString("70_mod_effects"),obj->obj_generic.obj_id,1);
 			helper_effect = NULL;
 			obj->obj_vartable.DestroyInt(CExoString("EFFECT_EVENT_EVENT_TYPE"));
+			if(obj->obj_vartable.GetInt(CExoString("EFFECT_EVENT_BYPASS")) > 0)
+			{
+				obj->obj_vartable.DestroyInt(CExoString("EFFECT_EVENT_BYPASS"));
+				return 0;
+			}
 		}
 	}
 	return CNWSEffectListHandler__OnEffectRemoved(pThis,NULL,obj,eff);
@@ -4113,6 +4194,50 @@ void NWNXPatch_Funcs(CNWSScriptVarTable *pThis, int nFunc, char *Params)
 			fprintf(logFile, "ERROR: SetBaseAC(%08X,%i,%i) used with incorrect parameters!\n",oID,nType,nAC);
 		}
 	}
+	else if(nFunc == 443)//AddFeat
+	{
+		unsigned long oID = OBJECT_INVALID, nFeat = OBJECT_INVALID, nLevel = OBJECT_INVALID;
+		sscanf_s(Params,"%x|%i|%i",&oID,&nFeat,&nLevel);
+		CNWSCreature *cre = NWN_AppManager->app_server->srv_internal->GetCreatureByGameObjectID(oID);
+		if(oID != OBJECT_INVALID && cre && nFeat < 65535 && (!nLevel || nLevel <= cre->cre_stats->GetLevel(0)))
+		{
+			if(nLevel != 0)
+			{
+				CNWLevelStats *lvstats = (CNWLevelStats*)(CExoArrayList_ptr_get(&(cre->cre_stats->cs_levelstat), nLevel-1));
+				if(lvstats)
+				{
+					lvstats->AddFeat((unsigned short)nFeat);
+				}				
+			}
+			cre->cre_stats->AddFeat((unsigned short)nFeat);
+		}
+		else
+		{
+			fprintf(logFile, "ERROR: AddFeat(%08X,%i,%i) used with incorrect parameters!\n",oID,nFeat,nLevel);
+		}
+	}
+	else if(nFunc == 444)//RemoveFeat
+	{
+		unsigned long oID = OBJECT_INVALID, nFeat = OBJECT_INVALID, bRemoveFromLevel = OBJECT_INVALID;
+		sscanf_s(Params,"%x|%i|%i",&oID,&nFeat,&bRemoveFromLevel);
+		CNWSCreature *cre = NWN_AppManager->app_server->srv_internal->GetCreatureByGameObjectID(oID);
+		if(oID != OBJECT_INVALID && cre && nFeat < 65535)
+		{
+			if(bRemoveFromLevel == 1)
+			{
+				int nPos = CExoArrayList_uint16_contains(&cre->cre_stats->cs_feats, (unsigned short)nFeat);
+				if(nPos > 0) 
+				{
+					CExoArrayList_uint16_delfeatindex(&cre->cre_stats->cs_feats, nPos);
+				}		
+			}
+			cre->cre_stats->RemoveFeat((unsigned short)nFeat);
+		}
+		else
+		{
+			fprintf(logFile, "ERROR: RemoveFeat(%08X,%i,%i) used with incorrect parameters!\n",oID,nFeat,bRemoveFromLevel);
+		}
+	}
 	else if(nFunc == 501)//GetKnowsSpell
 	{
 		unsigned long oID = OBJECT_INVALID;
@@ -4673,6 +4798,7 @@ unsigned long __fastcall CNWSModule__LoadModuleFinish_Hook(CNWSModule *pThis, vo
 	unsigned long retVal = CNWSModule__LoadModuleFinish(pThis,NULL);
 	NWN_VirtualMachine->Runscript(&script_load,pThis->obj_id);
 	InitializeWeaponFeats2DA();
+	InitializeEffects2DA();
 	InitializeRacialTypes2DA();
 	InitializeClasses2DA();
 	//InitializeSpells2DA();
@@ -6183,6 +6309,10 @@ void HookFunctions()
 		fprintf_s(logFile, "o Hooking neccessary functions to fix spell slots in polymorph: SUCCESS.\n");
 	}
 
+	//development
+	CreateHook(0x47F8C0,CNWSCreatureStats__GetFeatTotalUses_Hook,(PVOID*)&CNWSCreatureStats__GetFeatTotalUses, "DisableFeatUses", "Enabling Gruumsh rage stacking #1");
+	CreateHook(0x47EF10,CNWSCreatureStats__GetFeatRemainingUses_Hook,(PVOID*)&CNWSCreatureStats__GetFeatRemainingUses, "DisableFeatUses", "Enabling Gruumsh rage stacking #2");
+
 	fprintf(logFile,"\n");
 	fflush(logFile);
 }
@@ -6760,6 +6890,36 @@ void Hook_AOO2()//0x4A3025 - CNWSCreature::BroadcastAttackOfOpportunity
 	}
 
 	__asm mov ebx, orig_ebx
+	__asm jmp Hook_ret;
+}
+
+void Hook_ELC()//0x4336E6 - CNWSPlayer::ValidateCharacter
+{
+	__asm leave
+	__asm mov orig_eax, eax
+	__asm mov orig_ebx, ebx
+	__asm mov orig_ecx, ecx
+	__asm mov orig_edx, edx
+	__asm mov eax, [esp+60h]
+	__asm mov DWORD PTR stats, eax
+	__asm mov eax, esi
+	__asm mov test16, ax
+
+	fprintf_s(logFile, "o Hook_ELC, feat: %i, self: %x, eax: %i\n",test16,stats->cs_original->obj.obj_generic.obj_id,orig_eax);fflush(logFile);
+
+	if(orig_eax)
+	{
+		Hook_ret = 0x4336EA;
+	}
+	else
+	{
+		Hook_ret = 0x433740;
+	}
+
+	__asm mov eax, 0
+	__asm mov ebx, orig_ebx
+	__asm mov ecx, orig_ecx
+	__asm mov edx, orig_edx
 	__asm jmp Hook_ret;
 }
 
@@ -7539,6 +7699,16 @@ void PatchImage()
 	*((uint32_t *)(pPatch + 1)) = (uint32_t)Hook_Unpossess - (uint32_t)(pPatch + 5);
 	VirtualProtect((DWORD*)pPatch, 1, DefaultPrivs, NULL);
 	fprintf(logFile, "o Removing automatic unpossess.\n");*/
+
+
+	/* TODO nefunguje
+	pPatch = (unsigned char *) 0x4336E6;//ValidateCharacter
+	VirtualProtect((DWORD*)pPatch, 1, PAGE_EXECUTE_READWRITE, &DefaultPrivs);
+	memset((PVOID)pPatch, '\x90', 8);
+	pPatch[0] = 0xE9;
+	*((uint32_t *)(pPatch + 1)) = (uint32_t)Hook_ELC - (uint32_t)(pPatch + 5);
+	VirtualProtect((DWORD*)pPatch, 1, DefaultPrivs, NULL);
+	fprintf(logFile, "o ELC rage stacking.\n");*/
 
 	pPatch = (unsigned char *) 0x576EBF;//SetCustomToken
 	VirtualProtect((DWORD*)pPatch, 1, PAGE_EXECUTE_READWRITE, &DefaultPrivs);

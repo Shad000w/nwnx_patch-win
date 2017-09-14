@@ -72,7 +72,6 @@ struct CNWSCombatRound_s;                 typedef struct CNWSCombatRound_s      
 struct CNWSScriptVarTable_s;				typedef struct CNWSScriptVarTable_s				CNWSScriptVarTable;
 struct CNWSQuickbarButton_s;				typedef CNWSQuickbarButton_s				CNWSQuickbarButton;
 struct CNWSStats_Spell_s;					typedef struct CNWSStats_Spell_s				CNWSStats_Spell;
-struct CNWSStats_Level_s;					typedef struct CNWSStats_Level_s				CNWSStats_Level;
 struct CCombatinformation_s;				typedef struct CCombatinformation_s				CCombatinformation;
 struct CNWSCreatureEventHandler_s;			typedef struct CNWSCreatureEventHandler_s		CNWSCreatureEventHandler;
 struct CGameEffect_s;						typedef struct CGameEffect_s                    CGameEffect; 
@@ -158,7 +157,6 @@ struct CEffectsStore_s; typedef struct CEffectsStore_s CEffectsStore;
 #include "..\nwn_internals\CNWSCreatureAppearanceInfo.h"
 #include "..\nwn_internals\CNWSCreature.h"
 #include "..\nwn_internals\CNWSStats_Spell.h"
-#include "..\nwn_internals\CNWSStats_Level.h"
 #include "..\nwn_internals\CNWSCreatureStats_ClassInfo.h"
 #include "..\nwn_internals\CNWSCreatureStats.h"
 #include "..\nwn_internals\CGameEffect.h"

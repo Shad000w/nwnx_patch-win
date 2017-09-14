@@ -12,6 +12,9 @@ struct CNWLevelStats_s
     uint8_t m_nHitDie;//103
     uint8_t m_nClass;//104
     int32_t m_bEpic;//105
+
+	void 				AddFeat(unsigned short feat_id);
+	CNWLevelStats_s();
 };
 
 #endif

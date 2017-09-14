@@ -79,6 +79,7 @@
   </ItemDefinitionGroup>
   <ItemGroup>
     <ClCompile Include="..\nwn_internals\CItemRepository.cpp" />
+    <ClCompile Include="..\nwn_internals\CNWLevelStats.cpp" />
     <ClCompile Include="..\nwn_internals\CNWSCombatAttackData.cpp" />
     <ClCompile Include="..\nwn_internals\CNWSCreatureStats_ClassInfo.cpp" />
     <ClCompile Include="..\nwn_internals\CNWSModule.cpp" />
@@ -116,7 +117,6 @@
     <ClCompile Include="..\nwn_internals\CNWSPlayerCharSheetGUI.cpp" />
     <ClCompile Include="..\nwn_internals\CNWSplayerTURD.cpp" />
     <ClCompile Include="..\nwn_internals\CNWSScriptVarTable.cpp" />
-    <ClCompile Include="..\nwn_internals\CNWSStats_Level.cpp" />
     <ClCompile Include="..\nwn_internals\CNWSStore.cpp" />
     <ClCompile Include="..\nwn_internals\CNWSTile.cpp" />
     <ClCompile Include="..\nwn_internals\CNWSTrigger.cpp" />
@@ -200,7 +200,7 @@
     <ClInclude Include="..\nwn_internals\CNWSPlayerTURD.h" />
     <ClInclude Include="..\nwn_internals\CNWSScriptVarTable.h" />
     <ClInclude Include="..\nwn_internals\CNWSSoundObject.h" />
-    <ClInclude Include="..\nwn_internals\CNWSStats_Level.h" />
+    <ClInclude Include="..\nwn_internals\CNWSStats_FeatUses.h" />
     <ClInclude Include="..\nwn_internals\CNWSStats_Spell.h" />
     <ClInclude Include="..\nwn_internals\CNWSStore.h" />
     <ClInclude Include="..\nwn_internals\CNWSTile.h" />

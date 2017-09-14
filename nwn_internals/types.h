@@ -74,7 +74,6 @@ struct CNWSCombatRound_s;                 typedef struct CNWSCombatRound_s      
 struct CNWSScriptVarTable_s;				typedef struct CNWSScriptVarTable_s				CNWSScriptVarTable;
 struct CNWSQuickbarButton_s;				typedef CNWSQuickbarButton_s				CNWSQuickbarButton;
 struct CNWSStats_Spell_s;					typedef struct CNWSStats_Spell_s				CNWSStats_Spell;
-struct CNWSStats_Level_s;					typedef struct CNWSStats_Level_s				CNWSStats_Level;
 struct CCombatinformation_s;				typedef struct CCombatinformation_s				CCombatinformation;
 struct CNWSCreatureEventHandler_s;			typedef struct CNWSCreatureEventHandler_s		CNWSCreatureEventHandler;
 struct CGameEffect_s;						typedef struct CGameEffect_s                    CGameEffect; 
@@ -106,6 +105,7 @@ struct CNWSCreature_s;                    	typedef struct CNWSCreature_s        
 class CQuickbarExtension;
 struct CVirtualMachine_s;                 typedef struct CVirtualMachine_s                 CVirtualMachine;
 struct CNWVisibilityNode_s;					typedef struct CNWVisibilityNode_s				CNWVisibilityNode;
+struct CNWLevelStats_s;                     typedef struct CNWLevelStats_s                  CNWLevelStats;
 
 struct CEffectsStore_s {
 	nwn_objid_t objid;
@@ -158,7 +158,6 @@ struct CEffectsStore_s; typedef struct CEffectsStore_s CEffectsStore;
 #include ".\CNWSItem.h"
 #include ".\CNWSCreature.h"
 #include ".\CNWSStats_Spell.h"
-#include ".\CNWSStats_Level.h"
 #include ".\CNWSCreatureStats_ClassInfo.h"
 #include ".\CNWSCreatureStats.h"
 #include ".\CGameEffect.h"
@@ -203,6 +202,7 @@ struct CEffectsStore_s; typedef struct CEffectsStore_s CEffectsStore;
 #include ".\CNWSObjectActionNode.h"
 #include ".\CVirtualMachineCommands.h"
 #include ".\CResStruct.h"
+#include ".\CNWLevelStats.h"
 
 #include ".\nwn_internals.h"
 

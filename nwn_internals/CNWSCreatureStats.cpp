@@ -57,7 +57,7 @@ unsigned char	(__thiscall *CNWSCreatureStats__GetUnarmedDamageDice)(CNWSCreature
 unsigned char	(__thiscall *CNWSCreatureStats__GetUnarmedDamageDie)(CNWSCreatureStats *pThis) = (unsigned char(__thiscall*)(CNWSCreatureStats *pThis))0x00470940;
 int 			(__thiscall *CNWSCreatureStats__GetUseMonkAttackTables)(CNWSCreatureStats *pThis, int) = (int (__thiscall*)(CNWSCreatureStats *pThis, int))0x00470730;
 int 			(__thiscall *CNWSCreatureStats__HasFeat)(CNWSCreatureStats *Stats, uint16_t feat) = (int (__thiscall*)(CNWSCreatureStats *Stats, uint16_t feat))0x0047ECF0;
-bool 			(__thiscall *CNWSCreatureStats__LevelUp)(CNWSCreatureStats *pThis, CNWSStats_Level *a2, int a3, char a4, char a5, int a6) = (bool (__thiscall*)(CNWSCreatureStats *pThis, CNWSStats_Level *a2, int a3, char a4, char a5, int a6))0x004847F0;
+bool 			(__thiscall *CNWSCreatureStats__LevelUp)(CNWSCreatureStats *pThis, CNWLevelStats *a2, int a3, char a4, char a5, int a6) = (bool (__thiscall*)(CNWSCreatureStats *pThis, CNWLevelStats *a2, int a3, char a4, char a5, int a6))0x004847F0;
 void			(__thiscall *CNWSCreatureStats__ResetFeatRemainingUses)(CNWSCreatureStats *pThis) = (void(__thiscall*)(CNWSCreatureStats *pThis))0x004801D0;
 void			(__thiscall *CNWSCreatureStats__ResetSpellLikeAbilities)(CNWSCreatureStats *pThis) = (void(__thiscall*)(CNWSCreatureStats *pThis))0x00488E40;
 int 			(__thiscall *CNWSCreatureStats__ResolveSpecialAttackAttackBonus)(CNWSCreatureStats *pAttackerStats, CNWSCreature *Defender) = (int (__thiscall*)(CNWSCreatureStats *pAttackerStats, CNWSCreature *Defender))0x004744F0;
@@ -239,7 +239,7 @@ int CNWSCreatureStats_s::HasFeat(uint16_t feat) {
 	return CNWSCreatureStats__HasFeat(this, feat);
 }
 
-bool CNWSCreatureStats_s::LevelUp(CNWSStats_Level *a2, int a3, char a4, char a5, int a6) {
+bool CNWSCreatureStats_s::LevelUp(CNWLevelStats *a2, int a3, char a4, char a5, int a6) {
 	return CNWSCreatureStats__LevelUp(this, a2, a3, a4, a5, a6);
 }
 

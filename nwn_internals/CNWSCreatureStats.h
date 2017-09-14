@@ -198,7 +198,7 @@ signed int 			GetWeaponFinesse(CNWSItem *weapon);
 signed int 			GetWeaponFocus(CNWSItem *weapon);
 signed int 			GetWeaponImprovedCritical(CNWSItem *weapon);
 int 				HasFeat(uint16_t feat);
-bool 				LevelUp(CNWSStats_Level *a2, int a3, char a4, char a5, int a6);
+bool 				LevelUp(CNWLevelStats *a2, int a3, char a4, char a5, int a6);
 void				ReadySpellLevel(unsigned char SpellLevel);
 void 				ResetFeatRemainingUses();
 void 				ResetSpellLikeAbilities();
