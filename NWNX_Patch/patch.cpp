@@ -1555,15 +1555,18 @@ int __fastcall CNWVirtualMachineCommands__ExecuteCommandGetEffectSubType_Hook(CV
 	int retVal = eff->eff_dursubtype & 0x18;
 	CNWSModule *mod = NWN_AppManager->app_server->srv_internal->GetModule();
 	if(mod && mod->mod_vartable.MatchIndex(CExoString("GetEffectTrueType"),VARIABLE_TYPE_INT,0) != NULL)
-	{
+	{	
+		Log(1,"NWNXPatch_Funcs DEBUG: func GetEffectTrueType\n");
 		retVal = eff->eff_type;
 	}
 	else if(mod && mod->mod_vartable.MatchIndex(CExoString("GetEffectInteger"),VARIABLE_TYPE_INT,0) != NULL)
 	{
+		Log(1,"NWNXPatch_Funcs DEBUG: func GetEffectInteger\n");
 		retVal = eff->eff_integers[mod->mod_vartable.GetInt(CExoString("GetEffectInteger"))];
 	}
 	else if(mod && mod->mod_vartable.MatchIndex(CExoString("GetEffectRemainingDuration"),VARIABLE_TYPE_FLOAT,0) != NULL)
 	{
+		Log(1,"NWNXPatch_Funcs DEBUG: func GetEffectRemainingDuration\n");
 		if(eff->eff_expire_day != 0 && eff->eff_expire_time != 0)
 		{
 			unsigned long time_2880s = NULL, time_msec = NULL;
@@ -1642,6 +1645,7 @@ int __fastcall CNWVirtualMachineCommands__ExecuteCommandVersusEffect_Hook(CVirtu
 		CNWSModule *mod = NWN_AppManager->app_server->srv_internal->GetModule();
 		if(mod && mod->mod_vartable.MatchIndex(CExoString("GetEffectEventEffect"),VARIABLE_TYPE_INT,0) != NULL && helper_effect != NULL)
 		{
+			Log(1,"NWNXPatch_Funcs DEBUG: func GetEffectEventEffect\n");
 			if(!NWN_VirtualMachine->StackPushEngineStructure(0,helper_effect))
 			{
 				return -638;
@@ -1651,31 +1655,40 @@ int __fastcall CNWVirtualMachineCommands__ExecuteCommandVersusEffect_Hook(CVirtu
 		}
 		if(mod && mod->mod_vartable.MatchIndex(CExoString("SetEffectTrueType"),VARIABLE_TYPE_INT,0) != NULL)
 		{
-			eff->eff_type = (unsigned short)mod->mod_vartable.GetInt(CExoString("SetEffectTrueType"));
+			int nTrueType = mod->mod_vartable.GetInt(CExoString("SetEffectTrueType"));
+			Log(1,"NWNXPatch_Funcs DEBUG: func SetEffectTrueType, nTrueType: %i\n",nTrueType);
+			eff->eff_type = (unsigned short)nTrueType;
 		}
 		else if(mod && mod->mod_vartable.MatchIndex(CExoString("SetEffectSpellId"),VARIABLE_TYPE_INT,0) != NULL)
 		{
-			eff->eff_spellid = mod->mod_vartable.GetInt(CExoString("SetEffectSpellId"));
+			int nSpellId = mod->mod_vartable.GetInt(CExoString("SetEffectSpellId"));
+			Log(1,"NWNXPatch_Funcs DEBUG: func SetEffectSpellId, nSpellId: %i\n",nSpellId);
+			eff->eff_spellid = nSpellId;
 		}
 		else if(mod && mod->mod_vartable.MatchIndex(CExoString("SetEffectCasterLevel"),VARIABLE_TYPE_INT,0) != NULL)
 		{
-			eff->eff_casterlvl = mod->mod_vartable.GetInt(CExoString("SetEffectCasterLevel"));
+			int nCasterLevel = mod->mod_vartable.GetInt(CExoString("SetEffectCasterLevel"));
+			Log(1,"NWNXPatch_Funcs DEBUG: func SetEffectCasterLevel, nCasterLevel: %i\n",nCasterLevel);
+			eff->eff_casterlvl = nCasterLevel;
 		}
-		else if(mod && mod->mod_vartable.MatchIndex(CExoString("SetEffectInteger"),VARIABLE_TYPE_INT,0) != NULL)
+		else if(mod && mod->mod_vartable.MatchIndex(CExoString("SetEffectIntegerNth"),VARIABLE_TYPE_INT,0) != NULL)
 		{
-			int nValue = mod->mod_vartable.GetInt(CExoString("SetEffectInteger"));
-			int nInteger = nValue/1000;
-			nValue = nValue-nInteger*1000;
+			int nInteger = mod->mod_vartable.GetInt(CExoString("SetEffectIntegerNth"));
+			int nValue = mod->mod_vartable.GetInt(CExoString("SetEffectIntegerVal"));
+			Log(1,"NWNXPatch_Funcs DEBUG: func SetEffectInteger, nInteger: %i, nValue: %i\n",nInteger,nValue);
 			eff->eff_integers[nInteger] = nValue;
 		}
 		else if(mod && mod->mod_vartable.MatchIndex(CExoString("SetEffectCreator"),VARIABLE_TYPE_OBJECT,0) != NULL)
 		{
-			eff->eff_creator = mod->mod_vartable.GetObject(CExoString("SetEffectCreator"));
+			uint32_t oCreator = mod->mod_vartable.GetObject(CExoString("SetEffectCreator"));
+			Log(1,"NWNXPatch_Funcs DEBUG: func SetEffectCreator, oCreator: %x\n",oCreator);
+			eff->eff_creator = oCreator;
 		}
 		else if(mod && mod->mod_vartable.MatchIndex(CExoString("GetEffect"),VARIABLE_TYPE_INT,0) != NULL && mod->mod_vartable.MatchIndex(CExoString("GetEffect"),VARIABLE_TYPE_OBJECT,0) != NULL)
 		{
 			unsigned long id = mod->mod_vartable.GetObject(CExoString("GetEffect"));
 			unsigned int th = (unsigned int)mod->mod_vartable.GetInt(CExoString("GetEffect"));
+			Log(1,"NWNXPatch_Funcs DEBUG: func GetEffect, oCreature: %x, nTh: %i\n",id,th);
 			CNWSObject *obj = (CNWSObject*)NWN_AppManager->app_server->srv_internal->GetGameObject(id);
 			if(obj)
 			{
@@ -4902,6 +4915,18 @@ int __fastcall CNWSMessage__HandlePlayerToServerMessage_Hook(CNWSMessage *pMessa
 		}
 	}
 	else if(nType == 210)
+	{
+		CNWSModule *mod = NWN_AppManager->app_server->srv_internal->GetModule();
+		if(mod)
+		{
+			char *var = new char[64];
+			sprintf_s(var,64,"VERIFY_NWNCX_PATCH_%i",nPlayerID);
+			CExoString VarName = CExoString(var);
+			delete var;
+			mod->mod_vartable.SetInt(VarName,nSubtype,0);			
+		}
+	}
+	else if(nType == 211)//todo
 	{
 		CNWSModule *mod = NWN_AppManager->app_server->srv_internal->GetModule();
 		if(mod)
