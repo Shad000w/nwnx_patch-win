@@ -43,11 +43,11 @@ struct CGameEffect_s {
 	void CopyEffect(CGameEffect *Source, int bCopyVars);
 	int	GetScriptEffectType();
 	int GetInteger(int nInt);
-	int SetInteger( int nIndex, int nData );
-	int SetNumIntegers(int nInts);
+	int SetInteger(int nIndex, int nData);
+	void SetNumIntegers(int nInts);
 	int SetCreator(nwn_objid_t oidCreator);
-	int SetNumIntegersInitializeToNegativeOne(int nInts);
-	int UpdateLinked( );
+	void SetNumIntegersInitializeToNegativeOne(int nInts);
+	int UpdateLinked();
 	
 	CGameEffect* SetLinked(CGameEffect *a2, CGameEffect *a3);
 	
