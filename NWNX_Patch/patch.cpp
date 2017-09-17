@@ -32,7 +32,7 @@ CNWSCreature *target;
 CNWSCreatureStats *stats;
 int DebugLvl = 0;
 int helper,helper_backup;
-CGameEffect *helper_effect;
+CGameEffect *helper_effect,*Hook_effect;
 bool NoTumbleAC = false;
 bool NoCriticalImmunity = false;
 bool NoMonkAbilities = false;
@@ -377,43 +377,59 @@ int (__fastcall *CNWSCreatureStats__GetBaseAttackBonus)(CNWSCreatureStats *pThis
 int (__fastcall *CNWSCreature__GetFlanked)(CNWSCreature *pThis, void*, CNWSCreature *target);
 unsigned char (__fastcall *CNWSCreatureStats__GetFeatTotalUses)(CNWSCreatureStats *pThis, void *, unsigned short feat_id);
 unsigned char (__fastcall *CNWSCreatureStats__GetFeatRemainingUses)(CNWSCreatureStats *pThis, void *, unsigned short feat_id);
+int (__fastcall *CNWSObject__GetIsPCDying)(CNWSObject *pThis, void*);
+
+int __fastcall CNWSObject__GetIsPCDying_Hook(CNWSObject *pThis, void*)
+{
+	Log(3,"o CNWSObject__GetIsPCDying start\n");
+	int retVal = CNWSObject__GetIsPCDying(pThis,NULL);
+	if(retVal && pThis->obj_vartable.GetInt(CExoString("IMMUNITY_DYING")) > 0)
+	{
+		return 0;
+	}
+	return retVal;
+}
 
 unsigned char __fastcall CNWSCreatureStats__GetFeatRemainingUses_Hook(CNWSCreatureStats *pThis, void *, unsigned short feat_id)
 {
 	Log(2,"o CNWSCreatureStats__GetFeatRemainingUses start\n");
-	if(feat_id == 331 && pThis->HasFeat(feat_id))
+	CNWFeat *feat = NWN_Rules->GetFeat(feat_id);
+	if(!feat || !pThis->HasFeat(feat_id)) return 0;
+	unsigned int th = 0;
+	unsigned char used_times = 0;
+	CNWSStats_FeatUses *featuses = (CNWSStats_FeatUses*)(CExoArrayList_ptr_get(&(pThis->cs_featuses), th));
+	while(featuses)
 	{
-		unsigned char level_gruumsh = pThis->GetNumLevelsOfClass(CLASS_TYPE_EYE_OF_GRUUMSH,0);
-		if(level_gruumsh > 0)
+		if(featuses->m_nFeat == feat_id)
 		{
-			unsigned int th = 0;
-			unsigned char used_times = 0;
-			CNWSStats_FeatUses *featuses = (CNWSStats_FeatUses*)(CExoArrayList_ptr_get(&(pThis->cs_featuses), th));
-			while(featuses)
-			{
-				if(featuses->m_nFeat == feat_id)
-				{
-					used_times = featuses->m_nUsedToday;
-					break;
-				}
-				featuses = (CNWSStats_FeatUses*)(CExoArrayList_ptr_get(&(pThis->cs_featuses), ++th));
-			}
-			unsigned char newVal = 1+(level_gruumsh+pThis->GetNumLevelsOfClass(CLASS_TYPE_BARBARIAN,0))/4;
-			return used_times > newVal ? 0 : newVal-used_times;
+			used_times = featuses->m_nUsedToday;
+			break;
 		}
+		featuses = (CNWSStats_FeatUses*)(CExoArrayList_ptr_get(&(pThis->cs_featuses), ++th));
 	}
-	return CNWSCreatureStats__GetFeatRemainingUses(pThis,NULL,feat_id);
+	unsigned char newVal = pThis->GetFeatTotalUses(feat_id);
+	return used_times > newVal ? 0 : newVal-used_times;
 }
 
 unsigned char __fastcall CNWSCreatureStats__GetFeatTotalUses_Hook(CNWSCreatureStats *pThis, void *, unsigned short feat_id)
 {
 	Log(2,"o CNWSCreatureStats__GetFeatTotalUses start\n");
+	CNWFeat *feat = NWN_Rules->GetFeat(feat_id);
+	if(!feat || !pThis->HasFeat(feat_id)) return 0;
+	char *var = new char[32];
+	sprintf_s(var,32,"GetFeatTotalUses_%i",feat_id);
+	CExoString varname = CExoString(var);
+	delete var;
+	if(pThis->cs_original->obj.obj_vartable.MatchIndex(varname,VARIABLE_TYPE_INT,0) != NULL)
+	{
+		return pThis->cs_original->obj.obj_vartable.GetInt(varname);
+	}
 	if(feat_id == 331 && pThis->HasFeat(feat_id))
 	{
-		unsigned char level_gruumsh = pThis->GetNumLevelsOfClass(CLASS_TYPE_EYE_OF_GRUUMSH,0);
+		unsigned char level_gruumsh = pThis->GetNumLevelsOfClass(CLASS_TYPE_EYE_OF_GRUUMSH);
 		if(level_gruumsh > 0)
-		{
-			return 1+(level_gruumsh+pThis->GetNumLevelsOfClass(CLASS_TYPE_BARBARIAN,0))/4;
+		{			
+			return 1+(level_gruumsh+pThis->GetNumLevelsOfClass(CLASS_TYPE_BARBARIAN))/4;
 		}
 	}
 	return CNWSCreatureStats__GetFeatTotalUses(pThis,NULL,feat_id);
@@ -719,7 +735,7 @@ int __fastcall CNWSEffectListHandler__OnEffectApplied_Hook(CNWSEffectListHandler
 	if(eff->eff_type >= 96 || (effects_2da && effects_2da->GetINTEntry_intcol(eff->eff_type,1,&nRun) && nRun == 1)) 
 	{
 		CNWSCreature *cre = NWN_AppManager->app_server->srv_internal->GetCreatureByGameObjectID(obj->obj_generic.obj_id);
-		if(eff->eff_type >= 96 || (cre && cre->cre_is_pc))
+		if(eff->eff_type >= 96 || (cre && (cre->cre_is_pc || (effects_2da->GetINTEntry_intcol(eff->eff_type,2,&nRun) && nRun == 0))))
 		{
 			if(eff->eff_type == 96 && cre) cre->m_bUpdateCombatInformation = 1;	
 			obj->obj_vartable.SetInt(CExoString("EFFECT_EVENT_EVENT_TYPE"),1,1);
@@ -745,7 +761,7 @@ int __fastcall CNWSEffectListHandler__OnEffectRemoved_Hook(CNWSEffectListHandler
 	if(eff->eff_type >= 96 || (effects_2da && effects_2da->GetINTEntry_intcol(eff->eff_type,1,&nRun) && nRun == 1)) 
 	{
 		CNWSCreature *cre = NWN_AppManager->app_server->srv_internal->GetCreatureByGameObjectID(obj->obj_generic.obj_id);
-		if(eff->eff_type >= 96 || (cre && cre->cre_is_pc))
+		if(eff->eff_type >= 96 || (cre && (cre->cre_is_pc || (effects_2da->GetINTEntry_intcol(eff->eff_type,2,&nRun) && nRun == 0))))
 		{
 			if(eff->eff_type == 96 && cre) cre->m_bUpdateCombatInformation = 1;	
 			obj->obj_vartable.SetInt(CExoString("EFFECT_EVENT_EVENT_TYPE"),2,1);
@@ -1027,11 +1043,11 @@ unsigned char __fastcall CNWSCreatureStats__ComputeNumberKnownSpellsLeft_Hook(CN
 							break;
 						}
 					}
-					if(otherClass->ArcSpellLvlMod && bArcane)
+					if(otherClass->ArcSpellLvlMod && bArcane && !(cls_cast_type[cls_id] & CAST_TYPE_CUSTOM_SPELL_TYPE))
 					{
 						spellMod+= (pThis->cs_classes[x].cl_level+(otherClass->ArcSpellLvlMod != 1))/otherClass->ArcSpellLvlMod;
 					}
-					else if(otherClass->DivSpellLvlMod && !bArcane)
+					else if(otherClass->DivSpellLvlMod && !bArcane && !(cls_cast_type[cls_id] & CAST_TYPE_CUSTOM_SPELL_TYPE))
 					{
 						spellMod+= (pThis->cs_classes[x].cl_level+(otherClass->DivSpellLvlMod != 1))/otherClass->DivSpellLvlMod;
 					}
@@ -1162,11 +1178,11 @@ unsigned char __fastcall CNWSCreatureStats__GetSpellGainWithBonus_Hook(CNWSCreat
 							can_enhance_with_prc = 0;
 						}
 					}
-					if(otherClass->ArcSpellLvlMod && bArcane)
+					if(otherClass->ArcSpellLvlMod && bArcane && !(cls_cast_type[cls_id] & CAST_TYPE_CUSTOM_SPELL_TYPE))
 					{
 						spellMod+= (pThis->cs_classes[x].cl_level+(otherClass->ArcSpellLvlMod != 1))/otherClass->ArcSpellLvlMod;
 					}
-					else if(otherClass->DivSpellLvlMod && !bArcane)
+					else if(otherClass->DivSpellLvlMod && !bArcane && !(cls_cast_type[cls_id] & CAST_TYPE_CUSTOM_SPELL_TYPE))
 					{
 						spellMod+= (pThis->cs_classes[x].cl_level+(otherClass->DivSpellLvlMod != 1))/otherClass->DivSpellLvlMod;
 					}
@@ -1258,11 +1274,11 @@ unsigned char __fastcall CNWSCreatureStats__GetSpellGainWithBonusAfterLevelUp_Ho
 							can_enhance_with_prc = 0;
 						}
 					}
-					if(otherClass->ArcSpellLvlMod && bArcane)
+					if(otherClass->ArcSpellLvlMod && bArcane && !(cls_cast_type[cls_id] & CAST_TYPE_CUSTOM_SPELL_TYPE))
 					{
 						spellMod+= (pThis->cs_classes[x].cl_level+(otherClass->ArcSpellLvlMod != 1))/otherClass->ArcSpellLvlMod;
 					}
-					else if(otherClass->DivSpellLvlMod && !bArcane)
+					else if(otherClass->DivSpellLvlMod && !bArcane && !(cls_cast_type[cls_id] & CAST_TYPE_CUSTOM_SPELL_TYPE))
 					{
 						spellMod+= (pThis->cs_classes[x].cl_level+(otherClass->DivSpellLvlMod != 1))/otherClass->DivSpellLvlMod;
 					}
@@ -1506,11 +1522,11 @@ void __fastcall CGameEffect__SetCreator_Hook(CGameEffect *pThis, void*, unsigned
 							for(unsigned char i = 0; i < cre->cre_stats->cs_classes_len; i++)//todo vyresit double castery
 							{
 								cClass = &(NWN_Rules->ru_classes[cre->cre_stats->cs_classes[i].cl_class]);
-								if(bArcane && cClass->ArcSpellLvlMod && (cre->cre_stats->cs_classes[i].cl_class != 34 || PMCasterLevel))
+								if(bArcane && cClass->ArcSpellLvlMod && !(cls_cast_type[cls_id] & CAST_TYPE_CUSTOM_SPELL_TYPE) && (cre->cre_stats->cs_classes[i].cl_class != 34 || PMCasterLevel))
 								{
 									nLevel+= (cre->cre_stats->GetClassLevel(i,true)+(cClass->ArcSpellLvlMod != 1))/cClass->ArcSpellLvlMod;
 								}
-								else if(bDivine && cClass->DivSpellLvlMod)
+								else if(bDivine && cClass->DivSpellLvlMod && !(cls_cast_type[cls_id] & CAST_TYPE_CUSTOM_SPELL_TYPE))
 								{
 									nLevel+= (cre->cre_stats->GetClassLevel(i,true)+(cClass->DivSpellLvlMod != 1))/cClass->DivSpellLvlMod;
 								}
@@ -4914,7 +4930,7 @@ int __fastcall CNWSMessage__HandlePlayerToServerMessage_Hook(CNWSMessage *pMessa
 			}
 		}
 	}
-	else if(nType == 210)
+	else if(nType == 210)//VerifyClientRunningNWNCX
 	{
 		CNWSModule *mod = NWN_AppManager->app_server->srv_internal->GetModule();
 		if(mod)
@@ -4926,16 +4942,12 @@ int __fastcall CNWSMessage__HandlePlayerToServerMessage_Hook(CNWSMessage *pMessa
 			mod->mod_vartable.SetInt(VarName,nSubtype,0);			
 		}
 	}
-	else if(nType == 211)//todo
+	else if(nType == 211)//OnPlayerObjectHighlighted
 	{
-		CNWSModule *mod = NWN_AppManager->app_server->srv_internal->GetModule();
-		if(mod)
+		CNWSPlayer *player = NWN_AppManager->app_server->srv_internal->GetClientObjectByPlayerId(nPlayerID,1);
+		if(player)
 		{
-			char *var = new char[64];
-			sprintf_s(var,64,"VERIFY_NWNCX_PATCH_%i",nPlayerID);
-			CExoString VarName = CExoString(var);
-			delete var;
-			mod->mod_vartable.SetInt(VarName,nSubtype,0);			
+			NWN_VirtualMachine->Runscript(&CExoString("70_mod_hlight"),player->m_oidNWSObject);	
 		}
 	}
 	return CNWSMessage__HandlePlayerToServerMessage(pMessage,NULL,nPlayerID,pData,nLen);
@@ -6335,8 +6347,9 @@ void HookFunctions()
 	}
 
 	//development
-	CreateHook(0x47F8C0,CNWSCreatureStats__GetFeatTotalUses_Hook,(PVOID*)&CNWSCreatureStats__GetFeatTotalUses, "DisableFeatUses", "Enabling Gruumsh rage stacking #1");
-	CreateHook(0x47EF10,CNWSCreatureStats__GetFeatRemainingUses_Hook,(PVOID*)&CNWSCreatureStats__GetFeatRemainingUses, "DisableFeatUses", "Enabling Gruumsh rage stacking #2");
+	CreateHook(0x47F8C0,CNWSCreatureStats__GetFeatTotalUses_Hook,(PVOID*)&CNWSCreatureStats__GetFeatTotalUses, "DisableFeatUses", "Enabling Gruumsh rage stacking");
+	CreateHook(0x47EF10,CNWSCreatureStats__GetFeatRemainingUses_Hook,(PVOID*)&CNWSCreatureStats__GetFeatRemainingUses, "DisableFeatUses", "Enabling modify number of feat uses");
+	CreateHook(0x4E5A60,CNWSObject__GetIsPCDying_Hook,(PVOID*)&CNWSObject__GetIsPCDying, "DisablePCDying", "Enabling immunity to dying");
 
 	fprintf(logFile,"\n");
 	fflush(logFile);
@@ -6699,21 +6712,21 @@ void Hook_SpellSlotsCrash2()//0x4420EE
 		__asm mov eax, 0x442102
 	}
 
-	__asm jmp eax;
+	__asm jmp eax
 }	         
 
 void Hook_CustomToken()
 {
 	__asm leave
 	Hook_ret = 0x576EC9;
-	__asm jmp Hook_ret;
+	__asm jmp Hook_ret
 }
 
 void Hook_Unpossess()//0x740270 - CNWSCreature::ResolveAttack
 {
 	__asm leave
 	Hook_ret = 0x5476A8;
-	__asm jmp Hook_ret;
+	__asm jmp Hook_ret
 }
 
 void Hook_GetUnarmedDamageDice()//0x47090F - CNWSCreatureStats::GetUnarmedDamageDice
@@ -6733,7 +6746,7 @@ void Hook_OnClientExit()//0x45BB7B - CServerExoAppInternal::RemovePCFromWorld
 {
 	__asm leave
 	Hook_ret = 0x45BB9A;
-	__asm jmp Hook_ret;
+	__asm jmp Hook_ret
 }
 
 void Hook_ModuleEvents()//0x4D224E - CNWSModule::EventHandler
@@ -6813,7 +6826,7 @@ void Hook_ModuleEvents()//0x4D224E - CNWSModule::EventHandler
 	}
 
 	Hook_ret = 0x4D225A;
-	__asm jmp Hook_ret;
+	__asm jmp Hook_ret
 }
 
 void Hook_OnPlayerUnEquip()//0x49637D - CNWSCreature::UnequipItem
@@ -6834,7 +6847,7 @@ void Hook_OnPlayerUnEquip()//0x49637D - CNWSCreature::UnequipItem
 	}
 
 	Hook_ret = 0x496394;
-	__asm jmp Hook_ret;
+	__asm jmp Hook_ret
 }
 
 void Hook_OnPlayerChat()//0x534F70 - CNWSMessage::HandlePlayerToServerChatMessage
@@ -6855,7 +6868,7 @@ void Hook_OnPlayerChat()//0x534F70 - CNWSMessage::HandlePlayerToServerChatMessag
 	}
 
 	Hook_ret = 0x534F88;
-	__asm jmp Hook_ret;
+	__asm jmp Hook_ret
 }
 
 void Hook_AOO1()//0x4A2CBE - CNWSCreature::BroadcastAttackOfOpportunity
@@ -6885,7 +6898,7 @@ void Hook_AOO1()//0x4A2CBE - CNWSCreature::BroadcastAttackOfOpportunity
 	}
 
 	__asm mov ebx, orig_ebx
-	__asm jmp Hook_ret;
+	__asm jmp Hook_ret
 }
 
 void Hook_AOO2()//0x4A3025 - CNWSCreature::BroadcastAttackOfOpportunity
@@ -6915,7 +6928,28 @@ void Hook_AOO2()//0x4A3025 - CNWSCreature::BroadcastAttackOfOpportunity
 	}
 
 	__asm mov ebx, orig_ebx
-	__asm jmp Hook_ret;
+	__asm jmp Hook_ret
+}
+
+void Hook_DamageReduction()//0x4EB93E - CNWSEffectListHandler::OnApplyDamage
+{
+	__asm leave
+	__asm mov orig_eax, eax
+	__asm mov eax, [esp+0ACh]
+	__asm mov DWORD PTR Hook_effect, eax
+
+	test32 = Hook_effect->GetInteger(16);
+
+	__asm mov edx, [esi]
+	__asm push 0
+	__asm push 0
+	__asm push test32
+	__asm push orig_eax
+	__asm push ebp
+	__asm mov ecx, esi
+
+	__asm mov Hook_ret, 0x4EB949
+	__asm jmp Hook_ret
 }
 
 void Hook_ELC()//0x4336E6 - CNWSPlayer::ValidateCharacter
@@ -6945,7 +6979,7 @@ void Hook_ELC()//0x4336E6 - CNWSPlayer::ValidateCharacter
 	__asm mov ebx, orig_ebx
 	__asm mov ecx, orig_ecx
 	__asm mov edx, orig_edx
-	__asm jmp Hook_ret;
+	__asm jmp Hook_ret
 }
 
 void Hook_SpellcasterType7()//480408 - CNWSCreatureStats::AddKnownSpell
@@ -7809,6 +7843,14 @@ void PatchImage()
 	{
 		fprintf(logFile, "o Softcoding Attack of Opportunity disabled.\n");
 	}
+
+	pPatch = (unsigned char *) 0x4EB93E;//CNWSEffectListHandler::OnApplyDamage
+	VirtualProtect((DWORD*)pPatch, 1, PAGE_EXECUTE_READWRITE, &DefaultPrivs);
+	memset((PVOID)pPatch, '\x90', 8);
+	pPatch[0] = 0xE9;
+	*((uint32_t *)(pPatch + 1)) = (uint32_t)Hook_DamageReduction - (uint32_t)(pPatch + 5);
+	VirtualProtect((DWORD*)pPatch, 1, DefaultPrivs, NULL);
+	fprintf(logFile, "o Fixing nDamagePower parameter in EffectDamage.\n");
 
 	pPatch = (unsigned char *) 0x53F564;
 	VirtualProtect((DWORD*)pPatch, 1, PAGE_EXECUTE_READWRITE, &DefaultPrivs);
