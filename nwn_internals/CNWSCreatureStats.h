@@ -234,7 +234,7 @@ CNWSCreatureStats_ClassInfo*	GetInfo(unsigned char cls);
 unsigned char		GetClassLevel(unsigned char cls_pos, int bCountNegativeLevels);
 int GetNumLevelsOfClass(unsigned char nClassType);
 int GetNumLevelsOfClass(unsigned char nClassType, int bPreEpicOnly); 
-
+unsigned char GetFeatTotalUses(unsigned short feat_id);
 uint8_t GetFeatRemainingUses(uint16_t FeatID);
 void DecrementFeatRemainingUses(uint16_t FeatID);
 unsigned char GetIsClass(unsigned char ClassType);

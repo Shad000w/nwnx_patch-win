@@ -58,6 +58,7 @@ unsigned char	(__thiscall *CNWSCreatureStats__GetUnarmedDamageDie)(CNWSCreatureS
 int 			(__thiscall *CNWSCreatureStats__GetUseMonkAttackTables)(CNWSCreatureStats *pThis, int) = (int (__thiscall*)(CNWSCreatureStats *pThis, int))0x00470730;
 int 			(__thiscall *CNWSCreatureStats__HasFeat)(CNWSCreatureStats *Stats, uint16_t feat) = (int (__thiscall*)(CNWSCreatureStats *Stats, uint16_t feat))0x0047ECF0;
 bool 			(__thiscall *CNWSCreatureStats__LevelUp)(CNWSCreatureStats *pThis, CNWLevelStats *a2, int a3, char a4, char a5, int a6) = (bool (__thiscall*)(CNWSCreatureStats *pThis, CNWLevelStats *a2, int a3, char a4, char a5, int a6))0x004847F0;
+unsigned char	(__thiscall *CNWSCreatureStats__GetFeatTotalUses)(CNWSCreatureStats*, unsigned short) = (unsigned char(__thiscall*)(CNWSCreatureStats *,unsigned short))0x47F8C0;
 void			(__thiscall *CNWSCreatureStats__ResetFeatRemainingUses)(CNWSCreatureStats *pThis) = (void(__thiscall*)(CNWSCreatureStats *pThis))0x004801D0;
 void			(__thiscall *CNWSCreatureStats__ResetSpellLikeAbilities)(CNWSCreatureStats *pThis) = (void(__thiscall*)(CNWSCreatureStats *pThis))0x00488E40;
 int 			(__thiscall *CNWSCreatureStats__ResolveSpecialAttackAttackBonus)(CNWSCreatureStats *pAttackerStats, CNWSCreature *Defender) = (int (__thiscall*)(CNWSCreatureStats *pAttackerStats, CNWSCreature *Defender))0x004744F0;
@@ -305,6 +306,11 @@ char CNWSCreatureStats_s::GetSkillRank(unsigned char Skill, CNWSObject *vsObj, i
 
 int CNWSCreatureStats_s::GetEffectImmunity(unsigned __int8 Type, CNWSCreature *a3_Versus) {
 	return CNWSCreatureStats__GetEffectImmunity(this, Type, a3_Versus);
+}
+
+unsigned char CNWSCreatureStats::GetFeatTotalUses(unsigned short feat_id) 
+{
+	return CNWSCreatureStats__GetFeatTotalUses(this,feat_id);
 }
 
 uint8_t CNWSCreatureStats_s::GetFeatRemainingUses(uint16_t FeatID) {
