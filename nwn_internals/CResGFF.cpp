@@ -9,9 +9,10 @@ int 			(__thiscall *CResGFF__GetDataFromPointer)(CResGFF *pThis, char *Pointer, 
 int 			(__thiscall *CResGFF__GetTopLevelStruct)(CResGFF *pThis, char *ResStruct) = (int(__thiscall*)(CResGFF *pThis, char *ResStruct))0x00612EF0;
 void 			(__thiscall *CResGFF__GetGFFFileInfo)(CResGFF *pThis, CExoString &, CExoString &) = (void(__thiscall*)(CResGFF *pThis, CExoString &, CExoString &))0x00612C60;
 void			(__thiscall *CResGFF_dtor)(CResGFF *pThis) = (void(__thiscall*)(CResGFF *pThis))0x00611AF0;
-
+unsigned char	(__thiscall *CResGFF__ReadFieldBYTE)(CResGFF *, CResStruct *, char *, int &, unsigned char) = (unsigned char(__thiscall*)(CResGFF *, CResStruct *, char *, int &, unsigned char))0x612F10;
+unsigned short	(__thiscall *CResGFF__ReadFieldWORD)(CResGFF *, CResStruct *, char *, int &, unsigned short) = (unsigned short(__thiscall*)(CResGFF *, CResStruct *, char *, int &, unsigned short))0x612FF0;
 int 			(__thiscall *CResGFF__ReadFieldINT)(CResGFF *pThis, CResStruct *, char *Source, int &, int) = (int(__thiscall*)(CResGFF *pThis, CResStruct *, char *Source, int &, int))0x00613140;
-int 			(__thiscall *CResGFF__GetList)(CResGFF *pThis, void *, CResStruct *, char*) = (int(__thiscall*)(CResGFF *pThis, void *, CResStruct *, char*))0x00612D30;
+int 			(__thiscall *CResGFF__GetList)(CResGFF *pThis, CResList *, CResStruct *, char*) = (int(__thiscall*)(CResGFF *pThis, CResList *, CResStruct *, char*))0x00612D30;
 unsigned long 	(__thiscall *CResGFF__GetListCount)(CResGFF *pThis, void *) = (unsigned long(__thiscall*)(CResGFF *pThis, void *))0x00612DC0;
 int 			(__thiscall *CResGFF__GetListElement)(CResGFF *pThis, CResStruct *, void*, unsigned long) = (int(__thiscall*)(CResGFF *pThis, CResStruct *, void*, unsigned long))0x00612E20;
 int 			(__thiscall *CResGFF__ReadFieldVOID)(CResGFF *pThis, CResStruct*, void *, unsigned long, char *Source, int &, void *) = (int(__thiscall*)(CResGFF *pThis, CResStruct*, void *, unsigned long, char *Source, int &, void *))0x00613690;
@@ -61,8 +62,16 @@ void CResGFF::dtor() {
 int CResGFF::ReadFieldINT(CResStruct *ResStruct, char *Source, int &a3, int a4) {
 	return CResGFF__ReadFieldINT(this, ResStruct, Source, a3, a4);
 }
-	
-int CResGFF::GetList(void *a2, CResStruct *a3, char *a4) {
+
+unsigned char CResGFF::ReadFieldBYTE(CResStruct *ResStruct, char *Source, int &a3, unsigned char a4) {
+	return CResGFF__ReadFieldBYTE(this, ResStruct, Source, a3, a4);
+}
+
+unsigned short CResGFF::ReadFieldWORD(CResStruct *ResStruct, char *Source, int &a3, unsigned short a4) {
+	return CResGFF__ReadFieldWORD(this, ResStruct, Source, a3, a4);
+}
+
+int CResGFF::GetList(CResList *a2, CResStruct *a3, char *a4) {
 	return CResGFF__GetList(this, a2, a3, a4);
 }
 	

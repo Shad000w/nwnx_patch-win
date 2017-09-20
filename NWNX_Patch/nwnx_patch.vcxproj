@@ -212,6 +212,7 @@
     <ClInclude Include="..\nwn_internals\combat_modes.h" />
     <ClInclude Include="..\nwn_internals\CResFileInfo.h" />
     <ClInclude Include="..\nwn_internals\CResGFF.h" />
+    <ClInclude Include="..\nwn_internals\CResList.h" />
     <ClInclude Include="..\nwn_internals\CResource.h" />
     <ClInclude Include="..\nwn_internals\CResRef.h" />
     <ClInclude Include="..\nwn_internals\CResStruct.h" />

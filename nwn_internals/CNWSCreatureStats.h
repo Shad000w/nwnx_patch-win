@@ -237,6 +237,7 @@ int GetNumLevelsOfClass(unsigned char nClassType, int bPreEpicOnly);
 unsigned char GetFeatTotalUses(unsigned short feat_id);
 uint8_t GetFeatRemainingUses(uint16_t FeatID);
 void DecrementFeatRemainingUses(uint16_t FeatID);
+void SetFeatRemainingUses(unsigned short feat_id, unsigned char feat_uses);
 unsigned char GetIsClass(unsigned char ClassType);
 int GetArmorClassVersus(CNWSCreature *Attacker, int bTouchAttack);
 int GetRangedAttackBonus( int arg1, int arg2);
@@ -246,6 +247,9 @@ int					GetSpellMinAbilityMet(unsigned char cls_pos, unsigned char spell_lvl);
 void				UpdateCombatInformation();
 	void UpdateNumberMemorizedSpellSlots();
 	void AdjustSpellUsesPerDay();
+	void SetNumberBonusSpells(unsigned char cls_pos, unsigned char spell_lvl, unsigned char mod);
+	void DecrementSpellsPerDayLeft(unsigned char cls_pos, unsigned char spell_lvl);
+	unsigned char GetSpellsPerDayLeft(unsigned char cls_pos, unsigned char spell_lvl);
 	void ComputeFeatBonuses(CExoArrayList_uint16 *list, int arg1, int arg2);
 };
 

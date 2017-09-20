@@ -21,13 +21,13 @@
  *
  */
 
-#ifndef _NX_NWN_STRUCT_CRESSTRUCT_
-#define _NX_NWN_STRUCT_CRESSTRUCT_
+#ifndef _NX_NWN_STRUCT_CRESLIST_
+#define _NX_NWN_STRUCT_CRESLIST_
 
-struct CResStruct_s {
-     uint32_t m_nStructIndex;
+struct CResList {
+     char m_pLabel[16];
 };
 
-#endif /* _NX_NWN_STRUCT_CRESSTRUCT_ */
+#endif /* _NX_NWN_STRUCT_CRESLIST_ */
 
 /* vim: set sw=4: */

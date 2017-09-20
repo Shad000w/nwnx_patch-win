@@ -6,6 +6,7 @@ void 			(__thiscall *CNWSCreatureStats__AddExperience)(CNWSCreatureStats *pThis,
 char 			(__thiscall *CNWSCreatureStats__AddFeat)(CNWSCreatureStats *pThis, uint16_t Feat) = (char (__thiscall *)(CNWSCreatureStats *pThis, uint16_t Feat))0x0047EBC0;
 void			(__thiscall *CNWSCreatureStats__AddKnownSpell)(CNWSCreatureStats *pThis, unsigned char a1, unsigned long spell_id) = (void(__thiscall*)(CNWSCreatureStats*, unsigned char, unsigned long))0x480320;
 void			(__thiscall *CNWSCreatureStats__DecrementFeatRemainingUses)(CNWSCreatureStats *pThis, unsigned short FeatID) = (void(__thiscall*)(CNWSCreatureStats *pThis, unsigned short FeatID))0x00480200;
+void			(__thiscall *CNWSCreatureStats__SetFeatRemainingUses)(CNWSCreatureStats *, unsigned short, unsigned char) = (void(__thiscall*)(CNWSCreatureStats *, unsigned short, unsigned char))0x47EE20;
 char			(__thiscall *CNWSCreatureStats__GetACNaturalBase)(CNWSCreatureStats *pThis, int bTouchAttack) = (char (__thiscall*)(CNWSCreatureStats *pThis, int bTouchAttack))0x00489B00;
 int 			(__thiscall *CNWSCreatureStats__GetArmorClassVersus)(CNWSCreatureStats *pThis, CNWSCreature *Attacker, int bTouchAttack) = (int (__thiscall*)(CNWSCreatureStats *pThis, CNWSCreature *Attacker, int bTouchAttack))0x0046DC00;
 int 			(__thiscall *CNWSCreatureStats__GetAttackModifierVersus)(CNWSCreatureStats *, CNWSCreature *) = (int (__thiscall *)(CNWSCreatureStats *, CNWSCreature *))0x00470F00;
@@ -91,7 +92,9 @@ void (__thiscall *CNWSCreatureStats__UpdateCombatInformation)(CNWSCreatureStats*
 
 void (__thiscall *CNWSCreatureStats__UpdateNumberMemorizedSpellSlots)(CNWSCreatureStats*) = (void (__thiscall*)(CNWSCreatureStats*))0x47D1C0;
 void (__thiscall *CNWSCreatureStats__AdjustSpellUsesPerDay)(CNWSCreatureStats*) = (void (__thiscall*)(CNWSCreatureStats*))0x48B920;
-
+void (__thiscall *CNWSCreatureStats__SetNumberBonusSpells)(CNWSCreatureStats*,unsigned char, unsigned char, unsigned char) = (void (__thiscall*)(CNWSCreatureStats*,unsigned char, unsigned char, unsigned char))0x48B660;
+void (__thiscall *CNWSCreatureStats__DecrementSpellsPerDayLeft)(CNWSCreatureStats*,unsigned char, unsigned char) = (void (__thiscall*)(CNWSCreatureStats*,unsigned char, unsigned char))0x482F60;
+unsigned char	(__thiscall *CNWSCreatureStats__GetSpellsPerDayLeft)(CNWSCreatureStats*, unsigned char, unsigned char) = (unsigned char(__thiscall*)(CNWSCreatureStats *,unsigned char, unsigned char))0x482F10;
 void (__thiscall *CNWSCreatureStats__ComputeFeatBonuses)(CNWSCreatureStats*, CExoArrayList_uint16*, int, int) = (void (__thiscall*)(CNWSCreatureStats*, CExoArrayList_uint16*, int, int))0x48E850;
 
 CNWSCreatureStats_ClassInfo* CNWSCreatureStats::GetInfo(unsigned char cls)
@@ -99,18 +102,18 @@ CNWSCreatureStats_ClassInfo* CNWSCreatureStats::GetInfo(unsigned char cls)
 	return CNWSCreatureStats__GetClassInfo(this, cls);
 }
 
-void CNWSCreatureStats_s::RemoveFeat(uint16_t Feat){
-
+void CNWSCreatureStats_s::RemoveFeat(uint16_t Feat)
+{
 	CNWSCreatureStats__RemoveFeat(this, Feat);
 }
 
-void CNWSCreatureStats_s::AddKnownSpell(unsigned char cls_pos, unsigned long spell_id){
-
+void CNWSCreatureStats_s::AddKnownSpell(unsigned char cls_pos, unsigned long spell_id)
+{
 	CNWSCreatureStats__AddKnownSpell(this,cls_pos,spell_id);
 }
 
-int CNWSCreatureStats_s::GetRangedAttackBonus( int arg1, int arg2 ){
-
+int CNWSCreatureStats_s::GetRangedAttackBonus( int arg1, int arg2 )
+{
 	return CNWSCreatureStats__GetRangedAttackBonus( this, arg1, arg2 );
 }
 
@@ -321,6 +324,11 @@ void CNWSCreatureStats_s::DecrementFeatRemainingUses(uint16_t FeatID) {
 	return CNWSCreatureStats__DecrementFeatRemainingUses(this, FeatID);
 }
 
+void CNWSCreatureStats_s::SetFeatRemainingUses(unsigned short feat_id, unsigned char feat_uses)
+{
+	return CNWSCreatureStats__SetFeatRemainingUses(this, feat_id, feat_uses);
+}
+
 unsigned char CNWSCreatureStats_s::GetIsClass(unsigned char ClassType) {
 	return CNWSCreatureStats__GetIsClass(this, ClassType);
 }
@@ -449,4 +457,19 @@ void CNWSCreatureStats::UpdateNumberMemorizedSpellSlots()
 void CNWSCreatureStats::AdjustSpellUsesPerDay()
 {
 	CNWSCreatureStats__AdjustSpellUsesPerDay(this);
+}
+
+void CNWSCreatureStats::SetNumberBonusSpells(unsigned char cls_pos, unsigned char spell_lvl, unsigned char mod)
+{
+	CNWSCreatureStats__SetNumberBonusSpells(this,cls_pos,spell_lvl,mod);
+}
+
+void CNWSCreatureStats::DecrementSpellsPerDayLeft(unsigned char cls_pos, unsigned char spell_lvl)
+{
+	CNWSCreatureStats__DecrementSpellsPerDayLeft(this,cls_pos,spell_lvl);
+}
+
+unsigned char CNWSCreatureStats::GetSpellsPerDayLeft(unsigned char cls_pos, unsigned char spell_lvl)
+{
+	return CNWSCreatureStats__GetSpellsPerDayLeft(this,cls_pos,spell_lvl);
 }

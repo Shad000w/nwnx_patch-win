@@ -482,5 +482,8 @@
     <ClInclude Include="..\nwn_internals\CNWSStats_FeatUses.h">
       <Filter>Source Files\nwn_internals</Filter>
     </ClInclude>
+    <ClInclude Include="..\nwn_internals\CResList.h">
+      <Filter>Source Files\nwn_internals</Filter>
+    </ClInclude>
   </ItemGroup>
 </Project>

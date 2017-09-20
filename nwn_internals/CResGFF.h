@@ -1,6 +1,8 @@
 #ifndef _NX_NWN_STRUCT_CRESGFF_
 #define _NX_NWN_STRUCT_CRESGFF_
 
+#include "CResList.h"
+
 struct CResGFF_s {
   unsigned __int16 nDemands;
   unsigned __int16 nRequests;
@@ -57,7 +59,10 @@ struct CResGFF_s {
 	void dtor();
 
 	int ReadFieldINT(CResStruct *ResStruct, char *Source, int &a3, int a4);
-	int GetList(void *a2, CResStruct *a3, char *a4);
+	unsigned char ReadFieldBYTE(CResStruct*, char*, int32_t&, unsigned char);	
+	unsigned short ReadFieldWORD(CResStruct *ResStruct, char *Source, int &a3, unsigned short a4);
+
+	int GetList(CResList *a2, CResStruct *a3, char *a4);
 	unsigned long GetListCount(void *a2);
 	int GetListElement(CResStruct *a2, void *a3, unsigned long a4);
 	int ReadFieldVOID(CResStruct* a2, void *a3, unsigned long a4, char *Source, int &a6, void *a7);
