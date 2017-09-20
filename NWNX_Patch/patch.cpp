@@ -56,8 +56,7 @@ CExoString script_dthattk = "70_s2_dthattk";
 CExoString script_devast = "70_s2_devattk";
 CExoString script_defarrow = "70_s2_defarrow";
 CExoString script_healkit = "70_s3_healkit";
-CExoString SpontaneouslyCast = "SpontaneouslyCast";
-CExoString SpellsLearned = "SpellsLearned";
+//CExoString SpontaneouslyCast = "SpontaneouslyCast";
 CExoString aoo_target = "AOO_TARGET";
 CExoString aoo_bypass = "AOO_BYPASS";
 CExoString script_aoo = "70_s2_aoo";
@@ -81,8 +80,9 @@ CExoString script_user = "70_mod_def_user";
 
 bool pole[3][3];
 C2DA *weaponfeats_2da,*racialtypes_2da,*spells_2da,*spells_level_2da,*classes_2da,*effects_2da;
-C2DA *cls_spkn_2da[255];
+C2DA *cls_spkn_2da[255],*cls_prog_2da[255];
 unsigned int cls_cast_type[255];
+char *cls_spell_type[255];
 
 void Log( int nDebugLevel, const char *pcMsg, ... );
 
@@ -182,6 +182,8 @@ void InitializeClasses2DA()
 		fprintf(logFile, "o  classes.2da loaded.\n");fflush(logFile);
 		CNWClass *cClass;
 		CExoString CastType = CExoString("CastType");
+		CExoString SpellType = CExoString("SpellType");
+		CExoString SpellsProg = CExoString("SpellProgTable");
 		CExoString sVal;
 		int val = 0;
 		int numRows = classes_2da->m_nNumRows; if(numRows > 255) numRows = 255;
@@ -206,7 +208,29 @@ void InitializeClasses2DA()
 					case CLASS_TYPE_WIZARD: cls_cast_type[x] = 209; break;
 				}
 			}
-			//fprintf(logFile, "o  classes.2da loaded cls %i spellcaster %i arcane %i playerclass %i.\n",x,cClass->SpellCaster,NWN_Rules->IsArcaneClass(x),cClass->PlayerClass);fflush(logFile);
+			if(cClass->SpellCaster && classes_2da->GetCExoStringEntry(x,SpellType,&sVal) && sVal != NULL && sVal.text != NULL)
+			{
+				cls_spell_type[x] = sVal.text;
+			}
+			if(classes_2da->GetCExoStringEntry(x,SpellsProg,&sVal) && sVal != NULL && sVal.text != NULL && strlen(sVal.text) <= 16)//custom spell progression
+			{
+				if(cls_prog_2da[x])
+				{
+					cls_prog_2da[x]->Unload2DArray();
+				}
+				else
+				{
+					CResRef resref;
+					std::fill_n(resref.resref, 16, 0);
+					sprintf_s(resref.resref,16,"%s",sVal);
+					cls_prog_2da[x] = new C2DA();
+					cls_prog_2da[x]->C2DA(resref,0);
+				}
+				if(cls_prog_2da[x])
+				{
+					cls_prog_2da[x]->Load2DArray();
+				}
+			}
 		}
 	}
 	fprintf(logFile, "o  done.\n");fflush(logFile);
@@ -222,6 +246,8 @@ void InitializeModuleSwitches(CNWSModule *module)
 	PMCasterLevel = module->mod_vartable.GetInt(CExoString("71_PALEMASTER_ADDS_CASTER_LEVEL")) > 0;
 	CurseIgnoreAbilityDecreaseImmunity = module->mod_vartable.GetInt(CExoString("72_CURSE_IGNORE_ABILITY_DECREASE_IMMUNITY")) > 0;
 	DnDUncannyDodge = module->mod_vartable.GetInt(CExoString("72_HARDCORE_UNCANNY_DODGE")) > 0;
+	//PrestigeClassAffectSpontaneousCasters = module->mod_vartable.GetInt(CExoString("72_SpellLvlMod_AFFECT_SPONTANEOUS_CASTERS")) > 0;
+
 	PrestigeClassAffectSpontaneousCasters = true;
 }
 
@@ -365,7 +391,7 @@ unsigned char (__fastcall *CNWSCreatureStats__GetSpellUsesLeft)(CNWSCreatureStat
 int (__fastcall *CNWSCreature__LearnScroll)(CNWSCreature *pThis, void*, unsigned long itemID);
 void (__fastcall *CNWSCreatureStats__AdjustSpellUsesPerDay)(CNWSCreatureStats *pThis, void *);
 void (__fastcall *CNWSCreatureStats__ComputeFeatBonuses)(CNWSCreatureStats *pThis, void*, int *a1, int a2, int a3);
-void (__fastcall *CNWSCreature__ReadItemsFromGff)(CNWSCreature *pThis, void*, int *a1, int *a2, int a3, int a4);
+void (__fastcall *CNWSCreature__ReadItemsFromGff)(CNWSCreature *pThis, void*, CResGFF *a1, CResStruct *a2, int a3, int a4);
 void (__fastcall *CNWSCreature__PossessFamiliar)(CNWSCreature *pThis, void*);
 void (__fastcall *CNWSCreature__UnpossessFamiliar)(CNWSCreature *pThis, void*);
 int (__fastcall *CNWSCreature__GetIsPossessedFamiliar)(CNWSCreature *pThis, void*);
@@ -408,6 +434,7 @@ unsigned char __fastcall CNWSCreatureStats__GetFeatRemainingUses_Hook(CNWSCreatu
 		featuses = (CNWSStats_FeatUses*)(CExoArrayList_ptr_get(&(pThis->cs_featuses), ++th));
 	}
 	unsigned char newVal = pThis->GetFeatTotalUses(feat_id);
+	//Log(0,"o CNWSCreatureStats__GetFeatRemainingUses start, feat: %i, used_times: %i, uses_remaining: %i\n",feat_id,used_times,used_times > newVal ? 0 : newVal-used_times);
 	return used_times > newVal ? 0 : newVal-used_times;
 }
 
@@ -432,7 +459,9 @@ unsigned char __fastcall CNWSCreatureStats__GetFeatTotalUses_Hook(CNWSCreatureSt
 			return 1+(level_gruumsh+pThis->GetNumLevelsOfClass(CLASS_TYPE_BARBARIAN))/4;
 		}
 	}
-	return CNWSCreatureStats__GetFeatTotalUses(pThis,NULL,feat_id);
+	unsigned char retVal = CNWSCreatureStats__GetFeatTotalUses(pThis,NULL,feat_id);
+	//Log(0,"o CNWSCreatureStats__GetFeatTotalUses start, feat: %i, uses_total: %i\n",feat_id,retVal);
+	return retVal;
 }
 
 int __fastcall CNWSCreature__GetFlanked_Hook(CNWSCreature *pThis, void*, CNWSCreature *target)
@@ -666,7 +695,7 @@ int __fastcall CNWSCreatureStats__CanLevelUp_Hook(CNWSCreatureStats *pThis, void
 	return CNWSCreatureStats__CanLevelUp(pThis,NULL);
 }
 
-void __fastcall CNWSCreature__ReadItemsFromGff_Hook(CNWSCreature *pThis, void*, int *a1, int *a2, int a3, int a4)
+void __fastcall CNWSCreature__ReadItemsFromGff_Hook(CNWSCreature *pThis, void*, CResGFF *a1, CResStruct *a2, int a3, int a4)
 {
 	Log(2,"o CNWSCreature__ReadItemsFromGff start\n");
 	int prev = helper;
@@ -674,6 +703,28 @@ void __fastcall CNWSCreature__ReadItemsFromGff_Hook(CNWSCreature *pThis, void*, 
 	CNWSCreature__ReadItemsFromGff(pThis,NULL,a1,a2,a3,a4);
 	helper = prev;
 	pThis->cre_stats->AdjustSpellUsesPerDay();
+	CResList *list = new CResList();
+	CResStruct *list_element = new CResStruct();
+	int test = 0;
+	if(a1->GetList(list,a2,"FeatList"))
+	{
+		unsigned long list_len = a1->GetListCount(list);			
+		for(unsigned long th=0;th < list_len;th++)
+		{			
+			if(a1->GetListElement(list_element,list,th))
+			{
+				unsigned char feat_uses = a1->ReadFieldBYTE(list_element,"Uses",test,0);
+				if(test)
+				{
+					unsigned short feat_id = a1->ReadFieldWORD(list_element,"Feat",test,0);
+					if(test)
+					{
+						pThis->cre_stats->SetFeatRemainingUses(feat_id,feat_uses);
+					}					
+				}	
+			}
+		}
+	}
 }
 
 void __fastcall CNWSCreatureStats__ComputeFeatBonuses_Hook(CNWSCreatureStats *pThis, void*, int *a1, int a2, int a3)
@@ -1025,35 +1076,72 @@ unsigned char __fastcall CNWSCreatureStats__ComputeNumberKnownSpellsLeft_Hook(CN
 		if(cClass && cClass->SpellCaster && (cls_cast_type[cls_id] & CAST_TYPE_SPONTANEOUS))
 		{
 			CNWClass *otherClass;
-			unsigned int bArcane = cls_cast_type[cls_id] & CAST_TYPE_ARCANE;
-			bool can_enhance_with_prc = true;
+			unsigned int bCustom = cls_spell_type[cls_id] != NULL;
+			unsigned int bArcane = !bCustom && (cls_cast_type[cls_id] & CAST_TYPE_ARCANE);
+			unsigned int bDivine = !bCustom && !(cls_cast_type[cls_id] & CAST_TYPE_ARCANE);
+			char *CustomSpellType = bCustom ? cls_spell_type[cls_id] : NULL;
+			bool highest_class = true;
 			unsigned char level = pThis->cs_classes[cls_pos].cl_level;
 			unsigned char spellMod = 0;
 			if((cls_cast_type[cls_id] & CAST_TYPE_SPONTANEOUS) && PrestigeClassAffectSpontaneousCasters)
 			{
-				for(unsigned char x=0;x < pThis->cs_classes_len;x++)
+				unsigned char other_cls_id = 255, other_level = 255;
+				for(unsigned char x=0;x < pThis->cs_classes_len;x++)//loop 1, check base classes for same type of spellcasting and decide highest
 				{
-					if(x == cls_pos || pThis->cs_classes[x].cl_class == CLASS_TYPE_INVALID) continue;
-					otherClass = &(NWN_Rules->ru_classes[pThis->cs_classes[x].cl_class]);
-					if(otherClass->SpellCaster && bArcane == (cls_cast_type[pThis->cs_classes[x].cl_class] & CAST_TYPE_ARCANE) && pThis->cs_classes[x].cl_level >= level)
+					other_cls_id = pThis->cs_classes[x].cl_class;
+					other_level = pThis->cs_classes[x].cl_level;
+					if(x == cls_pos || other_cls_id == CLASS_TYPE_INVALID || other_level == CLASS_TYPE_INVALID) continue;
+					otherClass = &(NWN_Rules->ru_classes[other_cls_id]);
+					if(otherClass->SpellCaster && other_level >= level)
 					{
-						if(pThis->cs_classes[x].cl_level > level || cls_pos < x)
+						if((bArcane && cls_spell_type[other_cls_id] == NULL && (cls_cast_type[other_cls_id] & CAST_TYPE_ARCANE)) ||
+						   (bDivine && cls_spell_type[other_cls_id] == NULL && !(cls_cast_type[other_cls_id] & CAST_TYPE_ARCANE)) ||
+						   (bCustom && cls_spell_type[other_cls_id] != NULL && !strcmp(CustomSpellType,cls_spell_type[other_cls_id])))
 						{
-							can_enhance_with_prc = false;
-							break;
+							if(other_level > level || cls_pos < x)
+							{
+								highest_class = false;
+							}
 						}
 					}
-					if(otherClass->ArcSpellLvlMod && bArcane && !(cls_cast_type[cls_id] & CAST_TYPE_CUSTOM_SPELL_TYPE))
-					{
-						spellMod+= (pThis->cs_classes[x].cl_level+(otherClass->ArcSpellLvlMod != 1))/otherClass->ArcSpellLvlMod;
+				}
+				for(unsigned char x=0;x < pThis->cs_classes_len;x++)//loop 2, check prestige classes for progression
+				{
+					other_cls_id = pThis->cs_classes[x].cl_class;
+					other_level = pThis->cs_classes[x].cl_level-1;
+					if(x == cls_pos || other_cls_id == CLASS_TYPE_INVALID || other_level == CLASS_TYPE_INVALID) continue;
+					otherClass = &(NWN_Rules->ru_classes[other_cls_id]);
+					if(cls_prog_2da[other_cls_id])
+					{				
+						int nValue;
+						if(cls_prog_2da[other_cls_id]->GetINTEntry_intcol(other_level,1,&nValue) && nValue == 1)//class that will improve spell progression of two classes
+						{
+							highest_class = true;
+						}
+						if(bArcane && cls_prog_2da[other_cls_id]->GetINTEntry_intcol(other_level,2,&nValue))//class that will improve progression of arcane spells
+						{
+							spellMod+= nValue;
+						}
+						else if(bDivine && cls_prog_2da[other_cls_id]->GetINTEntry_intcol(other_level,3,&nValue))//class that will improve progression of divine spells
+						{
+							spellMod+= nValue;
+						}
+						else if(bCustom && cls_prog_2da[other_cls_id]->GetINTEntry_strcol(other_level,CExoString(CustomSpellType),&nValue))//class that will improve progression of custom type of spells
+						{
+							spellMod+= nValue;
+						}
 					}
-					else if(otherClass->DivSpellLvlMod && !bArcane && !(cls_cast_type[cls_id] & CAST_TYPE_CUSTOM_SPELL_TYPE))
+					else if(otherClass->ArcSpellLvlMod && bArcane)
+					{
+						spellMod+= (other_level+(otherClass->ArcSpellLvlMod != 1))/otherClass->ArcSpellLvlMod;
+					}
+					else if(otherClass->DivSpellLvlMod && !bArcane)
 					{
 						spellMod+= (pThis->cs_classes[x].cl_level+(otherClass->DivSpellLvlMod != 1))/otherClass->DivSpellLvlMod;
 					}
 				}
 			}
-			if(can_enhance_with_prc) level+= spellMod;
+			if(highest_class) level+= spellMod;
 			retVal = cClass->GetSpellsKnownPerLevel(level,spell_lvl,0,0,0);
 			if(retVal == 255) retVal = 0;
 			else if(spell_lvl > 0 && pThis->cs_classes[cls_pos].cl_specialist)
@@ -1161,34 +1249,72 @@ unsigned char __fastcall CNWSCreatureStats__GetSpellGainWithBonus_Hook(CNWSCreat
 		if(cClass && cClass->SpellCaster)
 		{
 			CNWClass *otherClass;
-			unsigned int bArcane = cls_cast_type[cls_id] & CAST_TYPE_ARCANE;
-			int can_enhance_with_prc = 1;
+			bool bCustom = cls_spell_type[cls_id] != NULL;
+			bool bArcane = !bCustom && (cls_cast_type[cls_id] & CAST_TYPE_ARCANE);
+			bool bDivine = !bCustom && !(cls_cast_type[cls_id] & CAST_TYPE_ARCANE);
+			char *CustomSpellType = bCustom ? cls_spell_type[cls_id] : NULL;
+			bool highest_class = true;
 			unsigned char level = pThis->cs_classes[cls_pos].cl_level;
 			unsigned char spellMod = 0;
 			if(!(cls_cast_type[cls_id] & CAST_TYPE_SPONTANEOUS) || PrestigeClassAffectSpontaneousCasters)
 			{
-				for(unsigned char x=0;x < pThis->cs_classes_len;x++)
+				unsigned char other_cls_id = 255, other_level = 255;
+				for(unsigned char x=0;x < pThis->cs_classes_len;x++)//loop 1, check base classes for same type of spellcasting and decide highest
 				{
-					if(x == cls_pos || pThis->cs_classes[x].cl_class == CLASS_TYPE_INVALID) continue;
-					otherClass = &(NWN_Rules->ru_classes[pThis->cs_classes[x].cl_class]);
-					if(otherClass->SpellCaster && bArcane == (cls_cast_type[pThis->cs_classes[x].cl_class] & CAST_TYPE_ARCANE) && pThis->cs_classes[x].cl_level >= level)
+					other_cls_id = pThis->cs_classes[x].cl_class;
+					other_level = pThis->cs_classes[x].cl_level;
+					if(x == cls_pos || other_cls_id == CLASS_TYPE_INVALID || other_level == CLASS_TYPE_INVALID) continue;
+					otherClass = &(NWN_Rules->ru_classes[other_cls_id]);
+					if(otherClass->SpellCaster && other_level >= level)
 					{
-						if(pThis->cs_classes[x].cl_level > level || cls_pos < x)
+						if((bArcane && cls_spell_type[other_cls_id] == NULL && (cls_cast_type[other_cls_id] & CAST_TYPE_ARCANE)) ||
+						   (bDivine && cls_spell_type[other_cls_id] == NULL && !(cls_cast_type[other_cls_id] & CAST_TYPE_ARCANE)) ||
+						   (bCustom && cls_spell_type[other_cls_id] != NULL && !strcmp(CustomSpellType,cls_spell_type[other_cls_id])))
 						{
-							can_enhance_with_prc = 0;
+							if(other_level > level || cls_pos < x)
+							{
+								highest_class = false;
+							}
 						}
 					}
-					if(otherClass->ArcSpellLvlMod && bArcane && !(cls_cast_type[cls_id] & CAST_TYPE_CUSTOM_SPELL_TYPE))
-					{
-						spellMod+= (pThis->cs_classes[x].cl_level+(otherClass->ArcSpellLvlMod != 1))/otherClass->ArcSpellLvlMod;
+				}
+				for(unsigned char x=0;x < pThis->cs_classes_len;x++)//loop 2, check prestige classes for progression
+				{
+					other_cls_id = pThis->cs_classes[x].cl_class;
+					other_level = pThis->cs_classes[x].cl_level-1;
+					if(x == cls_pos || other_cls_id == CLASS_TYPE_INVALID || other_level == CLASS_TYPE_INVALID) continue;
+					otherClass = &(NWN_Rules->ru_classes[other_cls_id]);
+					if(cls_prog_2da[other_cls_id])
+					{						
+						int nValue;
+						if(cls_prog_2da[other_cls_id]->GetINTEntry_intcol(other_level,1,&nValue) && nValue == 1)//class that will improve spell progression of two classes
+						{
+							highest_class = true;
+						}
+						if(bArcane && cls_prog_2da[other_cls_id]->GetINTEntry_intcol(other_level,2,&nValue))//class that will improve progression of arcane spells
+						{
+							spellMod+= nValue;
+						}
+						else if(bDivine && cls_prog_2da[other_cls_id]->GetINTEntry_intcol(other_level,3,&nValue))//class that will improve progression of divine spells
+						{
+							spellMod+= nValue;
+						}
+						else if(bCustom && CustomSpellType && cls_prog_2da[other_cls_id]->GetINTEntry_strcol(other_level,CExoString(CustomSpellType),&nValue))//class that will improve progression of custom type of spells
+						{
+							spellMod+= nValue;
+						}
 					}
-					else if(otherClass->DivSpellLvlMod && !bArcane && !(cls_cast_type[cls_id] & CAST_TYPE_CUSTOM_SPELL_TYPE))
+					else if(otherClass->ArcSpellLvlMod && bArcane)
+					{
+						spellMod+= (other_level+(otherClass->ArcSpellLvlMod != 1))/otherClass->ArcSpellLvlMod;
+					}
+					else if(otherClass->DivSpellLvlMod && !bArcane)
 					{
 						spellMod+= (pThis->cs_classes[x].cl_level+(otherClass->DivSpellLvlMod != 1))/otherClass->DivSpellLvlMod;
 					}
 				}
 			}
-			if(can_enhance_with_prc) level+= spellMod;
+			if(highest_class) level+= spellMod;
 			switch(cClass->PrimaryAbility)
 			{
 			case ABILITY_STRENGTH:
@@ -1257,34 +1383,72 @@ unsigned char __fastcall CNWSCreatureStats__GetSpellGainWithBonusAfterLevelUp_Ho
 		if(cClass && cClass->SpellCaster)
 		{
 			CNWClass *otherClass;
-			unsigned int bArcane = cls_cast_type[cls_id] & CAST_TYPE_ARCANE;
-			int can_enhance_with_prc = 1;
-			unsigned char level = is_first_lvl ? 1 : pThis->cs_classes[cls_pos].cl_level+1;
+			bool bCustom = cls_spell_type[cls_id] != NULL;
+			bool bArcane = !bCustom && (cls_cast_type[cls_id] & CAST_TYPE_ARCANE);
+			bool bDivine = !bCustom && !(cls_cast_type[cls_id] & CAST_TYPE_ARCANE);
+			char *CustomSpellType = bCustom ? cls_spell_type[cls_id] : NULL;
+			bool highest_class = true;
+			unsigned char level = pThis->cs_classes[cls_pos].cl_level;
 			unsigned char spellMod = 0;
 			if(!(cls_cast_type[cls_id] & CAST_TYPE_SPONTANEOUS) || PrestigeClassAffectSpontaneousCasters)
 			{
-				for(unsigned char x=0;x < pThis->cs_classes_len;x++)
+				unsigned char other_cls_id = 255, other_level = 255;
+				for(unsigned char x=0;x < pThis->cs_classes_len;x++)//loop 1, check base classes for same type of spellcasting and decide highest
 				{
-					if(x == cls_pos || pThis->cs_classes[x].cl_class == CLASS_TYPE_INVALID) continue;
-					otherClass = &(NWN_Rules->ru_classes[pThis->cs_classes[x].cl_class]);
-					if(otherClass->SpellCaster && bArcane == (cls_cast_type[pThis->cs_classes[x].cl_class] & CAST_TYPE_ARCANE) && pThis->cs_classes[x].cl_level >= level)
+					other_cls_id = pThis->cs_classes[x].cl_class;
+					other_level = pThis->cs_classes[x].cl_level;
+					if(x == cls_pos || other_cls_id == CLASS_TYPE_INVALID || other_level == CLASS_TYPE_INVALID) continue;
+					otherClass = &(NWN_Rules->ru_classes[other_cls_id]);
+					if(otherClass->SpellCaster && other_level >= level)
 					{
-						if(pThis->cs_classes[x].cl_level > level || cls_pos < x)
+						if((bArcane && cls_spell_type[other_cls_id] == NULL && (cls_cast_type[other_cls_id] & CAST_TYPE_ARCANE)) ||
+						   (bDivine && cls_spell_type[other_cls_id] == NULL && !(cls_cast_type[other_cls_id] & CAST_TYPE_ARCANE)) ||
+						   (bCustom && cls_spell_type[other_cls_id] != NULL && !strcmp(CustomSpellType,cls_spell_type[other_cls_id])))
 						{
-							can_enhance_with_prc = 0;
+							if(other_level > level || cls_pos < x)
+							{
+								highest_class = false;
+							}
 						}
 					}
-					if(otherClass->ArcSpellLvlMod && bArcane && !(cls_cast_type[cls_id] & CAST_TYPE_CUSTOM_SPELL_TYPE))
-					{
-						spellMod+= (pThis->cs_classes[x].cl_level+(otherClass->ArcSpellLvlMod != 1))/otherClass->ArcSpellLvlMod;
+				}
+				for(unsigned char x=0;x < pThis->cs_classes_len;x++)//loop 2, check prestige classes for progression
+				{
+					other_cls_id = pThis->cs_classes[x].cl_class;
+					other_level = pThis->cs_classes[x].cl_level-1;
+					if(x == cls_pos || other_cls_id == CLASS_TYPE_INVALID || other_level == CLASS_TYPE_INVALID) continue;
+					otherClass = &(NWN_Rules->ru_classes[other_cls_id]);
+					if(cls_prog_2da[other_cls_id])
+					{						
+						int nValue;
+						if(cls_prog_2da[other_cls_id]->GetINTEntry_intcol(other_level,1,&nValue) && nValue == 1)//class that will improve spell progression of two classes
+						{
+							highest_class = true;
+						}
+						if(bArcane && cls_prog_2da[other_cls_id]->GetINTEntry_intcol(other_level,2,&nValue))//class that will improve progression of arcane spells
+						{
+							spellMod+= nValue;
+						}
+						else if(bDivine && cls_prog_2da[other_cls_id]->GetINTEntry_intcol(other_level,3,&nValue))//class that will improve progression of divine spells
+						{
+							spellMod+= nValue;
+						}
+						else if(bCustom && CustomSpellType && cls_prog_2da[other_cls_id]->GetINTEntry_strcol(other_level,CExoString(CustomSpellType),&nValue))//class that will improve progression of custom type of spells
+						{
+							spellMod+= nValue;
+						}
 					}
-					else if(otherClass->DivSpellLvlMod && !bArcane && !(cls_cast_type[cls_id] & CAST_TYPE_CUSTOM_SPELL_TYPE))
+					else if(otherClass->ArcSpellLvlMod && bArcane)
+					{
+						spellMod+= (other_level+(otherClass->ArcSpellLvlMod != 1))/otherClass->ArcSpellLvlMod;
+					}
+					else if(otherClass->DivSpellLvlMod && !bArcane)
 					{
 						spellMod+= (pThis->cs_classes[x].cl_level+(otherClass->DivSpellLvlMod != 1))/otherClass->DivSpellLvlMod;
 					}
 				}
 			}
-			if(can_enhance_with_prc) level+= spellMod;
+			if(highest_class) level+= spellMod;
 			switch(cClass->PrimaryAbility)
 			{
 			case ABILITY_STRENGTH:
@@ -1515,21 +1679,75 @@ void __fastcall CGameEffect__SetCreator_Hook(CGameEffect *pThis, void*, unsigned
 						//include prestige classes into calculation
 						if(creator->obj_last_spell_feat == 0xFFFF && NWN_Rules->ru_spells->GetSpell(pThis->eff_spellid)->UserType == 1)
 						{
-							unsigned char cls_id = cre->cre_stats->cs_classes[creator->obj_last_spell_class].cl_class;
+							unsigned char cls_pos = creator->obj_last_spell_class;
+							unsigned char cls_id = cre->cre_stats->cs_classes[cls_pos].cl_class;
 							CNWClass *cClass = &(NWN_Rules->ru_classes[cls_id]);
-							bool bArcane = (cls_cast_type[cls_id] & CAST_TYPE_ARCANE) == CAST_TYPE_ARCANE;
-							bool bDivine = cClass->SpellCaster && !bArcane;
-							for(unsigned char i = 0; i < cre->cre_stats->cs_classes_len; i++)//todo vyresit double castery
+							if(cClass && cClass->SpellCaster)
 							{
-								cClass = &(NWN_Rules->ru_classes[cre->cre_stats->cs_classes[i].cl_class]);
-								if(bArcane && cClass->ArcSpellLvlMod && !(cls_cast_type[cls_id] & CAST_TYPE_CUSTOM_SPELL_TYPE) && (cre->cre_stats->cs_classes[i].cl_class != 34 || PMCasterLevel))
+								CNWClass *otherClass;
+								bool bCustom = cls_spell_type[cls_id] != NULL;
+								bool bArcane = !bCustom && (cls_cast_type[cls_id] & CAST_TYPE_ARCANE);
+								bool bDivine = !bCustom && !(cls_cast_type[cls_id] & CAST_TYPE_ARCANE);
+								char *CustomSpellType = bCustom ? cls_spell_type[cls_id] : NULL;
+								bool highest_class = true;
+								unsigned char level = cre->cre_stats->cs_classes[cls_pos].cl_level;
+								unsigned char spellMod = 0;
+								unsigned char other_cls_id = 255, other_level = 255;
+								for(unsigned char x=0;x < cre->cre_stats->cs_classes_len;x++)//loop 1, check base classes for same type of spellcasting and decide highest
 								{
-									nLevel+= (cre->cre_stats->GetClassLevel(i,true)+(cClass->ArcSpellLvlMod != 1))/cClass->ArcSpellLvlMod;
+									other_cls_id = cre->cre_stats->cs_classes[x].cl_class;
+									other_level = cre->cre_stats->cs_classes[x].cl_level;
+									if(x == cls_pos || other_cls_id == CLASS_TYPE_INVALID || other_level == CLASS_TYPE_INVALID) continue;
+									otherClass = &(NWN_Rules->ru_classes[other_cls_id]);
+									if(otherClass->SpellCaster && other_level >= level)
+									{
+										if((bArcane && cls_spell_type[other_cls_id] == NULL && (cls_cast_type[other_cls_id] & CAST_TYPE_ARCANE)) ||
+					   					(bDivine && cls_spell_type[other_cls_id] == NULL && !(cls_cast_type[other_cls_id] & CAST_TYPE_ARCANE)) ||
+						   				(bCustom && cls_spell_type[other_cls_id] != NULL && !strcmp(CustomSpellType,cls_spell_type[other_cls_id])))
+										{
+											if(other_level > level || cls_pos < x)
+											{
+												highest_class = false;
+											}
+										}
+									}
 								}
-								else if(bDivine && cClass->DivSpellLvlMod && !(cls_cast_type[cls_id] & CAST_TYPE_CUSTOM_SPELL_TYPE))
-								{
-									nLevel+= (cre->cre_stats->GetClassLevel(i,true)+(cClass->DivSpellLvlMod != 1))/cClass->DivSpellLvlMod;
+								for(unsigned char x=0;x < cre->cre_stats->cs_classes_len;x++)//loop 2, check prestige classes for progression
+								{					
+									other_cls_id = cre->cre_stats->cs_classes[x].cl_class;
+									other_level = cre->cre_stats->cs_classes[x].cl_level-1;
+									if(x == cls_pos || other_cls_id == CLASS_TYPE_INVALID || other_level == CLASS_TYPE_INVALID) continue;
+									otherClass = &(NWN_Rules->ru_classes[other_cls_id]);
+									if(cls_prog_2da[other_cls_id])
+									{						
+										int nValue;
+										if(cls_prog_2da[other_cls_id]->GetINTEntry_intcol(other_level,1,&nValue) && nValue == 1)//class that will improve spell progression of two classes
+										{
+											highest_class = true;
+										}	
+										if(bArcane && cls_prog_2da[other_cls_id]->GetINTEntry_intcol(other_level,2,&nValue))//class that will improve progression of arcane spells
+										{
+											spellMod+= nValue;
+										}	
+										else if(bDivine && cls_prog_2da[other_cls_id]->GetINTEntry_intcol(other_level,3,&nValue))//class that will improve progression of divine spells
+										{
+											spellMod+= nValue;
+										}
+										else if(bCustom && CustomSpellType && cls_prog_2da[other_cls_id]->GetINTEntry_strcol(other_level,CExoString(CustomSpellType),&nValue))//class that will improve progression of custom type of spells
+										{
+											spellMod+= nValue;
+										}
+									}
+									else if(otherClass->ArcSpellLvlMod && bArcane)
+									{
+										spellMod+= (cre->cre_stats->GetClassLevel(x,true)+(cClass->ArcSpellLvlMod != 1))/cClass->ArcSpellLvlMod;
+									}	
+									else if(otherClass->DivSpellLvlMod && !bArcane)
+									{
+										spellMod+= (cre->cre_stats->GetClassLevel(x,true)+(cClass->DivSpellLvlMod != 1))/cClass->DivSpellLvlMod;
+									}
 								}
+								if(highest_class) nLevel+= spellMod;
 							}
 						}
 					}
@@ -2218,7 +2436,7 @@ void NWNXPatch_Funcs(CNWSScriptVarTable *pThis, int nFunc, char *Params)
 			fprintf(logFile, "ERROR: SetDisableObjectHighlight(%08X,%i) used with incorrect parameters!\n",oID,val);
 		}
 	}
-	if(nFunc == 12)
+	else if(nFunc == 12)
 	{
 		pThis->SetInt(VarName,VERSION_MAJOR*100+VERSION_MINOR,0);
 	}
@@ -5308,7 +5526,7 @@ int __fastcall CNWSCreature__GetUseMonkAbilities_Hook(CNWSCreature *pThis, void*
 	return CNWSCreature__GetUseMonkAbilities(pThis,NULL);
 }
 
-void __fastcall CNWSCreature__ResolveDamageShields_Hook(CNWSCreature *pThis, void*, CNWSCreature *attacker)//todo make dynamic
+void __fastcall CNWSCreature__ResolveDamageShields_Hook(CNWSCreature *pThis, void*, CNWSCreature *attacker)
 {
 	Log(2,"o CNWSCreature__ResolveDamageShields start\n");
 	bool change = false;
@@ -6952,6 +7170,13 @@ void Hook_DamageReduction()//0x4EB93E - CNWSEffectListHandler::OnApplyDamage
 	__asm jmp Hook_ret
 }
 
+void Hook_FeatUses()//0x479CF6 - CNWSCreatureStats::ReadStatsFromGFF
+{
+	__asm leave
+	Hook_ret = 0x479D27;
+	__asm jmp Hook_ret
+}
+
 void Hook_ELC()//0x4336E6 - CNWSPlayer::ValidateCharacter
 {
 	__asm leave
@@ -7851,6 +8076,14 @@ void PatchImage()
 	*((uint32_t *)(pPatch + 1)) = (uint32_t)Hook_DamageReduction - (uint32_t)(pPatch + 5);
 	VirtualProtect((DWORD*)pPatch, 1, DefaultPrivs, NULL);
 	fprintf(logFile, "o Fixing nDamagePower parameter in EffectDamage.\n");
+
+	pPatch = (unsigned char *) 0x479CF6;//CNWSCreatureStats::ReadStatsFromGFF
+	VirtualProtect((DWORD*)pPatch, 1, PAGE_EXECUTE_READWRITE, &DefaultPrivs);
+	memset((PVOID)pPatch, '\x90', 8);
+	pPatch[0] = 0xE9;
+	*((uint32_t *)(pPatch + 1)) = (uint32_t)Hook_FeatUses - (uint32_t)(pPatch + 5);
+	VirtualProtect((DWORD*)pPatch, 1, DefaultPrivs, NULL);
+	fprintf(logFile, "o Correcting feat uses when relogging.\n");
 
 	pPatch = (unsigned char *) 0x53F564;
 	VirtualProtect((DWORD*)pPatch, 1, PAGE_EXECUTE_READWRITE, &DefaultPrivs);
