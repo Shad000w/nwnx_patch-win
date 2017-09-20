@@ -405,6 +405,7 @@ unsigned char (__fastcall *CNWSCreatureStats__GetFeatTotalUses)(CNWSCreatureStat
 unsigned char (__fastcall *CNWSCreatureStats__GetFeatRemainingUses)(CNWSCreatureStats *pThis, void *, unsigned short feat_id);
 int (__fastcall *CNWSObject__GetIsPCDying)(CNWSObject *pThis, void*);
 void (__fastcall *CNWSCreature__RestoreItemProperties)(CNWSCreature *pThis, void*);
+void (__fastcall *CNWSItem__RemoveItemProperties)(CNWSItem *pThis, void*, CNWSCreature *cre, unsigned long l);
 
 int __fastcall CNWSObject__GetIsPCDying_Hook(CNWSObject *pThis, void*)
 {
@@ -460,9 +461,7 @@ unsigned char __fastcall CNWSCreatureStats__GetFeatTotalUses_Hook(CNWSCreatureSt
 			return 1+(level_gruumsh+pThis->GetNumLevelsOfClass(CLASS_TYPE_BARBARIAN))/4;
 		}
 	}
-	unsigned char retVal = CNWSCreatureStats__GetFeatTotalUses(pThis,NULL,feat_id);
-	//Log(0,"o CNWSCreatureStats__GetFeatTotalUses start, feat: %i, uses_total: %i\n",feat_id,retVal);
-	return retVal;
+	return CNWSCreatureStats__GetFeatTotalUses(pThis,NULL,feat_id);
 }
 
 int __fastcall CNWSCreature__GetFlanked_Hook(CNWSCreature *pThis, void*, CNWSCreature *target)
@@ -753,6 +752,7 @@ void __fastcall CNWSCreatureStats__AdjustSpellUsesPerDay_Hook(CNWSCreatureStats 
 			for(unsigned char spell_lvl=0;spell_lvl<10;spell_lvl++)
 			{
 				unsigned char spell_gain = pThis->GetSpellGainWithBonus(cls_pos,spell_lvl);
+				unsigned char spell_bonus = pThis->cs_classes[cls_pos].cl_spells_bonus[spell_lvl];
 				unsigned char spell_max = pThis->cs_classes[cls_pos].cl_spells_max[spell_lvl];
 				unsigned char spell_uses = pThis->cs_classes[cls_pos].cl_spells_left[spell_lvl];
 				//fprintf(logFile, "o CNWSCreatureStats__AdjustSpellUsesPerDay max spells of %i lvl: %i, gain %i, curr %i\n",spell_lvl,spell_max,spell_gain,spell_uses);fflush(logFile);
@@ -760,6 +760,7 @@ void __fastcall CNWSCreatureStats__AdjustSpellUsesPerDay_Hook(CNWSCreatureStats 
 				{
 					//pThis->cs_classes[cls_pos].cl_spells_max[spell_lvl] = spell_gain;
 				}*/
+				spell_max-= spell_bonus;
 				if(spell_gain < spell_max)
 				{
 					pThis->cs_classes[cls_pos].cl_spells_max[spell_lvl] = spell_gain;
@@ -1077,9 +1078,9 @@ unsigned char __fastcall CNWSCreatureStats__ComputeNumberKnownSpellsLeft_Hook(CN
 		if(cClass && cClass->SpellCaster && (cls_cast_type[cls_id] & CAST_TYPE_SPONTANEOUS))
 		{
 			CNWClass *otherClass;
-			unsigned int bCustom = cls_spell_type[cls_id] != NULL;
-			unsigned int bArcane = !bCustom && (cls_cast_type[cls_id] & CAST_TYPE_ARCANE);
-			unsigned int bDivine = !bCustom && !(cls_cast_type[cls_id] & CAST_TYPE_ARCANE);
+			bool bCustom = cls_spell_type[cls_id] != NULL;
+			bool bArcane = !bCustom && (cls_cast_type[cls_id] & CAST_TYPE_ARCANE);
+			bool bDivine = !bCustom && !(cls_cast_type[cls_id] & CAST_TYPE_ARCANE);
 			char *CustomSpellType = bCustom ? cls_spell_type[cls_id] : NULL;
 			bool highest_class = true;
 			unsigned char level = pThis->cs_classes[cls_pos].cl_level;
@@ -1127,7 +1128,7 @@ unsigned char __fastcall CNWSCreatureStats__ComputeNumberKnownSpellsLeft_Hook(CN
 						{
 							spellMod+= nValue;
 						}
-						else if(bCustom && cls_prog_2da[other_cls_id]->GetINTEntry_strcol(other_level,CExoString(CustomSpellType),&nValue))//class that will improve progression of custom type of spells
+						else if(bCustom && CustomSpellType && cls_prog_2da[other_cls_id]->GetINTEntry_strcol(other_level,CExoString(CustomSpellType),&nValue))//class that will improve progression of custom type of spells
 						{
 							spellMod+= nValue;
 						}
@@ -5444,6 +5445,12 @@ void __fastcall CNWSCreature__RestoreItemProperties_Hook(CNWSCreature *pThis, vo
 	CNWSCreature__RestoreItemProperties(pThis,NULL);
 }
 
+void __fastcall CNWSItem__RemoveItemProperties_Hook(CNWSItem *pThis, void*, CNWSCreature *cre, unsigned long l)
+{
+	CNWSItem__RemoveItemProperties(pThis,NULL,cre,l);
+	pThis->obj.obj_vartable.SetInt(CExoString("BONUS_SPELL_SLOT_ACTIVE"),0,1);
+}
+
 int __fastcall CNWSItemPropertyHandler__RemoveBonusSpellOfLevel_Hook(CNWSItemPropertyHandler *pThis, void*, CNWSItem *item, CNWSItemProperty *ip, CNWSCreature *cre, unsigned long l)
 {
 	Log(2,"o CNWSItemPropertyHandler__RemoveBonusSpellOfLevel start\n");
@@ -5469,7 +5476,7 @@ int __fastcall CNWSItemPropertyHandler__RemoveBonusSpellOfLevel_Hook(CNWSItemPro
 				if(cre->cre_stats->GetSpellsPerDayLeft(cls_pos,spell_lvl))
 				{
 					cre->cre_stats->DecrementSpellsPerDayLeft(cls_pos,spell_lvl);
-					item->obj.obj_vartable.SetInt(varname,0,1);
+					cre->cre_stats->cs_classes[cls_pos].cl_spells_max[spell_lvl]-= 1;
 				}
 			}
 			return 0;
@@ -6515,6 +6522,8 @@ void HookFunctions()
 	CreateHook(0x4A6D00,CNWSCreature__GetRelativeWeaponSize_Hook, (PVOID*)&CNWSCreature__GetRelativeWeaponSize, "DisableGetRelativeWeaponSizeHook","Deflect arrow weapon size bug");
 	CreateHook(0x59F2E0,CNWSItemPropertyHandler__ApplyHolyAvenger_Hook, (PVOID*)&CNWSItemPropertyHandler__ApplyHolyAvenger, "DisableHolyAvengerHook","ApplyHolyAvenger function");
 	CreateHook(0x59FC80,CNWSItemPropertyHandler__RemoveHolyAvenger_Hook, (PVOID*)&CNWSItemPropertyHandler__RemoveHolyAvenger, "DisableHolyAvengerHook","Holy avenger weapon enhancement bug");
+	CreateHook(0x4A4F20,CNWSCreature__RestoreItemProperties_Hook,(PVOID*)&CNWSCreature__RestoreItemProperties, "DisableItemProperties", "Correcting losing spelluses when unequipping item with bonus spell slots #1");
+	CreateHook(0x4FE800,CNWSItem__RemoveItemProperties_Hook,(PVOID*)&CNWSItem__RemoveItemProperties, "DisableItemProperties", "Correcting losing spelluses when unequipping item with bonus spell slots #2");
 	
 	CreateHook(0x4A5080,CNWSCreature__ToggleMode_Hook, (PVOID*)&CNWSCreature__ToggleMode, "DisableToggleModeHook","ToggleMode function");
 	CreateHook(0x4BB4D0,CNWSCreature__SetCombatMode_Hook, (PVOID*)&CNWSCreature__SetCombatMode, "DisableToggleModeHook","Flurry of blows modification");
@@ -6533,7 +6542,6 @@ void HookFunctions()
 	CreateHook(0x48B920,CNWSCreatureStats__AdjustSpellUsesPerDay_Hook,(PVOID*)&CNWSCreatureStats__AdjustSpellUsesPerDay, "DisableAdjustSpellUses", "Spontaneous casters spell uses correction.");
 	CreateHook(0x48E850,CNWSCreatureStats__ComputeFeatBonuses_Hook, (PVOID*)&CNWSCreatureStats__ComputeFeatBonuses, "DisableComputeFeatBonuses","Fixed losing spellslots/spelluses upon login from Great Ability feats.");
 	CreateHook(0x499500,CNWSCreature__ReadItemsFromGff_Hook, (PVOID*)&CNWSCreature__ReadItemsFromGff, "DisableReadItemsFromGff","Fixed losing spelluses upon login from multiple items with charisma bonus.");
-	CreateHook(0x4A4F20,CNWSCreature__RestoreItemProperties_Hook,(PVOID*)&CNWSCreature__RestoreItemProperties, "DisableRestoreItemProperties", "Fixed losing spelluses from repeated unequipping item with bonus spell slots");
 	CreateHook(0x496CE0,CNWSCreature__EventHandler_Hook,(PVOID*)&CNWSCreature__EventHandler, "DisableEventHandler" , "OnHitSpellCast bugfix and OnAttacked/OnDamaged events for player");
 	CreateHook(0x465B30,CNWSStore__SellItem_Hook,(PVOID*) &CNWSStore__SellItem, "DisableSellItem", "Buying with full inventory bug");
 	CreateHook(0x484F50,CNWSCreatureStats__LevelDown_Hook,(PVOID*) &CNWSCreatureStats__LevelDown, "DisableLevelDownHook", "Fixed combat info update after level down");
