@@ -5,7 +5,7 @@
 
 extern CAppManager *&NWN_AppManager;
 extern CVirtualMachine *&NWN_VirtualMachine;
-extern CTlkTable *&NWN_CTlkTable;
+extern CTlkTable *&NWN_TlkTable;
 extern CNWTlkTable *&NWN_CNWTlkTable;
 extern CNWRules *&NWN_Rules;
 extern CExoResMan *&NWN_ResMan;

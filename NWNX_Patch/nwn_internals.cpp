@@ -1,11 +1,10 @@
-#include "stdafx.h"
 #include ".\types.h"
 
 // Internal function calls definitions
 
 CAppManager *&NWN_AppManager = *(CAppManager**)0x0066c050;
 CVirtualMachine *&NWN_VirtualMachine = *(CVirtualMachine**)0x0066C048;
-CTlkTable *&NWN_CTlkTable = *(CTlkTable**)0x0066C054;
+CTlkTable *&NWN_TlkTable = *(CTlkTable**)0x0066C054;
 CNWTlkTable *&NWN_CNWTlkTable = *(CNWTlkTable**)0x0066C058;
 CNWRules *&NWN_Rules = *(CNWRules**)0x0066c060;
 CExoResMan *&NWN_ResMan = *(CExoResMan**)0x0066C044;
