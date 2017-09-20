@@ -322,10 +322,10 @@ int (__fastcall *CNWSEffectListHandler__OnApplyDeath)(CNWSEffectListHandler *pTh
 int (__fastcall *CNWSCreature__GetTotalEffectBonus)(CNWSCreature *pThis, void*, char a2, CNWSObject *obj_a, int a4, int a5, unsigned __int8 a6, unsigned __int8 a7, unsigned __int8 a8, unsigned __int8 a9, int a10);
 int (__fastcall *CNWSCreatureStats__GetEffectImmunity)(CNWSCreatureStats *pThis, void*, unsigned char immunity_type, CNWSCreature *cre);
 //itemproperties
-int (__fastcall *CNWSItemPropertyHandler__ApplyHolyAvenger)(CNWSItemPropertyHandler *pThis, void*, CNWSItem *item, int *ip, CNWSCreature *cre, unsigned long l, int i);
-int (__fastcall *CNWSItemPropertyHandler__RemoveHolyAvenger)(CNWSItemPropertyHandler *pThis, void*, CNWSItem *item, int *ip, CNWSCreature *cre, unsigned long l);
-int (__fastcall *CNWSItemPropertyHandler__ApplyBonusSpellOfLevel)(CNWSItemPropertyHandler *pThis, void*, CNWSItem *item, int *ip, CNWSCreature *cre, unsigned long l, int i);
-int (__fastcall *CNWSItemPropertyHandler__RemoveBonusSpellOfLevel)(CNWSItemPropertyHandler *pThis, void*, CNWSItem *item, int *ip, CNWSCreature *cre, unsigned long l);
+int (__fastcall *CNWSItemPropertyHandler__ApplyHolyAvenger)(CNWSItemPropertyHandler *pThis, void*, CNWSItem *item, CNWSItemProperty *ip, CNWSCreature *cre, unsigned long l, int i);
+int (__fastcall *CNWSItemPropertyHandler__RemoveHolyAvenger)(CNWSItemPropertyHandler *pThis, void*, CNWSItem *item, CNWSItemProperty *ip, CNWSCreature *cre, unsigned long l);
+int (__fastcall *CNWSItemPropertyHandler__ApplyBonusSpellOfLevel)(CNWSItemPropertyHandler *pThis, void*, CNWSItem *item, CNWSItemProperty *ip, CNWSCreature *cre, unsigned long l, int i);
+int (__fastcall *CNWSItemPropertyHandler__RemoveBonusSpellOfLevel)(CNWSItemPropertyHandler *pThis, void*, CNWSItem *item, CNWSItemProperty *ip, CNWSCreature *cre, unsigned long l);
 //weapons
 int (__fastcall *CNWSCreatureStats__GetWeaponFinesse)(CNWSCreatureStats *pThis, void*, CNWSItem *item);
 int (__fastcall *CNWSCreatureStats__GetWeaponFocus)(CNWSCreatureStats *pThis, void*, CNWSItem *item);
@@ -404,6 +404,7 @@ int (__fastcall *CNWSCreature__GetFlanked)(CNWSCreature *pThis, void*, CNWSCreat
 unsigned char (__fastcall *CNWSCreatureStats__GetFeatTotalUses)(CNWSCreatureStats *pThis, void *, unsigned short feat_id);
 unsigned char (__fastcall *CNWSCreatureStats__GetFeatRemainingUses)(CNWSCreatureStats *pThis, void *, unsigned short feat_id);
 int (__fastcall *CNWSObject__GetIsPCDying)(CNWSObject *pThis, void*);
+void (__fastcall *CNWSCreature__RestoreItemProperties)(CNWSCreature *pThis, void*);
 
 int __fastcall CNWSObject__GetIsPCDying_Hook(CNWSObject *pThis, void*)
 {
@@ -5408,7 +5409,7 @@ void __fastcall CNWSCreature__UpdateAttributesOnEffect_Hook(CNWSCreature *pThis,
 	}
 }
 
-int __fastcall CNWSItemPropertyHandler__ApplyBonusSpellOfLevel_Hook(CNWSItemPropertyHandler *pThis, void*, CNWSItem *item, int *ip, CNWSCreature *cre, unsigned long l, int i)
+int __fastcall CNWSItemPropertyHandler__ApplyBonusSpellOfLevel_Hook(CNWSItemPropertyHandler *pThis, void*, CNWSItem *item, CNWSItemProperty *ip, CNWSCreature *cre, unsigned long l, int i)
 {
 	Log(2,"o CNWSItemPropertyHandler__ApplyBonusSpellOfLevel start\n");
 	int prev = helper;
@@ -5430,7 +5431,20 @@ int __fastcall CNWSItemPropertyHandler__ApplyBonusSpellOfLevel_Hook(CNWSItemProp
 	return retVal;
 }
 
-int __fastcall CNWSItemPropertyHandler__RemoveBonusSpellOfLevel_Hook(CNWSItemPropertyHandler *pThis, void*, CNWSItem *item, int *ip, CNWSCreature *cre, unsigned long l)
+void __fastcall CNWSCreature__RestoreItemProperties_Hook(CNWSCreature *pThis, void*)
+{
+	for(unsigned char slot = 0;slot < 18;slot++)
+	{
+		CNWSItem *item = pThis->cre_equipment->GetItemInSlot(1 << slot);
+		if(item && item->GetPropertyByTypeExists(13,0))
+		{
+			item->obj.obj_vartable.SetInt(CExoString("BONUS_SPELL_SLOT_ACTIVE"),1,1);
+		}
+	}
+	CNWSCreature__RestoreItemProperties(pThis,NULL);
+}
+
+int __fastcall CNWSItemPropertyHandler__RemoveBonusSpellOfLevel_Hook(CNWSItemPropertyHandler *pThis, void*, CNWSItem *item, CNWSItemProperty *ip, CNWSCreature *cre, unsigned long l)
 {
 	Log(2,"o CNWSItemPropertyHandler__RemoveBonusSpellOfLevel start\n");
 	int prev = helper;
@@ -5442,9 +5456,26 @@ int __fastcall CNWSItemPropertyHandler__RemoveBonusSpellOfLevel_Hook(CNWSItemPro
 		}
 		helper = 39;//for other cases set helper value to enforce unready spell slot in SetNumberMemorizedSpellSlots
 	}
-	int retVal = CNWSItemPropertyHandler__RemoveBonusSpellOfLevel(pThis,NULL,item,ip,cre,l);
-	helper = prev;
-	return retVal;
+	for(unsigned char cls_pos = 0;cls_pos<cre->cre_stats->cs_classes_len;cls_pos++)
+	{
+		unsigned char cls_id = cre->cre_stats->cs_classes[cls_pos].cl_class;
+		if(cls_id != CLASS_TYPE_INVALID && cls_id == ip->m_nSubType)
+		{
+			unsigned char spell_lvl = (unsigned char)ip->m_nCostTableValue;
+			cre->cre_stats->SetNumberBonusSpells(cls_pos,spell_lvl,-1);			
+			CExoString varname = CExoString("BONUS_SPELL_SLOT_ACTIVE");
+			if(cls_cast_type[cls_id] & CAST_TYPE_SPONTANEOUS && (!item->obj.obj_vartable.MatchIndex(varname,VARIABLE_TYPE_INT,0) || item->obj.obj_vartable.GetInt(varname)))
+			{
+				if(cre->cre_stats->GetSpellsPerDayLeft(cls_pos,spell_lvl))
+				{
+					cre->cre_stats->DecrementSpellsPerDayLeft(cls_pos,spell_lvl);
+					item->obj.obj_vartable.SetInt(varname,0,1);
+				}
+			}
+			return 0;
+		}
+	}
+	return 0;
 }
 
 void __fastcall CNWSCreatureStats_ClassInfo__SetNumberMemorizedSpellSlots_Hook(CNWSCreatureStats_ClassInfo *pThis, void*, unsigned char spell_level, unsigned char spell_num)
@@ -5467,7 +5498,7 @@ void __fastcall CNWSCreatureStats_ClassInfo__SetNumberMemorizedSpellSlots_Hook(C
 	CNWSCreatureStats_ClassInfo__SetNumberMemorizedSpellSlots(pThis,NULL,spell_level,spell_num);
 }
 
-int __fastcall CNWSItemPropertyHandler__RemoveHolyAvenger_Hook(CNWSItemPropertyHandler *, void*, CNWSItem *item, int *, CNWSCreature *cre, unsigned long)
+int __fastcall CNWSItemPropertyHandler__RemoveHolyAvenger_Hook(CNWSItemPropertyHandler *, void*, CNWSItem *item, CNWSItemProperty *, CNWSCreature *cre, unsigned long)
 {
 	Log(2,"o CNWSItemPropertyHandler__RemoveHolyAvenger start\n");
 	for(unsigned int nEffect = 0;nEffect < cre->obj.obj_effects_len;nEffect++)
@@ -5482,7 +5513,7 @@ int __fastcall CNWSItemPropertyHandler__RemoveHolyAvenger_Hook(CNWSItemPropertyH
 	return 1;
 }
 
-int __fastcall CNWSItemPropertyHandler__ApplyHolyAvenger_Hook(CNWSItemPropertyHandler *pThis, void*, CNWSItem *item, int *ip, CNWSCreature *cre, unsigned long l, int i)
+int __fastcall CNWSItemPropertyHandler__ApplyHolyAvenger_Hook(CNWSItemPropertyHandler *pThis, void*, CNWSItem *item, CNWSItemProperty *ip, CNWSCreature *cre, unsigned long l, int i)
 {
 	Log(2,"o CNWSItemPropertyHandler__ApplyHolyAvenger start\n");
 	for(unsigned int nEffect=0; nEffect < cre->obj.obj_effects_len; nEffect++)
@@ -6502,10 +6533,14 @@ void HookFunctions()
 	CreateHook(0x48B920,CNWSCreatureStats__AdjustSpellUsesPerDay_Hook,(PVOID*)&CNWSCreatureStats__AdjustSpellUsesPerDay, "DisableAdjustSpellUses", "Spontaneous casters spell uses correction.");
 	CreateHook(0x48E850,CNWSCreatureStats__ComputeFeatBonuses_Hook, (PVOID*)&CNWSCreatureStats__ComputeFeatBonuses, "DisableComputeFeatBonuses","Fixed losing spellslots/spelluses upon login from Great Ability feats.");
 	CreateHook(0x499500,CNWSCreature__ReadItemsFromGff_Hook, (PVOID*)&CNWSCreature__ReadItemsFromGff, "DisableReadItemsFromGff","Fixed losing spelluses upon login from multiple items with charisma bonus.");
+	CreateHook(0x4A4F20,CNWSCreature__RestoreItemProperties_Hook,(PVOID*)&CNWSCreature__RestoreItemProperties, "DisableRestoreItemProperties", "Fixed losing spelluses from repeated unequipping item with bonus spell slots");
 	CreateHook(0x496CE0,CNWSCreature__EventHandler_Hook,(PVOID*)&CNWSCreature__EventHandler, "DisableEventHandler" , "OnHitSpellCast bugfix and OnAttacked/OnDamaged events for player");
 	CreateHook(0x465B30,CNWSStore__SellItem_Hook,(PVOID*) &CNWSStore__SellItem, "DisableSellItem", "Buying with full inventory bug");
 	CreateHook(0x484F50,CNWSCreatureStats__LevelDown_Hook,(PVOID*) &CNWSCreatureStats__LevelDown, "DisableLevelDownHook", "Fixed combat info update after level down");
 	CreateHook(0x4847F0,CNWSCreatureStats__LevelUp_Hook,(PVOID*) &CNWSCreatureStats__LevelUp, "DisableLevelUpHook", "Support for spontaneous non-learner custom spellcaster class.");
+	CreateHook(0x4E5A60,CNWSObject__GetIsPCDying_Hook,(PVOID*)&CNWSObject__GetIsPCDying, "DisablePCDying", "Enabling immunity to dying");
+	CreateHook(0x47F8C0,CNWSCreatureStats__GetFeatTotalUses_Hook,(PVOID*)&CNWSCreatureStats__GetFeatTotalUses, "DisableFeatUses", "Enabling Gruumsh rage stacking");
+	CreateHook(0x47EF10,CNWSCreatureStats__GetFeatRemainingUses_Hook,(PVOID*)&CNWSCreatureStats__GetFeatRemainingUses, "DisableFeatUses", "Enabling modify number of feat uses");
 
 	CreateHook(0x548220,CNWSCreature__GetAmmunitionAvailable_Hook, (PVOID*)&CNWSCreature__GetAmmunitionAvailable, "DisableRangedWeapons","Enabling custom ranged weapons");
 	CreateHook(0x548100,CNWSCreature__ResolveAmmunition_Hook, (PVOID*)&CNWSCreature__ResolveAmmunition, "DisableRangedWeapons","Enabling Boomerang item property");
@@ -6565,9 +6600,6 @@ void HookFunctions()
 	}
 
 	//development
-	CreateHook(0x47F8C0,CNWSCreatureStats__GetFeatTotalUses_Hook,(PVOID*)&CNWSCreatureStats__GetFeatTotalUses, "DisableFeatUses", "Enabling Gruumsh rage stacking");
-	CreateHook(0x47EF10,CNWSCreatureStats__GetFeatRemainingUses_Hook,(PVOID*)&CNWSCreatureStats__GetFeatRemainingUses, "DisableFeatUses", "Enabling modify number of feat uses");
-	CreateHook(0x4E5A60,CNWSObject__GetIsPCDying_Hook,(PVOID*)&CNWSObject__GetIsPCDying, "DisablePCDying", "Enabling immunity to dying");
 
 	fprintf(logFile,"\n");
 	fflush(logFile);
