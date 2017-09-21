@@ -1970,6 +1970,20 @@ int __fastcall CNWVirtualMachineCommands__ExecuteCommandApplyEffectOnObject_Hook
 		{
 			target->obj_pending_effect_removal = 1;
 		}
+		//OnDamaged event
+		if(target->obj_generic.obj_type2 == OBJECT_TYPE2_CREATURE && eff->eff_type == EFFECT_TRUETYPE_DAMAGE && !target->GetDead())
+		{
+			CNWSCreature *cre = NWN_AppManager->app_server->srv_internal->GetCreatureByGameObjectID(obj_id);
+			if(cre && cre->cre_is_pc)
+			{
+				cre->obj.obj_last_damager = eff->eff_creator;
+				for(unsigned char x=0;x < 13;x++)
+				{
+					cre->obj.obj_last_damage[x] = eff->eff_integers[x];
+				}
+				NWN_VirtualMachine->Runscript(&CExoString("70_mod_damaged"),cre->obj.obj_generic.obj_id);
+			}
+		}
 		// If the second param is 0 effect handlers will not apply if the target is dead or dying.
         // If the third param is 0, it will be added to the object's effect list even if not successfully applied.
 		target->ApplyEffect(eff, !force_apply, force_apply);
