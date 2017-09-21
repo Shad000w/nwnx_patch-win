@@ -436,7 +436,6 @@ unsigned char __fastcall CNWSCreatureStats__GetFeatRemainingUses_Hook(CNWSCreatu
 		featuses = (CNWSStats_FeatUses*)(CExoArrayList_ptr_get(&(pThis->cs_featuses), ++th));
 	}
 	unsigned char newVal = pThis->GetFeatTotalUses(feat_id);
-	//Log(0,"o CNWSCreatureStats__GetFeatRemainingUses start, feat: %i, used_times: %i, uses_remaining: %i\n",feat_id,used_times,used_times > newVal ? 0 : newVal-used_times);
 	return used_times > newVal ? 0 : newVal-used_times;
 }
 
@@ -751,31 +750,15 @@ void __fastcall CNWSCreatureStats__AdjustSpellUsesPerDay_Hook(CNWSCreatureStats 
 		{
 			for(unsigned char spell_lvl=0;spell_lvl<10;spell_lvl++)
 			{
-				unsigned char spell_gain = pThis->GetSpellGainWithBonus(cls_pos,spell_lvl);
-				unsigned char spell_bonus = pThis->cs_classes[cls_pos].cl_spells_bonus[spell_lvl];
-				unsigned char spell_max = pThis->cs_classes[cls_pos].cl_spells_max[spell_lvl];
-				unsigned char spell_uses = pThis->cs_classes[cls_pos].cl_spells_left[spell_lvl];
-				//fprintf(logFile, "o CNWSCreatureStats__AdjustSpellUsesPerDay max spells of %i lvl: %i, gain %i, curr %i\n",spell_lvl,spell_max,spell_gain,spell_uses);fflush(logFile);
-				/*if(spell_gain > spell_max)//this is a reason why its bugged
+				unsigned char spell_uses = pThis->GetSpellGainWithBonus(cls_pos, spell_lvl) + pThis->cs_classes[cls_pos].cl_spells_bonus[spell_lvl];
+				if(spell_uses < pThis->cs_classes[cls_pos].cl_spells_max[spell_lvl])
 				{
-					//pThis->cs_classes[cls_pos].cl_spells_max[spell_lvl] = spell_gain;
-				}*/
-				spell_max-= spell_bonus;
-				if(spell_gain < spell_max)
-				{
-					pThis->cs_classes[cls_pos].cl_spells_max[spell_lvl] = spell_gain;
-					if(spell_uses > 0)
+					if (pThis->GetSpellsPerDayLeft(cls_pos,spell_lvl) > spell_uses)
 					{
-						if(spell_uses < spell_max-spell_gain)
-						{
-							pThis->cs_classes[cls_pos].cl_spells_left[spell_lvl] = 0;
-						}
-						else
-						{
-							pThis->cs_classes[cls_pos].cl_spells_left[spell_lvl]-= spell_max-spell_gain;
-						}
+						pThis->cs_classes[cls_pos].cl_spells_left[spell_lvl] = spell_uses;
 					}
 				}
+				pThis->cs_classes[cls_pos].cl_spells_max[spell_lvl] = spell_uses;
 			}
 		}
 	}
@@ -5476,7 +5459,6 @@ int __fastcall CNWSItemPropertyHandler__RemoveBonusSpellOfLevel_Hook(CNWSItemPro
 				if(cre->cre_stats->GetSpellsPerDayLeft(cls_pos,spell_lvl))
 				{
 					cre->cre_stats->DecrementSpellsPerDayLeft(cls_pos,spell_lvl);
-					cre->cre_stats->cs_classes[cls_pos].cl_spells_max[spell_lvl]-= 1;
 				}
 			}
 			return 0;
