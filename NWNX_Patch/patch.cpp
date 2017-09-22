@@ -1783,6 +1783,31 @@ int __fastcall CNWVirtualMachineCommands__ExecuteCommandGetEffectSubType_Hook(CV
 		Log(1,"NWNXPatch_Funcs DEBUG: func GetEffectInteger\n");
 		retVal = eff->eff_integers[mod->mod_vartable.GetInt(CExoString("GetEffectInteger"))];
 	}
+	else if(mod && mod->mod_vartable.MatchIndex(CExoString("TransferEffectValues"),VARIABLE_TYPE_INT,0) != NULL)
+	{
+		Log(1,"NWNXPatch_Funcs DEBUG: func TransferEffectValues\n");
+		if(helper_effect)
+		{
+			helper_effect->eff_casterlvl = eff->eff_casterlvl;
+			helper_effect->eff_creator = eff->eff_creator;
+			helper_effect->eff_duration = eff->eff_duration;
+			helper_effect->eff_dursubtype = eff->eff_dursubtype;
+			helper_effect->eff_expire_day = eff->eff_expire_day;
+			helper_effect->eff_expire_time = eff->eff_expire_time;
+			helper_effect->eff_is_iconshown = eff->eff_is_iconshown;
+			helper_effect->eff_is_exposed = eff->eff_is_exposed;
+			helper_effect->eff_spellid = eff->eff_spellid;
+			helper_effect->eff_type = eff->eff_type;
+			for(unsigned char x = 0;x<eff->eff_num_integers;x++)
+			{
+				helper_effect->SetInteger(x,eff->GetInteger(x));
+			}
+		}
+		else
+		{
+			Log(0,"ERROR: TransferEffectValues() used in incorrect event!\n");
+		}
+	}
 	else if(mod && mod->mod_vartable.MatchIndex(CExoString("GetEffectRemainingDuration"),VARIABLE_TYPE_FLOAT,0) != NULL)
 	{
 		Log(1,"NWNXPatch_Funcs DEBUG: func GetEffectRemainingDuration\n");
@@ -1981,6 +2006,7 @@ int __fastcall CNWVirtualMachineCommands__ExecuteCommandApplyEffectOnObject_Hook
 				{
 					cre->obj.obj_last_damage[x] = eff->eff_integers[x];
 				}
+				cre->obj.obj_vartable.SetInt(CExoString("GetDamageDealtSpellId"),eff->eff_spellid,1);
 				NWN_VirtualMachine->Runscript(&CExoString("70_mod_damaged"),cre->obj.obj_generic.obj_id);
 			}
 		}
@@ -2055,6 +2081,7 @@ int __fastcall CNWSCreature__EventHandler_Hook(CNWSCreature *pThis, void*, int a
 			{
 				pThis->obj.obj_last_damage[x] = eff->eff_integers[x];
 			}
+			pThis->obj.obj_vartable.SetInt(CExoString("GetDamageDealtSpellId"),-2,1);
 			NWN_VirtualMachine->Runscript(&CExoString("70_mod_damaged"),pThis->obj.obj_generic.obj_id);
 		}
 	}
