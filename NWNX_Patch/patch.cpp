@@ -4479,9 +4479,9 @@ void NWNXPatch_Funcs(CNWSScriptVarTable *pThis, int nFunc, char *Params)
 						if(cls_pos != 255)
 						{
 							unsigned char backup = cls_cast_type[(unsigned char)cls_id];
-							if(ignore_limit)
+							if(ignore_limit && (backup & CAST_TYPE_SPONTANEOUS))
 							{
-								cls_cast_type[(unsigned char)cls_id] = cls_cast_type[(unsigned char)cls_id]^CAST_TYPE_SPONTANEOUS;//small engine hack to ignore limit of number known spells left
+								cls_cast_type[(unsigned char)cls_id] = backup^CAST_TYPE_SPONTANEOUS;//small engine hack to ignore limit of number known spells left
 							}
 							cre->cre_stats->AddKnownSpell(cls_pos,spell_id);
 							if(ignore_limit)
