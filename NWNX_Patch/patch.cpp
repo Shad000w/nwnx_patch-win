@@ -9,7 +9,7 @@
 
 const int   VERSION_MAJOR = 1;
 const int   VERSION_MINOR = 33;
-const char *VERSION_PATCH = "d";
+const char *VERSION_PATCH = "e";
 DWORD *heapAddress = NULL;
 FILE *logFile;
 char logFileName[] = "logs.0/nwnx_patch.txt";
