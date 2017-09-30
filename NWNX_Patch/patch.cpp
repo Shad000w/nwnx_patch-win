@@ -9,7 +9,7 @@
 
 const int   VERSION_MAJOR = 1;
 const int   VERSION_MINOR = 33;
-const char *VERSION_PATCH = "b";
+const char *VERSION_PATCH = "d";
 DWORD *heapAddress = NULL;
 FILE *logFile;
 char logFileName[] = "logs.0/nwnx_patch.txt";
@@ -80,9 +80,8 @@ CExoString script_user = "70_mod_def_user";
 
 bool pole[3][3];
 C2DA *weaponfeats_2da,*racialtypes_2da,*spells_2da,*spells_level_2da,*classes_2da,*effects_2da;
-C2DA *cls_spkn_2da[255],*cls_prog_2da[255];
+C2DA *cls_prog_2da[255];
 unsigned int cls_cast_type[255];
-char *cls_spell_type[255];
 
 void Log( int nDebugLevel, const char *pcMsg, ... );
 
@@ -169,7 +168,7 @@ void InitializeRacialTypes2DA()
 	if(racialtypes_2da)
 	{
 		racialtypes_2da->Load2DArray();
-		NWN_Rules->LoadRaceInfo();
+		//NWN_Rules->LoadRaceInfo();
 		fprintf(logFile, "o  racial_types.2da loaded.\n");fflush(logFile);
 	}
 	fprintf(logFile, "o  done.\n");fflush(logFile);
@@ -194,7 +193,7 @@ void InitializeClasses2DA()
 	if(classes_2da)
 	{
 		classes_2da->Load2DArray();
-		NWN_Rules->LoadClassInfo();
+		//NWN_Rules->LoadClassInfo();//this caused random crashing in CNWSCreatureStats:GetSpellGainWithBonus
 		fprintf(logFile, "o  classes.2da loaded.\n");fflush(logFile);
 		CNWClass *cClass;
 		CExoString CastType = CExoString("CastType");
@@ -223,10 +222,6 @@ void InitializeClasses2DA()
 					case CLASS_TYPE_SORCERER: cls_cast_type[x] = 131; break;
 					case CLASS_TYPE_WIZARD: cls_cast_type[x] = 209; break;
 				}
-			}
-			if(cClass->SpellCaster && classes_2da->GetCExoStringEntry(x,SpellType,&sVal) && sVal != NULL && sVal.text != NULL)
-			{
-				cls_spell_type[x] = sVal.text;
 			}
 			if(classes_2da->GetCExoStringEntry(x,SpellsProg,&sVal) && sVal != NULL && sVal.text != NULL && strlen(sVal.text) <= 16)//custom spell progression
 			{
@@ -328,22 +323,17 @@ void InitializeSpells_Level2DA()
 
 unsigned char GetSpellProgressionModifier(CNWSCreatureStats *pThis, unsigned char cls_pos)
 {
+	if(!classes_2da) return 0;
 	unsigned char cls_id = pThis->cs_classes[cls_pos].cl_class;
 	CNWClass *otherClass,*thirdClass;
-	bool bCustom = cls_spell_type[cls_id] != NULL;
-	bool bArcane = !bCustom && (cls_cast_type[cls_id] & CAST_TYPE_ARCANE);
-	bool bDivine = !bCustom && !(cls_cast_type[cls_id] & CAST_TYPE_ARCANE);
-	char *CustomSpellType;
-	if(bCustom && cls_spell_type[cls_id])
+	CExoString SpellType = "SpellType", cls_spell_type, third_spell_type;
+	bool bArcane = false, bDivine = false;
+	if(!classes_2da->GetCExoStringEntry(cls_id,SpellType,&cls_spell_type))
 	{
-		CustomSpellType = cls_spell_type[cls_id];
-		for(unsigned int i = 0;CustomSpellType[i];i++)
-		{
-			CustomSpellType[i] = tolower(CustomSpellType[i]);
-		}
+		bArcane = (cls_cast_type[cls_id] & CAST_TYPE_ARCANE) == CAST_TYPE_ARCANE;
+		bDivine = !bArcane;
+		cls_spell_type = (cls_cast_type[cls_id] & CAST_TYPE_ARCANE) == CAST_TYPE_ARCANE ? "Arcane" : "Divine";
 	}
-	else if(bArcane) CustomSpellType = "arcane";
-	else if(bDivine) CustomSpellType = "divine";	
 	bool highest_class = true;
 	unsigned char level = pThis->cs_classes[cls_pos].cl_level;
 	unsigned char spellMod = 0;
@@ -353,31 +343,39 @@ unsigned char GetSpellProgressionModifier(CNWSCreatureStats *pThis, unsigned cha
 		for(unsigned char x=0;x < pThis->cs_classes_len;x++)
 		{
 			other_cls_id = pThis->cs_classes[x].cl_class;
-			other_level = pThis->cs_classes[x].cl_level-1;
-			if(x == cls_pos || other_cls_id == CLASS_TYPE_INVALID || other_level == CLASS_TYPE_INVALID) continue;
+			other_level = pThis->cs_classes[x].cl_level;
+			if(x == cls_pos || other_cls_id == CLASS_TYPE_INVALID || other_level == 255) continue;
 			otherClass = &(NWN_Rules->ru_classes[other_cls_id]);
 			thirdClass = NULL;
 			highest_class = true;
 			if(pThis->cs_classes_len == 3)
 			{
-				third_pos = pThis->cs_classes_len-x-cls_pos;
-				third_level = pThis->cs_classes[pThis->cs_classes_len-x-cls_pos].cl_level;
-				third_id = pThis->cs_classes[pThis->cs_classes_len-x-cls_pos].cl_class;
-				thirdClass = &(NWN_Rules->ru_classes[third_id]);
+				third_pos = pThis->cs_classes_len-x-cls_pos;	
+				third_id = pThis->cs_classes[third_pos].cl_class;
+				if(third_id != CLASS_TYPE_INVALID)
+				{
+					third_level = pThis->cs_classes[third_pos].cl_level;
+					thirdClass = &(NWN_Rules->ru_classes[third_id]);
+					if(thirdClass->SpellCaster)
+					{
+						if(!classes_2da->GetCExoStringEntry(third_id,SpellType,&third_spell_type))
+						{
+							third_spell_type = (cls_cast_type[third_id] & CAST_TYPE_ARCANE) == CAST_TYPE_ARCANE ? "Arcane" : "Divine";
+						}
+					}
+				}				
 			}
-			if(cls_prog_2da[other_cls_id])
-			{									
+			if(cls_prog_2da[other_cls_id] && cls_spell_type != NULL)
+			{			
 				int nValue;
-				cls_prog_2da[other_cls_id]->GetINTEntry_intcol(other_level,1,&nValue);
+				cls_prog_2da[other_cls_id]->GetINTEntry_intcol(other_level-1,1,&nValue);
 				if(nValue == 0)//class that will improve spell progression of only one class of same spell type
 				{
 					if(thirdClass && thirdClass->SpellCaster && third_level >= level)
 					{
-						if((bArcane && cls_spell_type[third_id] == NULL && (cls_cast_type[third_id] & CAST_TYPE_ARCANE)) ||
-						(bDivine && cls_spell_type[third_id] == NULL && !(cls_cast_type[third_id] & CAST_TYPE_ARCANE)) ||
-						(bCustom && cls_spell_type[third_id] != NULL && !strcmp(CustomSpellType,cls_spell_type[third_id])))
+						if(cls_spell_type == third_spell_type)
 						{
-							if(third_level > level || cls_pos < pThis->cs_classes_len-x-cls_pos)
+							if(third_level > level || cls_pos < third_pos)
 							{
 								continue;
 							}
@@ -386,30 +384,18 @@ unsigned char GetSpellProgressionModifier(CNWSCreatureStats *pThis, unsigned cha
 				}
 				else if(nValue == 2)//class that will improve spell progression of only one class of any spell type
 				{
-					if(thirdClass && thirdClass->SpellCaster && CustomSpellType)
+					if(thirdClass && thirdClass->SpellCaster)
 					{
-						for(unsigned char col=0;col < cls_prog_2da[other_cls_id]->m_nNumColumns;col++)
+						if(cls_prog_2da[other_cls_id]->GetINTEntry_strcol(other_level-1,third_spell_type,&nValue))
 						{
-							if(CustomSpellType && !strcmp(CustomSpellType,cls_prog_2da[other_cls_id]->m_pColumnLabel[col].text))
+							if(third_level > level || (third_level == level && cls_pos < third_pos))
 							{
-								if(third_level > level || (third_level == level && cls_pos < third_pos))
-								{
-									highest_class = false;
-								}										
-								break;
-							}									
+								highest_class = false;
+							}										
 						}
 					}								
 				}
-				if(bArcane && cls_prog_2da[other_cls_id]->GetINTEntry_intcol(other_level,2,&nValue) && highest_class)//class that will improve progression of arcane spells
-				{
-					spellMod+= nValue;
-				}
-				else if(bDivine && cls_prog_2da[other_cls_id]->GetINTEntry_intcol(other_level,3,&nValue) && highest_class)//class that will improve progression of divine spells
-				{
-					spellMod+= nValue;
-				}
-				else if(bCustom && CustomSpellType && cls_prog_2da[other_cls_id]->GetINTEntry_strcol(other_level,CExoString(CustomSpellType),&nValue) && highest_class)//class that will improve progression of custom type of spells
+				if(cls_prog_2da[other_cls_id]->GetINTEntry_strcol(other_level-1,cls_spell_type,&nValue) && highest_class)//class that will improve progression of custom type of spells
 				{
 					spellMod+= nValue;
 				}
@@ -418,9 +404,7 @@ unsigned char GetSpellProgressionModifier(CNWSCreatureStats *pThis, unsigned cha
 			{
 				if(thirdClass && thirdClass->SpellCaster && third_level >= level)
 				{
-					if((bArcane && cls_spell_type[third_id] == NULL && (cls_cast_type[third_id] & CAST_TYPE_ARCANE)) ||
-					(bDivine && cls_spell_type[third_id] == NULL && !(cls_cast_type[third_id] & CAST_TYPE_ARCANE)) ||
-					(bCustom && cls_spell_type[third_id] != NULL && !strcmp(CustomSpellType,cls_spell_type[third_id])))
+					if(cls_spell_type == third_spell_type)
 					{
 						if(third_level > level || cls_pos < third_pos)
 						{
@@ -428,18 +412,17 @@ unsigned char GetSpellProgressionModifier(CNWSCreatureStats *pThis, unsigned cha
 						}
 					}
 				}		
-				if(bArcane && otherClass->ArcSpellLvlMod)
+				if(otherClass->ArcSpellLvlMod && ((cls_cast_type[cls_id] & CAST_TYPE_ARCANE) == CAST_TYPE_ARCANE || cls_spell_type == "Arcane"))
 				{
 					spellMod+= (other_level+(otherClass->ArcSpellLvlMod != 1))/otherClass->ArcSpellLvlMod;
 				}
-				else if(bDivine && otherClass->DivSpellLvlMod)
+				else if(otherClass->DivSpellLvlMod && ((cls_cast_type[cls_id] & CAST_TYPE_ARCANE) != CAST_TYPE_ARCANE || cls_spell_type == "Divine"))
 				{
 					spellMod+= (pThis->cs_classes[x].cl_level+(otherClass->DivSpellLvlMod != 1))/otherClass->DivSpellLvlMod;
 				}
 			}
 		}
 	}
-	//Log(0,"o GetSpellProgressionModifier return value: %i\n",spellMod);
 	return spellMod;
 }
 
@@ -448,6 +431,7 @@ void (__fastcall *CNWSScriptVarTable__SetString)(CNWSScriptVarTable *pThis, void
 int (__fastcall *CNWSMessage__HandlePlayerToServerMessage)(CNWSMessage *pMessage, void *, unsigned long nPlayerID, unsigned char *pData, unsigned long nLen);
 unsigned long (__fastcall *CNWSModule__LoadModuleFinish)(CNWSModule *pThis, void*);
 void (__fastcall *CServerExoAppInternal__RemovePCFromWorld)(CServerExoAppInternal *srv, void *, CNWSPlayer *player);
+void (__fastcall *CNWRules__ReloadAll)(CNWRules *pThis, void *);
 //scripting
 int (__fastcall *CNWVirtualMachineCommands__ExecuteCommandGetAssociateType)(CVirtualMachineCommands *vm_cmds, void*, int arg1, int arg2);
 int (__fastcall *CNWVirtualMachineCommands__ExecuteCommandGetAssociate)(CVirtualMachineCommands *vm_cmds, void*, int arg1, int arg2);
@@ -551,6 +535,14 @@ unsigned char (__fastcall *CNWSCreatureStats__GetFeatRemainingUses)(CNWSCreature
 int (__fastcall *CNWSObject__GetIsPCDying)(CNWSObject *pThis, void*);
 void (__fastcall *CNWSCreature__RestoreItemProperties)(CNWSCreature *pThis, void*);
 void (__fastcall *CNWSItem__RemoveItemProperties)(CNWSItem *pThis, void*, CNWSCreature *cre, unsigned long l);
+
+void __fastcall CNWRules__ReloadAll_Hook(CNWRules *pThis, void *)
+{
+	Log(2,"o CNWRules__ReloadAll start\n");
+	if(classes_2da) classes_2da->Unload2DArray();
+	if(racialtypes_2da) racialtypes_2da->Unload2DArray();
+	CNWRules__ReloadAll(pThis,NULL);
+}
 
 int __fastcall CNWSObject__GetIsPCDying_Hook(CNWSObject *pThis, void*)
 {
@@ -1377,6 +1369,7 @@ unsigned char __fastcall CNWSCreatureStats__GetSpellGainWithBonusAfterLevelUp_Ho
 		if(cClass && cRace && cClass->SpellCaster)
 		{
 			unsigned char level = pThis->cs_classes[cls_pos].cl_level;
+			if(lvlstats->m_nClass == pThis->cs_classes[cls_pos].cl_class) level++;
 			level+= GetSpellProgressionModifier(pThis,cls_pos);
 			switch(cClass->PrimaryAbility)
 			{
@@ -5668,7 +5661,7 @@ int __fastcall CNWSCreatureStats__GetWeaponFinesse_Hook(CNWSCreatureStats *pThis
 int __fastcall CNWSCreatureStats__GetWeaponFocus_Hook(CNWSCreatureStats *pThis, void*, CNWSItem *item)
 {
 	Log(2,"o CNWSCreatureStats__GetWeaponFocus start\n");
-	if(weaponfeats_2da && weaponfeats_2da->m_nNumRows > 0)
+	if(weaponfeats_2da)
 	{
 		int retVal = 0;
 		weaponfeats_2da->GetINTEntry_intcol(item ? item->it_baseitemtype : 36,1,&retVal);
@@ -5688,7 +5681,7 @@ int __fastcall CNWSCreatureStats__GetWeaponFocus_Hook(CNWSCreatureStats *pThis, 
 int __fastcall CNWSCreatureStats__GetWeaponImprovedCritical_Hook(CNWSCreatureStats *pThis, void*, CNWSItem *item)
 {
 	Log(2,"o CNWSCreatureStats__GetWeaponImprovedCritical start\n");
-	if(weaponfeats_2da && weaponfeats_2da->m_nNumRows > 0)
+	if(weaponfeats_2da)
 	{
 		int retVal = 0;
 		weaponfeats_2da->GetINTEntry_intcol(item ? item->it_baseitemtype : 36,2,&retVal);
@@ -5704,7 +5697,7 @@ int __fastcall CNWSCreatureStats__GetWeaponImprovedCritical_Hook(CNWSCreatureSta
 int __fastcall CNWSCreatureStats__GetWeaponSpecialization_Hook(CNWSCreatureStats *pThis, void*, CNWSItem *item)
 {
 	Log(2,"o CNWSCreatureStats__GetWeaponSpecialization start\n");
-	if(weaponfeats_2da && weaponfeats_2da->m_nNumRows > 0)
+	if(weaponfeats_2da)
 	{
 		int retVal = 0;
 		weaponfeats_2da->GetINTEntry_intcol(item ? item->it_baseitemtype : 36,3,&retVal);
@@ -5720,7 +5713,7 @@ int __fastcall CNWSCreatureStats__GetWeaponSpecialization_Hook(CNWSCreatureStats
 int __fastcall CNWSCreatureStats__GetEpicWeaponFocus_Hook(CNWSCreatureStats *pThis, void*, CNWSItem *item)
 {
 	Log(2,"o CNWSCreatureStats__GetEpicWeaponFocus start\n");
-	if(weaponfeats_2da && weaponfeats_2da->m_nNumRows > 0)
+	if(weaponfeats_2da)
 	{
 		int retVal = 0;
 		weaponfeats_2da->GetINTEntry_intcol(item ? item->it_baseitemtype : 36,4,&retVal);
@@ -5736,7 +5729,7 @@ int __fastcall CNWSCreatureStats__GetEpicWeaponFocus_Hook(CNWSCreatureStats *pTh
 int __fastcall CNWSCreatureStats__GetEpicWeaponSpecialization_Hook(CNWSCreatureStats *pThis, void*, CNWSItem *item)
 {
 	Log(2,"o CNWSCreatureStats__GetEpicWeaponSpecialization start\n");
-	if(weaponfeats_2da && weaponfeats_2da->m_nNumRows > 0)
+	if(weaponfeats_2da)
 	{
 		int retVal = 0;
 		weaponfeats_2da->GetINTEntry_intcol(item ? item->it_baseitemtype : 36,5,&retVal);
@@ -5752,7 +5745,7 @@ int __fastcall CNWSCreatureStats__GetEpicWeaponSpecialization_Hook(CNWSCreatureS
 int __fastcall CNWSCreatureStats__GetEpicWeaponOverwhelmingCritical_Hook(CNWSCreatureStats *pThis, void*, CNWSItem *item)
 {
 	Log(2,"o CNWSCreatureStats__GetEpicWeaponOverwhelmingCritical start\n");
-	if(weaponfeats_2da && weaponfeats_2da->m_nNumRows > 0)
+	if(weaponfeats_2da)
 	{
 		int retVal = 0;
 		weaponfeats_2da->GetINTEntry_intcol(item ? item->it_baseitemtype : 36,6,&retVal);
@@ -5768,7 +5761,7 @@ int __fastcall CNWSCreatureStats__GetEpicWeaponOverwhelmingCritical_Hook(CNWSCre
 int __fastcall CNWSCreatureStats__GetEpicWeaponDevastatingCritical_Hook(CNWSCreatureStats *pThis, void*, CNWSItem *item)
 {
 	Log(2,"o CNWSCreatureStats__GetEpicWeaponDevastatingCritical start\n");
-	if(weaponfeats_2da && weaponfeats_2da->m_nNumRows > 0)
+	if(weaponfeats_2da)
 	{
 		int retVal = 0;
 		weaponfeats_2da->GetINTEntry_intcol(item ? item->it_baseitemtype : 36,7,&retVal);
@@ -5784,7 +5777,7 @@ int __fastcall CNWSCreatureStats__GetEpicWeaponDevastatingCritical_Hook(CNWSCrea
 int __fastcall CNWSCreatureStats__GetIsWeaponOfChoice_Hook(CNWSCreatureStats *pThis, void*, uint32_t BaseItemType)
 {
 	Log(2,"o CNWSCreatureStats__GetIsWeaponOfChoice start\n");
-	if(weaponfeats_2da && weaponfeats_2da->m_nNumRows > 0)
+	if(weaponfeats_2da)
 	{
 		int retVal = 0;
 		weaponfeats_2da->GetINTEntry_intcol(BaseItemType,8,&retVal);
@@ -6380,6 +6373,7 @@ void HookFunctions()
 	CreateHook(0x5A1440,CNWSScriptVarTable__SetString_Hook, (PVOID*)&CNWSScriptVarTable__SetString, "DisableSetLocalStringHook","SetLocalString function");
 	CreateHook(0x5426A0,CNWSMessage__HandlePlayerToServerMessage_Hook, (PVOID*)&CNWSMessage__HandlePlayerToServerMessage, "DisableConnect","Sending hak-list to client");
 	CreateHook(0x4D5230,CNWSModule__LoadModuleFinish_Hook, (PVOID*)&CNWSModule__LoadModuleFinish, "DisableLoadModuleFinishHook","LoadModuleFinish function");
+	CreateHook(0x4B48E0,CNWRules__ReloadAll_Hook,(PVOID*)&CNWRules__ReloadAll, "DisableReloadAll", "ReloadAll function.");
 	
 	//weapons
 	CreateHook(0x481210,CNWSCreatureStats__GetWeaponFinesse_Hook, (PVOID*)&CNWSCreatureStats__GetWeaponFinesse, "DisableWeaponHooks","GetWeaponFinesse function");
@@ -7208,13 +7202,17 @@ void Hook_SpellcasterType13b()//0x482D02 - CNWSCreatureStats::UnReadySpell - wit
 	__asm leave
 	__asm mov test1, al
 	__asm mov [esp+24h], dl
+	__asm mov DWORD PTR stats, ebp
 	__asm mov orig_eax, eax
 	__asm mov orig_ebx, ebx
 	__asm mov orig_ecx, ecx
 	__asm mov orig_edx, edx
 
-	//fprintf(logFile, "o Hook_SpellcasterType13b: cls_id: %i\n",test1);fflush(logFile);
-	if(cls_cast_type[test1] & CAST_TYPE_SPONTANEOUS)
+	test2 = stats->cs_classes[orig_ebx].cl_level;
+	hook_Class = &(NWN_Rules->ru_classes[test1]);
+	
+	//fprintf(logFile, "o Hook_SpellcasterType13b: cls_id: %i, cls_pos: %i, cls_lvl: %i, sp_lvl: %i, spell_levels: %i\n",test1,orig_ebx,test2,orig_edx,hook_Class->NumSpellLevels[test2-1]);fflush(logFile);
+	if((cls_cast_type[test1] & CAST_TYPE_SPONTANEOUS) == CAST_TYPE_SPONTANEOUS || (hook_Class->GetSpellGain(test2,orig_edx) == 255 && hook_Class->NumSpellLevels[test2-1] > orig_edx))
 	{
 		Hook_ret = 0x482EB7;
 	}
@@ -7471,6 +7469,33 @@ void Hook_SpellcasterType23()//0x4BDA2B - CNWSCreature::AIActionCastSpell - soma
 	else
 	{
 		Hook_ret = 0x4BDB5B;
+	}
+
+	__asm mov eax, orig_eax
+	__asm mov ebx, orig_ebx
+	__asm mov ecx, orig_ecx
+	__asm mov edx, orig_edx
+	__asm jmp Hook_ret
+}
+
+void Hook_SpellcasterType26()//0x48CF1F - CNWSCreatureStats::FeatRequirementsMetAfterLevelUp
+{
+	__asm leave
+	__asm mov test1, cl
+	__asm mov orig_eax, eax
+	__asm mov orig_ebx, ebx
+	__asm mov orig_ecx, ecx
+	__asm mov orig_edx, edx
+
+	//fprintf(logFile, "o Hook_SpellcasterType26: cls_id: %i\n",test1);fflush(logFile);
+
+	if(cls_cast_type[test1] & CAST_TYPE_SPONTANEOUS)
+	{
+		Hook_ret = 0x48CF62;
+	}
+	else
+	{
+		Hook_ret = 0x48CF2F;
 	}
 
 	__asm mov eax, orig_eax
@@ -8147,6 +8172,14 @@ void PatchSpellCasting()
 	VirtualProtect((DWORD*)pPatch, 1, DefaultPrivs, NULL);
 	fprintf(logFile, "o Enabling custom spellcasting #23.\n");
 
+	pPatch = (unsigned char *) 0x48CF1F;//CNWSCreatureStats::FeatRequirementsMetAfterLevelUp
+	VirtualProtect((DWORD*)pPatch, 1, PAGE_EXECUTE_READWRITE, &DefaultPrivs);
+	memset((PVOID)pPatch, '\x90', 8);
+	pPatch[0] = 0xE9;
+	*((uint32_t *)(pPatch + 1)) = (uint32_t)Hook_SpellcasterType26 - (uint32_t)(pPatch + 5);
+	VirtualProtect((DWORD*)pPatch, 1, DefaultPrivs, NULL);
+	fprintf(logFile, "o Enabling custom spellcasting #26.\n");
+
 	pPatch = (unsigned char *) 0x46C875;//CNWSCreatureStats_ClassInfo::GetMemorizedSpellReadyCount
 	VirtualProtect((DWORD*)pPatch, 1, PAGE_EXECUTE_READWRITE, &DefaultPrivs);
 	memset((PVOID)pPatch, '\x90', 8);
@@ -8237,7 +8270,7 @@ void InitPlugin()
 	fflush(logFile);
 	DebugLvl = GetPrivateProfileInt("Community Patch","DebugLevel",0,"./nwnplayer.ini");
 	NoServerCharacter = GetPrivateProfileInt("Server Options","Disallow New Characters",0,"./nwnplayer.ini");
-	NumTilesExplored = GetPrivateProfileInt("Server Options","Num Tiles Explored",0,"./nwnplayer.ini");
+	NumTilesExplored = (unsigned char)GetPrivateProfileInt("Server Options","Num Tiles Explored",0,"./nwnplayer.ini");
 	DisallowAnimalCompanionPossessing = GetPrivateProfileInt("Server Options","Disallow Animal Companion Possessing",0,"./nwnplayer.ini");
 	DisableStickyCombatModes = GetPrivateProfileInt("Community Patch","Disable Sticky Combat Modes",0,"./nwnplayer.ini");
 
