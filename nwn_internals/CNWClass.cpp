@@ -1,6 +1,9 @@
 #include "types.h"
 #include "nwn_internals.h"
 
+void (__thiscall *CNWClass__ctor)(CNWClass*) = (void(__thiscall*)(CNWClass*))0x504910;
+void (__thiscall *CNWClass__dtor)(CNWClass*) = (void (__thiscall*)(CNWClass*))0x504A50;
+
 unsigned char (__thiscall *CNWClass__GetFortSaveBonus)(CNWClass*, unsigned char) = (unsigned char(__thiscall*)(CNWClass *, unsigned char))0x504B90;
 unsigned char (__thiscall *CNWClass__GetWillSaveBonus)(CNWClass*, unsigned char) = (unsigned char(__thiscall*)(CNWClass *, unsigned char))0x504BD0;
 unsigned char (__thiscall *CNWClass__GetRefSaveBonus)(CNWClass*, unsigned char) = (unsigned char(__thiscall*)(CNWClass *, unsigned char))0x504BB0;
@@ -10,6 +13,14 @@ unsigned char (__thiscall *CNWClass__GetSpellsKnownPerLevel)(CNWClass*, unsigned
 int (__thiscall *CNWClass__IsBonusFeat)(CNWClass*, unsigned short) = (int(__thiscall*)(CNWClass*, unsigned short))0x505E80;
 int (__thiscall *CNWClass__IsNormalFeat)(CNWClass*, unsigned short) = (int(__thiscall*)(CNWClass*, unsigned short))0x505ED0;
 int (__thiscall *CNWClass__IsGrantedFeat)(CNWClass*, unsigned short, unsigned char&) = (int(__thiscall*)(CNWClass*, unsigned short, unsigned char&))0x505F40;
+
+CNWClass_s::CNWClass_s() {
+	CNWClass__ctor(this);
+}
+
+CNWClass_s::~CNWClass_s() {
+	CNWClass__dtor(this);
+}
 
 unsigned char CNWClass_s::GetFortSaveBonus(uint8_t Level) {
 	return CNWClass__GetFortSaveBonus(this, Level);

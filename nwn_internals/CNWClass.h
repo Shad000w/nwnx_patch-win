@@ -97,6 +97,8 @@ struct CNWClass_s {
 	uint8_t				DivSpellLvlMod;
 	uint8_t				EpicLevel;
 
+	CNWClass_s();
+	~CNWClass_s();
 	unsigned char GetFortSaveBonus(uint8_t Level);
 	unsigned char GetWillSaveBonus(uint8_t Level);
 	unsigned char GetRefSaveBonus(uint8_t Level);
