@@ -1018,7 +1018,6 @@ void __fastcall CNWSCreatureStats__LevelUp_Hook(CNWSCreatureStats *pThis, void*,
 			CNWClass *cClass = &(NWN_Rules->ru_classes[cls_id]);
 			if(cls_id != CLASS_TYPE_INVALID && cClass && cClass->SpellCaster && ((cls_cast_type[cls_id] & CAST_TYPE_SPONTANEOUS) && !(cls_cast_type[cls_id] & CAST_TYPE_RESTRICTED_SPELLBOOK)))
 			{
-				unsigned char cls_id = pThis->cs_classes[x].cl_class;
 				unsigned char cls_lvl = pThis->cs_classes[x].cl_level;
 				unsigned char spell_lvl, lvl_max = 0;
 				while(lvl_max < 10 && cClass->GetSpellGain(cls_lvl,lvl_max+1) != 255)
@@ -1026,10 +1025,11 @@ void __fastcall CNWSCreatureStats__LevelUp_Hook(CNWSCreatureStats *pThis, void*,
 					lvl_max++;
 				}
 				unsigned long num_known;
+				int nVal;
 				for(unsigned long spell_id=0;spell_id < NWN_Rules->ru_spells->spells_len;spell_id++)
 				{
 					spell_lvl = NWN_Rules->ru_spells->GetSpell(spell_id)->GetSpellLevel(cls_id);
-					if(spell_lvl <= lvl_max)
+					if(spell_lvl <= lvl_max && !(spells_2da && spells_2da->GetINTEntry_strcol(x,CExoString("Hidden"),&nVal) && (nVal == 255 || nVal == cls_id)))//hidden spell
 					{
 						for(num_known=0;num_known < (unsigned long)pThis->cs_classes[x].cl_spells_known->len && num_known < 255;num_known++)
 						{
@@ -1045,7 +1045,6 @@ void __fastcall CNWSCreatureStats__LevelUp_Hook(CNWSCreatureStats *pThis, void*,
 					}
 				}
 			}
-			return;
 		}
 	}
 }
