@@ -232,6 +232,7 @@
     <ClInclude Include="..\nwn_internals\nwn_const_feats.h" />
     <ClInclude Include="..\nwn_internals\nwn_effects.h" />
     <ClInclude Include="..\nwn_internals\nwnx_funcs_const.h" />
+    <ClInclude Include="..\nwn_internals\types.h" />
     <ClInclude Include="..\nwn_internals\Vector.h" />
     <ClInclude Include="nwn_internals.h" />
     <ClInclude Include="types.h" />

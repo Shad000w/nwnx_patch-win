@@ -25,7 +25,7 @@
 #define _NX_NWN_STRUCT_CNWSITEMPROPERTYHANDLER_
 
 struct CNWSItemPropertyHandler_s {
-    CNWSItemProperty            *ip;
+    CNWItemProperty            *ip;
 	uint32_t					ip_len;
 	uint32_t					ip_alloc;    
 };

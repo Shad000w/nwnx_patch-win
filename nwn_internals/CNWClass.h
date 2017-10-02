@@ -47,55 +47,57 @@ AlignRstrctType
 0x3 = Both
 */
 
+struct CNWClass_Feat
+{
+    uint16_t nFeat;
+    uint8_t nLevelGranted;
+    uint8_t nListType;
+    int32_t nTalentCategory;
+    int32_t nMaxCR;
+    int32_t nOnClassRadial;
+};
+
+struct CNWClass_Skill
+{
+    uint16_t nSkill;
+    int32_t bClassSkill;
+};
+
 struct CNWClass_s {
-	uint32_t			name_tlk;
-	uint32_t			name_lower_tlk;
-	uint32_t			name_plural;
-	uint32_t			description_tlk;
-	CExoString			Icon;
-	CExoString			PreReqTable;
-	uint8_t				AttackBonusTable[60];
-	uint8_t				HitDie;
-	uint8_t				SkillPointBase;
-	uint8_t				FortSaveTable[60];
-	uint8_t				ReflSaveTable[60];
-	uint8_t				WillSaveTable[60];
-	uint8_t				byte112;
-	uint8_t				byte113;
-	void				*SpellsKnown;
-	unsigned __int8		NumSpellLevels[40];
-	uint32_t			SpellGain[40];
-	uint32_t			*SkillsTable;
-	uint32_t			SkillsTable_Len;
-	uint32_t			*feats;
-	uint32_t			feats_len;
-	uint8_t				f1f0[38];
-	uint8_t				PrimaryAbility;//216
-	uint8_t				Str;//217
-	uint8_t				Dex;//218
-	uint8_t				Con;//219
-	uint8_t				Int;//21A
-	uint8_t				Wis;//21B
-	uint8_t				Cha;//21C
-	uint8_t				AlignRestrict;//21D
-	uint8_t				AlignRestrictType;//21E
-	uint8_t				f21F[1];
-	uint32_t			InvertRestrict;//220
-	uint32_t			fix;//hm?
-	uint8_t				EffCRLvl[40];//224
-	uint8_t				PlayerClass;//250
-	uint8_t				field251;
-	uint8_t				field252;//252
-	uint8_t				field253;//253
-	uint8_t				SpellCaster;//254
-	uint8_t				field255;//255
-	uint16_t			field256;
-	uint32_t			MaxLevel;
-	uint32_t			XPPenalty;//25C
-	uint32_t			Package;//260
-	uint8_t				ArcSpellLvlMod;
-	uint8_t				DivSpellLvlMod;
-	uint8_t				EpicLevel;
+	uint32_t m_nName;
+    uint32_t m_nNameLower;
+    uint32_t m_nNamePlural;
+    uint32_t m_nDescription;
+    CExoString m_sIcon;
+    CExoString m_sPreReqTable;
+    uint8_t m_lstBaseAttackBonus[60];
+    uint8_t m_nHitDie;
+    uint8_t m_nSkillPointBase;
+    uint8_t m_lstFortificationSaveThrowBonus[60];
+    uint8_t m_lstWillSaveThrowBonus[60];
+    uint8_t m_lstReflexSaveThrowBonus[60];
+    uint8_t** m_lstSpellKnownTable;
+    uint8_t m_lstSpellLevelsPerLevel[40];
+    uint8_t* m_lstSpellGainTable[40];
+    CNWClass_Skill* m_lstSkillTable;
+    uint16_t m_nNumSkills;
+    CNWClass_Feat* m_lstFeatTable;
+    uint16_t m_nNumFeats;
+    uint8_t m_lstBonusFeatsTable[40];
+    uint8_t m_nPrimaryAbility;
+    uint8_t m_pnRecommendedAbilities[6];
+    uint8_t m_nClassRestrictions;
+    uint8_t m_nClassRestrictionType;
+    int32_t m_nClassRestrictionsInversed;
+    uint8_t m_pnEffectiveCRForLevel[41];
+    int32_t m_bIsPlayerClass;
+    int32_t m_bIsSpellCasterClass;
+    uint8_t m_nMaxLevel;
+    int32_t m_bXPPenalty;
+    uint32_t m_nDefaultPackage;
+    uint8_t m_nArcSpellUsePerDayLevel;
+    uint8_t m_nDivSpellUsePerDayLevel;
+    uint8_t m_nEpicLevel;
 
 	CNWClass_s();
 	~CNWClass_s();

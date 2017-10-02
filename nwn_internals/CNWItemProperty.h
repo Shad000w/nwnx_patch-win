@@ -24,7 +24,7 @@
 #ifndef _NX_NWN_STRUCT_CNWITEMPROPERTY_
 #define _NX_NWN_STRUCT_CNWITEMPROPERTY_
 
-struct CNWSItemProperty_s {
+struct CNWItemProperty_s {
     uint16_t m_nPropertyName;//00
     uint16_t m_nSubType;//02
     uint8_t m_nCostTable;//04

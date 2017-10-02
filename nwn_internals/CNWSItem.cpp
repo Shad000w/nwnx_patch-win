@@ -7,7 +7,7 @@ void 			(__thiscall *CNWSItem__AddToArea)(CNWSItem *pThis, CNWSArea *area, float
 int 			(__thiscall *CNWSItem__ComputeArmorClass)(CNWSItem *pThis) = (int (__thiscall*)(CNWSItem *pThis))0x004FE870;
 unsigned short	(__thiscall *CNWSItem__GetDamageFlags)(CNWSItem *pThis) = (unsigned short(__thiscall*)(CNWSItem *pThis))0x00501660;
 unsigned char 	(__thiscall *CNWSItem__GetMinEquipLevel)(CNWSItem *pThis) = (unsigned char(__thiscall*)(CNWSItem *pThis))0x005017A0;
-int 			(__thiscall *CNWSItem__GetPropertyByType)(CNWSItem *pThis, CNWSItemProperty **iprp, uint16_t ipType, uint16_t ipSubType) = (int(__thiscall*)(CNWSItem *pThis, CNWSItemProperty **iprp, uint16_t ipType, uint16_t ipSubType))0x004FE670;
+int 			(__thiscall *CNWSItem__GetPropertyByType)(CNWSItem *pThis, CNWItemProperty **iprp, uint16_t ipType, uint16_t ipSubType) = (int(__thiscall*)(CNWSItem *pThis, CNWItemProperty **iprp, uint16_t ipType, uint16_t ipSubType))0x004FE670;
 int 			(__thiscall *CNWSItem__GetPropertyByTypeExists)(CNWSItem* pThis, unsigned short, unsigned short) = (int(__thiscall*)(CNWSItem* pThis, unsigned short, unsigned short))0x004FE370;
 int 			(__thiscall *CNWSItem__LoadFromTemplate)(CNWSItem *pThis, CResRef CRes, CExoString *Tag) = (int(__thiscall*)(CNWSItem *pThis, CResRef CRes, CExoString *Tag))0x004FBAE0;
 int				(__thiscall *CNWSItem__LoadItem)(CNWSItem *pThis, CResGFF *ResGFF, void *CResStruct, int a3) = (int(__thiscall*)(CNWSItem *pThis, CResGFF *ResGFF, void *CResStruct, int a3))0x004FD0D0;
@@ -55,7 +55,7 @@ unsigned short CNWSItem_s::GetDamageFlags() {
 	return CNWSItem__GetDamageFlags(this);
 }
 
-int CNWSItem_s::GetPropertyByType(CNWSItemProperty **iprp, uint16_t ipType, uint16_t ipSubType) {
+int CNWSItem_s::GetPropertyByType(CNWItemProperty **iprp, uint16_t ipType, uint16_t ipSubType) {
 	return CNWSItem__GetPropertyByType(this, iprp, ipType, ipSubType);
 }
 

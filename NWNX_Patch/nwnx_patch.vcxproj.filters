@@ -455,9 +455,6 @@
     <ClInclude Include="nwn_internals.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="types.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
     <ClInclude Include="..\nwn_internals\CServerExoAppConfig.h">
       <Filter>Source Files\nwn_internals</Filter>
     </ClInclude>
@@ -484,6 +481,12 @@
     </ClInclude>
     <ClInclude Include="..\nwn_internals\CResList.h">
       <Filter>Source Files\nwn_internals</Filter>
+    </ClInclude>
+    <ClInclude Include="..\nwn_internals\types.h">
+      <Filter>Source Files\nwn_internals</Filter>
+    </ClInclude>
+    <ClInclude Include="types.h">
+      <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>
 </Project>

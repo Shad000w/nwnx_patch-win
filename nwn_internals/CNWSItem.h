@@ -123,7 +123,7 @@ struct CNWSItem_s {
 	int ComputeArmorClass();
 	unsigned short GetDamageFlags();
 	unsigned char GetMinEquipLevel();
-	int GetPropertyByType(CNWSItemProperty **iprp, uint16_t ipType, uint16_t ipSubType);
+	int GetPropertyByType(CNWItemProperty **iprp, uint16_t ipType, uint16_t ipSubType);
 	int GetPropertyByTypeExists(unsigned short a1, unsigned short a2);
 	int LoadFromTemplate(CResRef CRes, CExoString *Tag);
 	int LoadItem(CResGFF *ResGFF, void *CResStruct, int a3);

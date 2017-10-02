@@ -81,7 +81,7 @@ struct CGameObject_VTable_s;              	typedef struct CGameObject_VTable_s  
 struct CItemRepository_s;                 typedef struct CItemRepository_s                 CItemRepository;
 struct CLastUpdateObject_s;               typedef struct CLastUpdateObject_s               CLastUpdateObject;
 struct CNWSObject_s;						typedef struct CNWSObject_s                     CNWSObject; 
-struct CNWSItemProperty_s;                 	typedef struct CNWSItemProperty_s               CNWSItemProperty; 
+struct CNWItemProperty_s;                 	typedef struct CNWItemProperty_s               CNWItemProperty; 
 struct CNWSInventory_s;                     typedef struct CNWSInventory_s                   CNWSInventory; 
 struct CNWSItemPropertyHandler_s;			typedef struct CNWSItemPropertyHandler_s		CNWSItemPropertyHandler;
 struct CNWSItem_s;                          typedef struct CNWSItem_s                       CNWSItem; 
@@ -152,7 +152,7 @@ struct CEffectsStore_s; typedef struct CEffectsStore_s CEffectsStore;
 #include ".\CNWSEncounter.h"
 #include ".\CNWSStore.h"
 #include ".\CNWSSoundObject.h"
-#include ".\CNWSItemProperty.h"
+#include ".\CNWItemProperty.h"
 #include ".\CNWSItemPropertyHandler.h"
 #include ".\CNWSInventory.h"
 #include ".\CNWSItem.h"
