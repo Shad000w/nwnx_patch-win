@@ -2393,6 +2393,114 @@ void NWNXPatch_Funcs(CNWSScriptVarTable *pThis, int nFunc, char *Params)
 	{
 		pThis->SetInt(VarName,VERSION_MAJOR*100+VERSION_MINOR,0);
 	}
+	else if(nFunc == 13)//SetSpellValue
+	{
+		unsigned long oID = OBJECT_INVALID, spell_id = OBJECT_INVALID, spell_const = OBJECT_INVALID, spell_value = OBJECT_INVALID;
+		sscanf_s(Params,"%x|%i|%i|%s",&oID,&spell_id,&spell_const,Params);
+		if(spell_id != OBJECT_INVALID && spell_const < 255 && Params)
+		{
+			CNWSpell *spell = NWN_Rules->ru_spells->GetSpell(spell_id);
+			if(spell)
+			{
+				if((spell_const <= 53 || spell_const == 60) && spell_const > 0 && spell_const != 41 && spell_const != 42)
+				{
+					CNWSPlayer *player = NWN_AppManager->app_server->srv_internal->GetClientObjectByObjectId(oID);
+					if(oID != OBJECT_INVALID && player)
+					{
+						unsigned char *pData;
+						long unsigned int nSize;
+
+						CNWMessage *message = new CNWMessage();
+						message->CreateWriteMessage(80, -1, 1);
+						message->WriteINT(spell_id,32);
+						message->WriteCExoString(Params,strlen(Params),32);
+						message->GetWriteMessage((unsigned char **) &pData, (unsigned long *) &nSize);
+						NWN_AppManager->app_server->srv_internal->srv_client_messages->SendServerToPlayerMessage(player->pl_id, 208, (unsigned char)spell_const, pData, nSize);
+					}
+					else
+					{
+						fflush(logFile);
+						sscanf_s(Params,"%i",&spell_value);
+						switch(spell_const)
+						{
+						case 1: spell->m_strrefName = spell_value; return;
+						case 2: spell->m_strrefDesc = spell_value; return;		
+						case 4: spell->m_nSchool = (unsigned char)spell_value; return;
+						case 5: spell->m_sRange = CExoString(Params); return;
+						case 6: spell->m_sComponent = CExoString(Params); return;
+						case 7: spell->m_nTargetType = (unsigned short)spell_value; return;
+						case 8: spell->m_sImpactScript = CExoString(Params); return;
+						case 9: spell->m_nBardLevel = (unsigned char)spell_value; return;
+						case 10: spell->m_nClericLevel = (unsigned char)spell_value; return;
+						case 11: spell->m_nDruidLevel = (unsigned char)spell_value; return;
+						case 12: spell->m_nPaladinLevel = (unsigned char)spell_value; return;
+						case 13: spell->m_nRangerLevel = (unsigned char)spell_value; return;
+						case 14: spell->m_nSorcererLevel = (unsigned char)spell_value; return;
+						case 15: spell->m_nWizardLevel = (unsigned char)spell_value; return;
+						case 16: spell->m_nInnateLevel = (unsigned char)spell_value; return;
+						case 17: spell->m_nConjureTime = spell_value; return;
+						case 18: spell->m_nConjureAnimation = (unsigned short)spell_value; return;						
+						case 25: spell->m_nCastAnimation = (unsigned short)spell_value; return;
+						case 26: spell->m_nCastTime = spell_value; return;
+						case 31: spell->m_bProjectileSpawn = spell_value; return;
+						case 33: spell->m_nProjectileType = spell_value; return;
+						case 34: spell->m_nProjectileSpawnPoint = (unsigned char)spell_value; return;
+						case 36: spell->m_nProjectileOrientationType = (unsigned char)spell_value; return;
+						case 37: spell->m_nImmunityType = (unsigned char)spell_value; return;
+						case 38: spell->m_bImmunityItem = spell_value; return;
+						case 39: spell->m_nTalentCategory = spell_value; return;
+						case 40: spell->m_nTalentMaxCR = spell_value; return;
+						//case 41: spell->m_pSubRadialSpell = spell_value; break;
+						//case 42: spell->m_nSubRadialSpellCount = (unsigned char)spell_value; break;
+						case 43: spell->m_bUseConcentration = spell_value; return;
+						case 44: spell->m_nMasterSpell = spell_value; return;
+						case 45: spell->m_nCounterSpell1 = spell_value; return;
+						case 46: spell->m_nCounterSpell2 = spell_value; return;
+						case 47: spell->m_nUserType = (unsigned char)spell_value; return;
+						case 48: spell->m_bSpontaneouslyCast = spell_value; return;
+						case 49: spell->m_nAllowedMetamagic = (unsigned char)spell_value; return;
+						case 50: spell->m_nAltMessage = spell_value; return;
+						case 51: spell->m_bHostile = spell_value; return;
+						case 52: spell->m_nFeatId = spell_value; return;
+						case 53: spell->m_bHasProjectile = spell_value; return;
+						case 60: spell->Hidden = (unsigned char)spell_value; return;
+						}
+						CResRef resref;
+						std::fill_n(resref.resref, 16, 0);
+						sprintf_s(resref.resref,16,"%s",Params);
+						switch(spell_const)
+						{
+						case 3: spell->m_resrefIcon = resref; return;
+						case 19: spell->m_resrefConjureHeadVisual = resref; return;
+						case 20: spell->m_resrefConjureHandVisual = resref; return;
+						case 21: spell->m_resrefConjureGroundVisual = resref; return;
+						case 22: spell->m_resrefConjureSoundMale = resref; return;
+						case 23: spell->m_resrefConjureSoundFemale = resref; return;
+						case 24: spell->m_resrefConjureSoundVFX = resref; return;
+						case 27: spell->m_resrefCastHeadVisual = resref; return;
+						case 28: spell->m_resrefCastHandVisual = resref; return;
+						case 29: spell->m_resrefCastGroundVisual = resref; return;
+						case 30: spell->m_resrefCastSound = resref; return;
+						case 32: spell->m_resrefProjectile = resref; return;
+						case 35: spell->m_resrefProjectileSound = resref; return;					
+						}
+					}
+				}
+				else
+				{
+					fprintf(logFile, "ERROR: SetSpellValue(%08X,%i,%i,%s) incorrect or unsupported spell constant!\n",oID,spell_id,spell_const,Params);
+				}	
+			}
+			else
+			{
+				fprintf(logFile, "ERROR: SetSpellValue(%08X,%i,%i,%s) spell not valid!\n",oID,spell_id,spell_const,Params);
+			}			
+		}
+		else
+		{
+			fprintf(logFile, "ERROR: SetSpellValue(%08X,%i,%i,%s) used with incorrect parameters!\n",oID,spell_id,spell_const,Params);
+		}
+	}
 	else if(nFunc == 101)//GetNumAreas
 	{
 		CNWSModule *cModule = NWN_AppManager->app_server->srv_internal->GetModule();
