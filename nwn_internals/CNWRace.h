@@ -4,27 +4,25 @@
 #include "CExoString.h"
 
 struct CNWRace_s {
-
-public:
-
-	unsigned __int32 Name;//0
-	unsigned __int32 ConverName;//4
-	unsigned __int32 ConverNameLower;//8
-	unsigned __int32 NamePlural;//C
-	unsigned __int32 Description;//10
-	unsigned __int32 Biography;//14
-	__int8 StrAdjust;//18
-	__int8 DexAdjust;//19
-	__int8 IntAdjust;//1A
-	__int8 ChaAdjust;//1B
-	__int8 WisAdjust;//1C
-	__int8 ConAdjust;//1D
-	__int8 Endurance;//1E
-	__int8 Favored;//1F
-	unsigned __int32 Player_Race;
-	unsigned __int32 field_24;
-	unsigned __int32 field_28;
-	unsigned __int32 Age;
-	unsigned __int32 Appearance;
+	int m_nNameStrref;
+    int m_nConverNameStrref;
+    int m_nConverNameLowerStrref;
+    int m_nNamePluralStrref;
+    int m_nDescriptionStrref;
+    int m_nDefaultBiographyStrref;
+    char m_nSTRAdjust;
+    char m_nDEXAdjust;
+    char m_nINTAdjust;
+    char m_nCHAAdjust;
+    char m_nWISAdjust;
+    char m_nCONAdjust;
+    unsigned char m_nEndurance;
+    unsigned char m_nFavoredClass;
+    int m_bIsPlayerRace;
+    unsigned short m_nNumFeats;
+	unsigned short FavoredEnemyFeat;//custom value
+    unsigned short* m_lstFeatTable;
+    int m_nAge;
+    unsigned short m_nDefaultAppearance;
 };
 #endif

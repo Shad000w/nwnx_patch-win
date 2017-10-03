@@ -1,35 +1,32 @@
 #ifndef _NX_NWN_STRUCT_CNWRULES_
 #define _NX_NWN_STRUCT_CNWRULES_
 
+#include "CNWSkill.h"
+
 struct CNWRules_s {
-	unsigned __int32 field_00;//*v_table ??
-	float ru_spell_range_personal;//04
-	float ru_spell_range_touch;//08
-	float ru_spell_range_short;//0C
-	float ru_spell_range_medium;//10
-	float ru_spell_range_long;//14
-	CNWBaseItemArray *ru_baseitems;//18
-	unsigned __int32 ru_xp_level[41];//1C
-	CNWSpellArray *ru_spells;//C0
-	void *ru_feats;//C4
-	unsigned __int32 field_C8;
-	unsigned __int32 field_CC;
-	unsigned __int32 field_D0;
-	unsigned __int16 *ru_sorted_feats;//D4
-	unsigned __int16 ru_feats_len;//D8
-	unsigned __int16 ru_sorted_feats_len;//DA
-	unsigned __int8 ru_unknown_len; //DC
-	unsigned __int8 ru_classes_len;//DD
-	unsigned __int8 ru_races_len;//DE
-	unsigned __int8 ru_skills_len;//DF
-	unsigned __int8 ru_domains_len; //E0
-	unsigned __int8 field_E1;
-	unsigned __int16 field_E2;
-	CNWClass *ru_classes;//E4
-	CNWRace *ru_races;//E8
-	void *ru_skills;//EC
-	CNWDomain *ru_domains;//F0
-	CTwoDimArrays_s *ru_2das;//F4
+	void** m_vtable;//00
+    float m_fRangeTypes[5];//0 - personal 04, 1 - touch 08, 2 - short 0C, 3 - medium 10, 4 - long 14
+    CNWBaseItemArray* m_pBaseItemArray;//18
+    unsigned int m_nExperienceTable[41];//1C
+    CNWSpellArray* m_pSpellArray;//C0
+    CNWFeat* m_lstFeats;//C4
+    unsigned int* m_lstMasterFeats;//C8
+    unsigned int* m_lstMasterFeatDescriptions;//CC
+    CResRef* m_lstMasterFeatIcons;//D0
+    unsigned short* m_lstSortedFeatIDs;//D4
+    unsigned short m_nNumFeats;//D8
+    unsigned short m_nNumSortedFeats;//DA
+    char m_nNumMasterFeats;//DC
+    unsigned char m_nNumClasses;//DD
+    unsigned char m_nNumRaces;//DE
+    unsigned char m_nNumSkills;//DF
+    unsigned char m_nNumDomains;//E0
+    CNWClass* m_lstClasses;//E4
+    CNWRace* m_lstRaces;//E8
+    CNWSkill* m_lstSkills;//EC
+    CNWDomain* m_lstDomains;//F0
+    CTwoDimArrays_s* m_p2DArrays;//F4
+    unsigned char m_nDifficultyOptions[5][7];//F8
 
 	uint8_t GetFeatExpansionLevel(uint16_t FeatID);
 	unsigned short RollDice(unsigned char NumDice, unsigned char DieType);

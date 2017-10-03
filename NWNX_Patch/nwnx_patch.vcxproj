@@ -188,6 +188,7 @@
     <ClInclude Include="..\nwn_internals\CNWSItem.h" />
     <ClInclude Include="..\nwn_internals\CNWSItemProperty.h" />
     <ClInclude Include="..\nwn_internals\CNWSItemPropertyHandler.h" />
+    <ClInclude Include="..\nwn_internals\CNWSkill.h" />
     <ClInclude Include="..\nwn_internals\CNWSMessage.h" />
     <ClInclude Include="..\nwn_internals\CNWSModule.h" />
     <ClInclude Include="..\nwn_internals\CNWSObject.h" />

@@ -488,5 +488,8 @@
     <ClInclude Include="types.h">
       <Filter>Header Files</Filter>
     </ClInclude>
+    <ClInclude Include="..\nwn_internals\CNWSkill.h">
+      <Filter>Source Files\nwn_internals</Filter>
+    </ClInclude>
   </ItemGroup>
 </Project>

@@ -168,6 +168,19 @@ void InitializeRacialTypes2DA()
 	if(racialtypes_2da)
 	{
 		racialtypes_2da->Load2DArray();
+		CExoString FavoredEnemy = "FavoredEnemyFeat";
+		int val = 0;
+		for(unsigned int row = 0; row < racialtypes_2da->m_nNumRows; row++)
+		{	
+			CNWRace *race = &(NWN_Rules->m_lstRaces[row]);
+			if(race && row != RACIAL_TYPE_INVALID)
+			{
+				if(racialtypes_2da->GetINTEntry_strcol(row,FavoredEnemy,&val) && val > -1)
+				{
+					race->FavoredEnemyFeat = val;			
+				}
+			}
+		}
 		//NWN_Rules->LoadRaceInfo();
 		fprintf(logFile, "o  racial_types.2da loaded.\n");fflush(logFile);
 	}
@@ -205,7 +218,7 @@ void InitializeClasses2DA()
 		int numRows = classes_2da->m_nNumRows; if(numRows > 255) numRows = 255;
 		for(unsigned char x=0;x < numRows; x++)
 		{
-			cClass = &(NWN_Rules->ru_classes[x]);
+			cClass = &(NWN_Rules->m_lstClasses[x]);
 			//fprintf(logFile, "o  classes.2da loaded cls %i spellcaster %i arcane %i.\n",x,cClass->SpellCaster,g_pRules->IsArcaneClass(x));fflush(logFile);
 			if(cClass->m_bIsSpellCasterClass && classes_2da->GetINTEntry_strcol(x,CastType,&val))
 			{
@@ -317,7 +330,6 @@ void InitializeModuleSwitches(CNWSModule *module)
 	PrestigeClassAffectSpontaneousCasters = true;
 }
 
-/*
 void InitializeSpells2DA()
 {
 	fprintf(logFile, "o Initializing spells.2da.\n");fflush(logFile);
@@ -330,16 +342,33 @@ void InitializeSpells2DA()
 	{
 		CResRef resref;
 		std::fill_n(resref.resref, 16, 0);
-		sprintf(resref.resref,"%s","spells");
+		sprintf_s(resref.resref,16,"%s","spells");
 		spells_2da = new C2DA();
 		spells_2da->C2DA(resref,0);
 	}
 	if(spells_2da)
-	{
+	{ 
 		spells_2da->Load2DArray();
+		//workaround for a fact that client reads values above 1 as 1 for column SpontaneouslyCast
+		int nVal;
+		CExoString SpontaneouslyCast = "SpontaneouslyCast";
+		CExoString Hidden = "Hidden";
+		for(unsigned int spell_id = 0; spell_id < spells_2da->m_nNumRows; spell_id++)
+		{
+			if(spells_2da->GetINTEntry_strcol(spell_id,SpontaneouslyCast,&nVal) && nVal > 1)
+			{
+				NWN_Rules->m_pSpellArray->GetSpell(spell_id)->m_bSpontaneouslyCast = (unsigned char)nVal;
+			}
+			if(spells_2da->GetINTEntry_strcol(spell_id,Hidden,&nVal) && nVal > 1)
+			{
+				NWN_Rules->m_pSpellArray->GetSpell(spell_id)->Hidden = (unsigned char)nVal;
+			}
+		}		
+		//NWN_Rules->m_pSpellArray->Load();
 		fprintf(logFile, "o  spells.2da loaded.\n");fflush(logFile);
+		spells_2da->Unload2DArray();
 	}
-}*/
+}
 
 void InitializeSpells_Level2DA()
 {
@@ -396,7 +425,7 @@ unsigned char GetSpellProgressionModifier(CNWSCreatureStats *pThis, unsigned cha
 			other_cls_id = pThis->cs_classes[x].cl_class;
 			other_level = pThis->cs_classes[x].cl_level;
 			if(x == cls_pos || other_cls_id == CLASS_TYPE_INVALID || other_level == 255) continue;
-			otherClass = &(NWN_Rules->ru_classes[other_cls_id]);
+			otherClass = &(NWN_Rules->m_lstClasses[other_cls_id]);
 			thirdClass = NULL;
 			highest_class = true;
 			if(pThis->cs_classes_len == 3)
@@ -406,7 +435,7 @@ unsigned char GetSpellProgressionModifier(CNWSCreatureStats *pThis, unsigned cha
 				if(third_id != CLASS_TYPE_INVALID)
 				{
 					third_level = pThis->cs_classes[third_pos].cl_level;
-					thirdClass = &(NWN_Rules->ru_classes[third_id]);
+					thirdClass = &(NWN_Rules->m_lstClasses[third_id]);
 					if(thirdClass->m_bIsSpellCasterClass)
 					{
 						if(!classes_2da->GetCExoStringEntry(third_id,SpellType,&third_spell_type))
@@ -665,7 +694,7 @@ int __fastcall CNWSCreature__GetFlanked_Hook(CNWSCreature *pThis, void*, CNWSCre
 		for(unsigned char cls_pos=0;cls_pos<target->cre_stats->cs_classes_len;cls_pos++)
 		{
 			cls_id = target->cre_stats->cs_classes[cls_pos].cl_class;
-			CNWClass *cClass = &(NWN_Rules->ru_classes[cls_id]);
+			CNWClass *cClass = &(NWN_Rules->m_lstClasses[cls_id]);
 			if(cClass && cClass->IsGrantedFeat(195,granted))
 			{
 				uncannypower+= target->cre_stats->GetClassLevel(cls_pos,true);
@@ -674,7 +703,7 @@ int __fastcall CNWSCreature__GetFlanked_Hook(CNWSCreature *pThis, void*, CNWSCre
 		for(unsigned char cls_pos=0;cls_pos<pThis->cre_stats->cs_classes_len;cls_pos++)
 		{
 			cls_id = pThis->cre_stats->cs_classes[cls_pos].cl_class;
-			CNWClass *cClass = &(NWN_Rules->ru_classes[cls_id]);
+			CNWClass *cClass = &(NWN_Rules->m_lstClasses[cls_id]);
 			if(cClass && (cClass->IsGrantedFeat(221,granted) || cClass->IsGrantedFeat(455,granted) || cClass->IsGrantedFeat(221,granted)))
 			{
 				roguelevels+= pThis->cre_stats->GetClassLevel(cls_pos,true);
@@ -741,7 +770,7 @@ int __fastcall CNWSCreature__UseFeat_Hook(CNWSCreature *pThis, void*, unsigned s
 {
 	Log(2,"o CNWSCreature__UseFeat start\n");
 	CNWFeat *feat = NWN_Rules->GetFeat(nFeat);
-	if(feat && feat->SpellID == -1 && targetID != OBJECT_INVALID && pThis->cre_is_pc && pThis->cre_stats->HasFeat(nFeat))
+	if(feat && feat->m_nSpellId == -1 && targetID != OBJECT_INVALID && pThis->cre_is_pc && pThis->cre_stats->HasFeat(nFeat))
 	{
 		switch(nFeat)
 		{
@@ -1066,7 +1095,7 @@ void __fastcall CNWSCreatureStats__LevelUp_Hook(CNWSCreatureStats *pThis, void*,
 		if(pThis->cs_classes[x].cl_level != lvl_array[x])
 		{
 			unsigned char cls_id = pThis->cs_classes[x].cl_class;
-			CNWClass *cClass = &(NWN_Rules->ru_classes[cls_id]);
+			CNWClass *cClass = &(NWN_Rules->m_lstClasses[cls_id]);
 			if(cls_id != CLASS_TYPE_INVALID && cClass && cClass->m_bIsSpellCasterClass && ((cls_cast_type[cls_id] & CAST_TYPE_SPONTANEOUS) && !(cls_cast_type[cls_id] & CAST_TYPE_RESTRICTED_SPELLBOOK)))
 			{
 				unsigned char cls_lvl = pThis->cs_classes[x].cl_level;
@@ -1075,13 +1104,18 @@ void __fastcall CNWSCreatureStats__LevelUp_Hook(CNWSCreatureStats *pThis, void*,
 				{
 					lvl_max++;
 				}
-				unsigned long num_known;
-				int nVal;
-				for(unsigned long spell_id=0;spell_id < NWN_Rules->ru_spells->spells_len;spell_id++)
+				unsigned long num_known, hidden;
+				for(unsigned long spell_id=0;spell_id < NWN_Rules->m_pSpellArray->spells_len;spell_id++)
 				{
-					spell_lvl = NWN_Rules->ru_spells->GetSpell(spell_id)->GetSpellLevel(cls_id);
-					if(spell_lvl <= lvl_max && !(spells_2da && spells_2da->GetINTEntry_strcol(x,CExoString("Hidden"),&nVal) && (nVal == 255 || nVal == cls_id)))//hidden spell
+					spell_lvl = NWN_Rules->m_pSpellArray->GetSpell(spell_id)->GetSpellLevel(cls_id);					
+					if(spell_lvl <= lvl_max)
 					{
+						//if(pThis->cs_original->obj.obj_vartable.MatchIndex //todo hidden local variable
+						hidden = NWN_Rules->m_pSpellArray->GetSpell(spell_id)->Hidden;
+						if(hidden > 0 && (hidden == 255 || hidden == cls_id))//hidden spell
+						{
+							continue;
+						}
 						for(num_known=0;num_known < (unsigned long)pThis->cs_classes[x].cl_spells_known->len && num_known < 255;num_known++)
 						{
 							if(pThis->GetKnownSpell(x,spell_lvl,(unsigned char)num_known) == spell_id)//already knows
@@ -1141,12 +1175,12 @@ unsigned char __fastcall CNWSCreatureStats__GetSpellUsesLeft_Hook(CNWSCreatureSt
 	if(pThis->cs_original->cre_pm_IsPolymorphed) return 1;
 	unsigned char retVal = 0;
 	unsigned char cls_id = pThis->cs_classes[cls_pos].cl_class;
-	CNWClass *cClass = &(NWN_Rules->ru_classes[cls_id]);
-	CNWSpell *cSpell = NWN_Rules->ru_spells->GetSpell(spell_id);
+	CNWClass *cClass = &(NWN_Rules->m_lstClasses[cls_id]);
+	CNWSpell *cSpell = NWN_Rules->m_pSpellArray->GetSpell(spell_id);
 	if(cSpell->m_nMasterSpell != spell_id)//subradial spell workaround
 	{
 		spell_id = cSpell->m_nMasterSpell;
-		cSpell = NWN_Rules->ru_spells->GetSpell(spell_id);
+		cSpell = NWN_Rules->m_pSpellArray->GetSpell(spell_id);
 	}
 	unsigned char nLevel = cSpell->GetSpellLevel(cls_id);
 	if(cClass && cSpell && cls_id < CLASS_TYPE_INVALID && cClass->m_bIsSpellCasterClass)
@@ -1211,7 +1245,7 @@ int __fastcall CNWSCreatureStats_ClassInfo__ConfirmDomainSpell_Hook(CNWSCreature
 		return CNWSCreatureStats_ClassInfo__ConfirmDomainSpell(pThis,NULL,domain_lvl,spell_id);
 	}
 	else if(spell_id == -1) return 0;
-	CNWClass *cClass = &(NWN_Rules->ru_classes[pThis->cl_class]);
+	CNWClass *cClass = &(NWN_Rules->m_lstClasses[pThis->cl_class]);
 	if(pThis->cl_class != CLASS_TYPE_INVALID && cClass && (cls_cast_type[pThis->cl_class] & CAST_TYPE_SELECT_DOMAINS))
 	{
 		CNWDomain *cDomain = NWN_Rules->GetDomain(pThis->cl_domain_1);
@@ -1244,7 +1278,7 @@ unsigned char __fastcall CNWSCreatureStats__ComputeNumberKnownSpellsLeft_Hook(CN
 	unsigned char cls_id = pThis->cs_classes[cls_pos].cl_class;
 	if(cls_pos >= pThis->cs_classes_len || cls_id == CLASS_TYPE_INVALID) return 0;//sometimes engine passes 254/255 into class position, in this case we need to return 0
 	unsigned char retVal = 0;
-	CNWClass *cClass = &(NWN_Rules->ru_classes[cls_id]);
+	CNWClass *cClass = &(NWN_Rules->m_lstClasses[cls_id]);
 	if(cClass && cClass->m_bIsSpellCasterClass && (cls_cast_type[cls_id] & CAST_TYPE_SPONTANEOUS))
 	{
 		unsigned char level = pThis->cs_classes[cls_pos].cl_level;
@@ -1299,7 +1333,7 @@ unsigned char __fastcall CNWSpell__GetSpellLevel_Hook(CNWSpell *pThis, void *, u
 	}
 	if(pThis->m_nInnateLevel != 255 && spells_level_2da)
 	{
-		if(NWN_Rules->ru_spells->GetSpell(pThis->m_nMasterSpell) != pThis)//safety check whether current spell is really what it says it is
+		if(NWN_Rules->m_pSpellArray->GetSpell(pThis->m_nMasterSpell) != pThis)//safety check whether current spell is really what it says it is
 		{
 			return 255;
 		}
@@ -1326,7 +1360,7 @@ void __fastcall CNWSCreatureStats__UpdateNumberMemorizedSpellSlots_Hook(CNWSCrea
 	for(unsigned char x = 0;x < pThis->cs_classes_len; x++)
 	{
 		cls_id = pThis->cs_classes[x].cl_class;
-		cClass = &(NWN_Rules->ru_classes[cls_id]);
+		cClass = &(NWN_Rules->m_lstClasses[cls_id]);
 		if(cls_id != 255 && cls_id != CLASS_TYPE_BARD && cls_id != CLASS_TYPE_SORCERER && cClass && cClass->m_bIsSpellCasterClass && !(cls_cast_type[cls_id] & CAST_TYPE_SPONTANEOUS))
 		{
 			for(spell_lvl = 0;spell_lvl < 10;spell_lvl++)
@@ -1349,8 +1383,8 @@ unsigned char __fastcall CNWSCreatureStats__GetSpellGainWithBonus_Hook(CNWSCreat
 	if(cls_pos >= pThis->cs_classes_len || cls_id == CLASS_TYPE_INVALID) return 0;//sometimes engine passes 254/255 into class position, in this case we need to return 0
 	unsigned char retVal = 0;
 	char bonus = 0, abil_score = 0;
-	CNWClass *cClass = &(NWN_Rules->ru_classes[cls_id]);
-	CNWRace *cRace = &(NWN_Rules->ru_races[pThis->cs_race]);
+	CNWClass *cClass = &(NWN_Rules->m_lstClasses[cls_id]);
+	CNWRace *cRace = &(NWN_Rules->m_lstRaces[pThis->cs_race]);
 	if(cClass && cRace && cClass->m_bIsSpellCasterClass)
 	{
 		unsigned char level = pThis->cs_classes[cls_pos].cl_level;
@@ -1359,37 +1393,37 @@ unsigned char __fastcall CNWSCreatureStats__GetSpellGainWithBonus_Hook(CNWSCreat
 		{
 		case ABILITY_STRENGTH:
 			abil_score = pThis->cs_str;
-			abil_score+= cRace->StrAdjust;
+			abil_score+= cRace->m_nSTRAdjust;
 			bonus = pThis->cs_str_mod;
-				break;
-			case ABILITY_DEXTERITY:
-				abil_score = pThis->cs_dex;
-				abil_score+= cRace->DexAdjust;
-				bonus = pThis->cs_dex_mod;
-				break;
-			case ABILITY_CONSTITUTION:
-				abil_score = pThis->cs_con;
-				abil_score+= cRace->ConAdjust;
-				bonus = pThis->cs_con_mod;
-				break;
-			case ABILITY_INTELLIGENCE:
-				abil_score = pThis->cs_int;
-				abil_score+= cRace->IntAdjust;
-				bonus = pThis->cs_int_mod;
-				break;
-			case ABILITY_WISDOM:
-				abil_score = pThis->cs_wis;
-				abil_score+= cRace->WisAdjust;
-				bonus = pThis->cs_wis_mod;
-				break;
-			case ABILITY_CHARISMA:
-				abil_score = pThis->cs_cha;
-				abil_score+= cRace->ChaAdjust;
-				bonus = pThis->cs_cha_mod;
-				break;
-			}
-			retVal = cClass->GetSpellGain(level,spell_lvl);
-			if(retVal == 255 || abil_score < 10+spell_lvl) retVal = 0;
+			break;
+		case ABILITY_DEXTERITY:
+			abil_score = pThis->cs_dex;
+			abil_score+= cRace->m_nDEXAdjust;
+			bonus = pThis->cs_dex_mod;
+			break;
+		case ABILITY_CONSTITUTION:
+			abil_score = pThis->cs_con;
+			abil_score+= cRace->m_nCONAdjust;
+			bonus = pThis->cs_con_mod;
+			break;
+		case ABILITY_INTELLIGENCE:
+			abil_score = pThis->cs_int;
+			abil_score+= cRace->m_nINTAdjust;
+			bonus = pThis->cs_int_mod;
+			break;
+		case ABILITY_WISDOM:
+			abil_score = pThis->cs_wis;
+			abil_score+= cRace->m_nWISAdjust;
+			bonus = pThis->cs_wis_mod;
+			break;
+		case ABILITY_CHARISMA:
+			abil_score = pThis->cs_cha;
+			abil_score+= cRace->m_nCHAAdjust;
+			bonus = pThis->cs_cha_mod;
+			break;
+		}
+		retVal = cClass->GetSpellGain(level,spell_lvl);
+		if(retVal == 255 || abil_score < 10+spell_lvl) retVal = 0;
 		else if(spell_lvl > 0)
 		{
 			if(pThis->cs_classes[cls_pos].cl_specialist) retVal++;
@@ -1417,8 +1451,8 @@ unsigned char __fastcall CNWSCreatureStats__GetSpellGainWithBonusAfterLevelUp_Ho
 	char bonus = 0, abil_score = 0;
 	if(cls_id != CLASS_TYPE_INVALID)
 	{
-		CNWClass *cClass = &(NWN_Rules->ru_classes[cls_id]);
-		CNWRace *cRace = &(NWN_Rules->ru_races[pThis->cs_race]);
+		CNWClass *cClass = &(NWN_Rules->m_lstClasses[cls_id]);
+		CNWRace *cRace = &(NWN_Rules->m_lstRaces[pThis->cs_race]);
 		if(cClass && cRace && cClass->m_bIsSpellCasterClass)
 		{
 			unsigned char level = pThis->cs_classes[cls_pos].cl_level;
@@ -1428,32 +1462,32 @@ unsigned char __fastcall CNWSCreatureStats__GetSpellGainWithBonusAfterLevelUp_Ho
 			{
 			case ABILITY_STRENGTH:
 				abil_score = pThis->cs_str;
-				abil_score+= cRace->StrAdjust;
+				abil_score+= cRace->m_nSTRAdjust;
 				bonus = pThis->cs_str_mod;
 				break;
 			case ABILITY_DEXTERITY:
 				abil_score = pThis->cs_dex;
-				abil_score+= cRace->DexAdjust;
+				abil_score+= cRace->m_nDEXAdjust;
 				bonus = pThis->cs_dex_mod;
 				break;
 			case ABILITY_CONSTITUTION:
 				abil_score = pThis->cs_con;
-				abil_score+= cRace->ConAdjust;
+				abil_score+= cRace->m_nCONAdjust;
 				bonus = pThis->cs_con_mod;
 				break;
 			case ABILITY_INTELLIGENCE:
 				abil_score = pThis->cs_int;
-				abil_score+= cRace->IntAdjust;
+				abil_score+= cRace->m_nINTAdjust;
 				bonus = pThis->cs_int_mod;
 				break;
 			case ABILITY_WISDOM:
 				abil_score = pThis->cs_wis;
-				abil_score+= cRace->WisAdjust;
+				abil_score+= cRace->m_nWISAdjust;
 				bonus = pThis->cs_wis_mod;
 				break;
 			case ABILITY_CHARISMA:
 				abil_score = pThis->cs_cha;
-				abil_score+= cRace->ChaAdjust;
+				abil_score+= cRace->m_nCHAAdjust;
 				bonus = pThis->cs_cha_mod;
 				break;
 			}
@@ -1506,8 +1540,8 @@ int __fastcall CNWSCreatureStats__GetSpellMinAbilityMet_Hook(CNWSCreatureStats *
 	case CLASS_TYPE_VERMIN:
 		return 1;
 	}
-	CNWClass *cClass = &(NWN_Rules->ru_classes[cls_id]);
-	CNWRace *cRace = &(NWN_Rules->ru_races[pThis->cs_race]);
+	CNWClass *cClass = &(NWN_Rules->m_lstClasses[cls_id]);
+	CNWRace *cRace = &(NWN_Rules->m_lstRaces[pThis->cs_race]);
 	if(cls_id != CLASS_TYPE_INVALID && cClass && cRace && cClass->m_bIsSpellCasterClass)
 	{
 		unsigned char abil_score = 0;
@@ -1515,27 +1549,27 @@ int __fastcall CNWSCreatureStats__GetSpellMinAbilityMet_Hook(CNWSCreatureStats *
 		{
 		case ABILITY_STRENGTH:
 			abil_score = pThis->cs_str;
-			abil_score+= cRace->StrAdjust;
+			abil_score+= cRace->m_nSTRAdjust;
 			break;
 		case ABILITY_DEXTERITY:
 			abil_score = pThis->cs_dex;
-			abil_score+= cRace->DexAdjust;
+			abil_score+= cRace->m_nDEXAdjust;
 			break;
 		case ABILITY_CONSTITUTION:
 			abil_score = pThis->cs_con;
-			abil_score+= cRace->ConAdjust;
+			abil_score+= cRace->m_nCONAdjust;
 			break;
 		case ABILITY_INTELLIGENCE:
 			abil_score = pThis->cs_int;
-			abil_score+= cRace->IntAdjust;
+			abil_score+= cRace->m_nINTAdjust;
 			break;
 		case ABILITY_WISDOM:
 			abil_score = pThis->cs_wis;
-			abil_score+= cRace->WisAdjust;
+			abil_score+= cRace->m_nWISAdjust;
 			break;
 		case ABILITY_CHARISMA:
 			abil_score = pThis->cs_cha;
-			abil_score+= cRace->ChaAdjust;
+			abil_score+= cRace->m_nCHAAdjust;
 			break;
 		}
 		//fprintf(logFile, "o CNWSCreatureStats__GetSpellMinAbilityMet: cls_pos: %i, spell_lvl: %i, retval: %i.\n",cls_pos,spell_lvl,abil_score >= spell_lvl+10);fflush(logFile);
@@ -1652,11 +1686,11 @@ void __fastcall CGameEffect__SetCreator_Hook(CGameEffect *pThis, void*, unsigned
 						//Log(0, "CGameEffect__SetCreator_Hook normal spell last spell class: %i, spell_id: %i, feat: %i\n",creator->obj_last_spell_class,pThis->eff_spellid,creator->obj_last_spell_feat);
 						nLevel = cre->cre_stats->GetClassLevel(creator->obj_last_spell_class,true);
 						//include prestige classes into calculation
-						if(creator->obj_last_spell_feat == 0xFFFF && NWN_Rules->ru_spells->GetSpell(pThis->eff_spellid)->m_nUserType == 1)
+						if(creator->obj_last_spell_feat == 0xFFFF && NWN_Rules->m_pSpellArray->GetSpell(pThis->eff_spellid)->m_nUserType == 1)
 						{
 							unsigned char cls_pos = creator->obj_last_spell_class;
 							unsigned char cls_id = cre->cre_stats->cs_classes[cls_pos].cl_class;
-							CNWClass *cClass = &(NWN_Rules->ru_classes[cls_id]);
+							CNWClass *cClass = &(NWN_Rules->m_lstClasses[cls_id]);
 							if(cls_pos < cre->cre_stats->cs_classes_len && cls_id != CLASS_TYPE_INVALID && cClass && cClass->m_bIsSpellCasterClass)
 							{
 								nLevel+= GetSpellProgressionModifier(cre->cre_stats,cls_pos);
@@ -1665,7 +1699,7 @@ void __fastcall CGameEffect__SetCreator_Hook(CGameEffect *pThis, void*, unsigned
 					}
 					else//monster special ability or invalid data input in creator->obj_last_spell_class
 					{
-						nLevel = (NWN_Rules->ru_spells->GetSpell(pThis->eff_spellid)->m_nInnateLevel*2)-1;
+						nLevel = (NWN_Rules->m_pSpellArray->GetSpell(pThis->eff_spellid)->m_nInnateLevel*2)-1;
 						if(nLevel < 10)
 						{
 							nLevel = 10;
@@ -1674,7 +1708,7 @@ void __fastcall CGameEffect__SetCreator_Hook(CGameEffect *pThis, void*, unsigned
 				}
 			}
 			//community patch caster level override/modifier feature
-			if(pThis->eff_spellid > -1 && creator->obj_last_spell_feat == 0xFFFF && NWN_Rules->ru_spells->GetSpell(pThis->eff_spellid)->m_nUserType == 1)
+			if(pThis->eff_spellid > -1 && creator->obj_last_spell_feat == 0xFFFF && NWN_Rules->m_pSpellArray->GetSpell(pThis->eff_spellid)->m_nUserType == 1)
 			{
 				char *sVarName = new char[64];
 				sprintf_s(sVarName,64,"%i_CASTER_LEVEL_OVERRIDE",pThis->eff_spellid);
@@ -1770,7 +1804,7 @@ int __fastcall CNWVirtualMachineCommands__ExecuteCommandVersusEffect_Hook(CVirtu
 	{
 		return -638;
 	}
-	if((cmd == 355 && arg1 > -1 && arg1 < 6) || (cmd == 356 && arg1 > -1 && arg1 <= NWN_Rules->ru_races_len))
+	if((cmd == 355 && arg1 > -1 && arg1 < 6) || (cmd == 356 && arg1 > -1 && arg1 <= NWN_Rules->m_nNumRaces))
 	{
 		int integer_index = 0;
 		switch(eff->eff_type)
@@ -2102,17 +2136,14 @@ int __fastcall CNWSCreatureStats__GetFavoredEnemyBonus_Hook(CNWSCreatureStats *p
 {
 	Log(2,"o CNWSCreatureStats__GetFavoredEnemyBonus start\n");
 	int modifier = ((CNWSObject*)(pThis->cs_original))->obj_vartable.GetInt(CExoString("FE_MODIFIER"));
-	if(racialtypes_2da)
+	CNWRace *cRace = &(NWN_Rules->m_lstRaces[cre->cre_stats->cs_race]);
+	if(cRace && cRace->FavoredEnemyFeat > 0)
 	{
-		int feat = -1;
-		if(racialtypes_2da->GetINTEntry_strcol(cre->cre_stats->cs_race,CExoString("FavoredEnemyFeat"),&feat) && feat > -1)
+		if(pThis->HasFeat(cRace->FavoredEnemyFeat))
 		{
-			if(pThis->HasFeat(feat))
-			{
-				return 1+(pThis->GetNumLevelsOfClass(pThis->GetFeatSourceClass(feat)))/5+modifier;
-			}
-			return 0;
+			return 1+(pThis->GetNumLevelsOfClass(pThis->GetFeatSourceClass(cRace->FavoredEnemyFeat)))/5+modifier;
 		}
+		return 0;
 	}
 	int RetVal = CNWSCreatureStats__GetFavoredEnemyBonus(pThis,NULL,cre);
 	return RetVal > 0 ? RetVal+modifier : RetVal;
@@ -2295,7 +2326,7 @@ void NWNXPatch_Funcs(CNWSScriptVarTable *pThis, int nFunc, char *Params)
 		sscanf_s(Params,"%i|%i",&nClass,&nFeat);
 		if(nClass < 255 && nFeat != OBJECT_INVALID)
 		{
-			CNWClass *cls = &(NWN_Rules->ru_classes[nClass]);
+			CNWClass *cls = &(NWN_Rules->m_lstClasses[nClass]);
 			if(cls)
 			{
 				unsigned char granted = 0;
@@ -2399,7 +2430,7 @@ void NWNXPatch_Funcs(CNWSScriptVarTable *pThis, int nFunc, char *Params)
 		sscanf_s(Params,"%x|%i|%i|%s",&oID,&spell_id,&spell_const,Params);
 		if(spell_id != OBJECT_INVALID && spell_const < 255 && Params)
 		{
-			CNWSpell *spell = NWN_Rules->ru_spells->GetSpell(spell_id);
+			CNWSpell *spell = NWN_Rules->m_pSpellArray->GetSpell(spell_id);
 			if(spell)
 			{
 				if((spell_const <= 53 || spell_const == 60) && spell_const > 0 && spell_const != 41 && spell_const != 42)
@@ -3565,7 +3596,7 @@ void NWNXPatch_Funcs(CNWSScriptVarTable *pThis, int nFunc, char *Params)
 		{
 			if(baseitem > -1)
 			{
-				threat = NWN_Rules->ru_baseitems->GetBaseItem(baseitem)->CritThreat;
+				threat = NWN_Rules->m_pBaseItemArray->GetBaseItem(baseitem)->CritThreat;
 				if(threat < 1) threat = 1;
 				if(oID != OBJECT_INVALID && cre && cre->cre_stats->HasFeat(885) && cre->cre_stats->GetIsWeaponOfChoice(baseitem))//ki critical
 				{	
@@ -3608,7 +3639,7 @@ void NWNXPatch_Funcs(CNWSScriptVarTable *pThis, int nFunc, char *Params)
 		{
 			if(baseitem > -1)
 			{
-				multiplier = NWN_Rules->ru_baseitems->GetBaseItem(baseitem)->CritHitMult;
+				multiplier = NWN_Rules->m_pBaseItemArray->GetBaseItem(baseitem)->CritHitMult;
 				if(multiplier < 1) multiplier = 1;
 				if(oID != OBJECT_INVALID && cre && cre->cre_stats->HasFeat(883) && cre->cre_stats->GetIsWeaponOfChoice(baseitem))//increased multiplier
 				{	
@@ -3873,7 +3904,7 @@ void NWNXPatch_Funcs(CNWSScriptVarTable *pThis, int nFunc, char *Params)
 				CNWSItem *weapon = target->cre_equipment->GetItemInSlot(16);
 				if(bAllowRanged == 1 && weapon)
 				{					
-					baseitem = NWN_Rules->ru_baseitems->GetBaseItem(weapon->it_baseitemtype);
+					baseitem = NWN_Rules->m_pBaseItemArray->GetBaseItem(weapon->it_baseitemtype);
 					if(baseitem && baseitem->RangedWeapon > 0)
 					{
 						bAllowRanged = baseitem->RangedWeapon;
@@ -4557,7 +4588,7 @@ void NWNXPatch_Funcs(CNWSScriptVarTable *pThis, int nFunc, char *Params)
 		{
 			if(cls_id != CLASS_TYPE_INVALID && spell_id != OBJECT_INVALID)
 			{
-				unsigned char spell_lvl = NWN_Rules->ru_spells->GetSpell(spell_id)->GetSpellLevel((unsigned char)cls_id);
+				unsigned char spell_lvl = NWN_Rules->m_pSpellArray->GetSpell(spell_id)->GetSpellLevel((unsigned char)cls_id);
 				if(spell_lvl < 10)
 				{
 					unsigned char cls_pos = 0;
@@ -4614,7 +4645,7 @@ void NWNXPatch_Funcs(CNWSScriptVarTable *pThis, int nFunc, char *Params)
 		{
 			if(cls_id != CLASS_TYPE_INVALID && spell_id != OBJECT_INVALID)
 			{
-				unsigned char spell_lvl = NWN_Rules->ru_spells->GetSpell(spell_id)->GetSpellLevel((unsigned char)cls_id);
+				unsigned char spell_lvl = NWN_Rules->m_pSpellArray->GetSpell(spell_id)->GetSpellLevel((unsigned char)cls_id);
 				if(spell_lvl < 10)
 				{
 					unsigned char cls_pos = 0;
@@ -4686,7 +4717,7 @@ void NWNXPatch_Funcs(CNWSScriptVarTable *pThis, int nFunc, char *Params)
 		{
 			if(cls_id != CLASS_TYPE_INVALID && spell_id != OBJECT_INVALID)
 			{
-				unsigned char spell_lvl = NWN_Rules->ru_spells->GetSpell(spell_id)->GetSpellLevel((unsigned char)cls_id);
+				unsigned char spell_lvl = NWN_Rules->m_pSpellArray->GetSpell(spell_id)->GetSpellLevel((unsigned char)cls_id);
 				if(spell_lvl < 10)
 				{
 					unsigned char cls_pos = 0;
@@ -5109,7 +5140,7 @@ unsigned long __fastcall CNWSModule__LoadModuleFinish_Hook(CNWSModule *pThis, vo
 	InitializeEffects2DA();
 	InitializeRacialTypes2DA();
 	InitializeClasses2DA();
-	//InitializeSpells2DA();
+	InitializeSpells2DA();
 	InitializeSpells_Level2DA();
 	InitializeModuleSwitches(pThis);
 	return retVal;
@@ -5458,7 +5489,7 @@ void __fastcall CNWSCreature__UpdateAttributesOnEffect_Hook(CNWSCreature *pThis,
 		for(unsigned char cls_pos = 0;cls_pos<pThis->cre_stats->cs_classes_len;cls_pos++)
 		{
 			unsigned char cls_id = pThis->cre_stats->cs_classes[cls_pos].cl_class;
-			CNWClass *cClass = &(NWN_Rules->ru_classes[cls_id]);
+			CNWClass *cClass = &(NWN_Rules->m_lstClasses[cls_id]);
 			if(cClass && cClass->m_bIsSpellCasterClass && cClass->m_nPrimaryAbility == eff->eff_integers[0])
 			{
 				pThis->cre_stats->UpdateNumberMemorizedSpellSlots();
@@ -5686,7 +5717,7 @@ int __fastcall CNWSCreatureStats__GetCriticalHitRoll_Hook(CNWSCreatureStats *pTh
 		{
 			return weapon->obj.obj_vartable.GetInt(CExoString("CriticalThreatOverride"));
 		}
-		threat = NWN_Rules->ru_baseitems->GetBaseItem(baseitem)->CritThreat;
+		threat = NWN_Rules->m_pBaseItemArray->GetBaseItem(baseitem)->CritThreat;
 		if(threat < 1) threat = 1;
 		if(pThis->HasFeat(885) && pThis->GetIsWeaponOfChoice(baseitem))//ki critical
 		{
@@ -5759,7 +5790,7 @@ int __fastcall CNWSCreatureStats__GetCriticalHitMultiplier_Hook(CNWSCreatureStat
 		{
 			return weapon->obj.obj_vartable.GetInt(CExoString("CriticalMultiplierOverride"));
 		}
-		multiplier = NWN_Rules->ru_baseitems->GetBaseItem(baseitem)->CritHitMult;
+		multiplier = NWN_Rules->m_pBaseItemArray->GetBaseItem(baseitem)->CritHitMult;
 		if(multiplier < 1) multiplier = 1;
 		if(pThis->HasFeat(883) && pThis->GetIsWeaponOfChoice(baseitem))//ki critical
 		{
@@ -5968,7 +5999,7 @@ int __fastcall CNWSCreatureStats__GetUseMonkAttackTables_Hook(CNWSCreatureStats 
 					{
 						return 1;
 					}
-					CNWBaseItem *bt = NWN_Rules->ru_baseitems->GetBaseItem(item->it_baseitemtype);
+					CNWBaseItem *bt = NWN_Rules->m_pBaseItemArray->GetBaseItem(item->it_baseitemtype);
 					return bt->WeaponType == 0 && bt->ArmorCheckPen == 0;
 				}
 				return 1;
@@ -6113,7 +6144,7 @@ int __fastcall CNWSCreature__CanUseItem_Hook(CNWSCreature *pThis, void*, CNWSIte
 	Log(2,"o CNWSCreature__CanUseItem start\n");
 	if(pThis != NULL && item != NULL && pThis->cre_is_pc && pThis->cre_pm_IsPolymorphed)
 	{
-		int props = NWN_Rules->ru_baseitems->GetBaseItem(item->it_baseitemtype)->PropColumn;
+		int props = NWN_Rules->m_pBaseItemArray->GetBaseItem(item->it_baseitemtype)->PropColumn;
 		if(props >= 8 && props <= 12 || props == 4 || props == 15 || props == 18 || props == 19)
 		{
 			pThis->cre_pm_IsPolymorphed = 0;
@@ -6132,7 +6163,7 @@ int __fastcall CNWSCreature__CanUseItem_Hook(CNWSCreature *pThis, void*, CNWSIte
 			}
 			if(poly > -1)
 			{
-				NWN_Rules->ru_2das->tda_polymorph->GetINTEntry_strcol(poly, CExoString("UseItems"), &poly);
+				NWN_Rules->m_p2DArrays->tda_polymorph->GetINTEntry_strcol(poly, CExoString("UseItems"), &poly);
 				return poly > 0 || (props == 8 && poly > -1);
 			}
 		}
@@ -6146,7 +6177,7 @@ int __fastcall CNWSCreature__UseItem_Hook(CNWSCreature *pThis, void*, unsigned l
 	if(pThis != NULL && pThis->cre_is_pc && pThis->cre_pm_IsPolymorphed)
 	{
 		CNWSItem *item = NWN_AppManager->app_server->srv_internal->GetItemByGameObjectID(l1);
-		if(item != NULL && NWN_Rules->ru_baseitems->GetBaseItem(item->it_baseitemtype)->equipableSlots == 0 && pThis->CanUseItem(item,c1))
+		if(item != NULL && NWN_Rules->m_pBaseItemArray->GetBaseItem(item->it_baseitemtype)->equipableSlots == 0 && pThis->CanUseItem(item,c1))
 		{
 			pThis->cre_pm_IsPolymorphed = 0;
 			int retVal = CNWSCreature__UseItem(pThis,NULL,l1,c1,c2,l2,v,l3);
@@ -6206,7 +6237,7 @@ void __fastcall CNWSCreature__SummonAnimalCompanion_Hook(CNWSCreature *pThis, vo
 			return;
 		}
 		else if(level > 40) level = 40;
-		C2DA *fam2da = NWN_Rules->ru_2das->tda_hen_companion;
+		C2DA *fam2da = NWN_Rules->m_p2DArrays->tda_hen_companion;
 		CExoString *base = new CExoString();
 		if(!fam2da->GetCExoStringEntry(pThis->cre_stats->cs_acomp_type,CExoString("BASERESREF"),base))
 		{
@@ -6284,7 +6315,7 @@ void __fastcall CNWSCreature__SummonFamiliar_Hook(CNWSCreature *pThis, void*)
 			return;
 		}
 		else if(level > 40) level = 40;
-		C2DA *fam2da = NWN_Rules->ru_2das->tda_hen_familiar;
+		C2DA *fam2da = NWN_Rules->m_p2DArrays->tda_hen_familiar;
 		CExoString *base = new CExoString();
 		if(!fam2da->GetCExoStringEntry(pThis->cre_stats->cs_famil_type,CExoString("BASERESREF"),base))
 		{
@@ -6356,8 +6387,8 @@ void __fastcall CNWSCreature__ResolveAmmunition_Hook(CNWSCreature *pThis, void*,
             baseitem_ammo = BASE_ITEM_THROWINGAXE;
         break;
 		default:
-			baseitem_ammo = NWN_Rules->ru_baseitems->GetBaseItem(baseitem_wpn)->RangedWeapon;
-			slot = NWN_Rules->ru_baseitems->GetBaseItem(baseitem_ammo)->equipableSlots;
+			baseitem_ammo = NWN_Rules->m_pBaseItemArray->GetBaseItem(baseitem_wpn)->RangedWeapon;
+			slot = NWN_Rules->m_pBaseItemArray->GetBaseItem(baseitem_ammo)->equipableSlots;
 		break;
     }
 	if(baseitem_ammo == BASE_ITEM_INVALID || !slot) return;
@@ -6414,8 +6445,8 @@ int __fastcall CNWSCreature__GetAmmunitionAvailable_Hook(CNWSCreature *pThis, vo
             baseitem_ammo = BASE_ITEM_THROWINGAXE;
         break;
 		default:
-			baseitem_ammo = NWN_Rules->ru_baseitems->GetBaseItem(baseitem_wpn)->RangedWeapon;
-			slot = NWN_Rules->ru_baseitems->GetBaseItem(baseitem_ammo)->equipableSlots;
+			baseitem_ammo = NWN_Rules->m_pBaseItemArray->GetBaseItem(baseitem_wpn)->RangedWeapon;
+			slot = NWN_Rules->m_pBaseItemArray->GetBaseItem(baseitem_ammo)->equipableSlots;
 		break;
     }
 	if(baseitem_ammo == BASE_ITEM_INVALID || !slot) return 0;
@@ -6679,7 +6710,7 @@ void Hook_SpontaneousSpell()//note, while in singleplayer, the SpontaneouslyCast
 	__asm mov eax, [esp+84h]//spell id
 	__asm mov test32, eax
 
-	test33 = NWN_Rules->ru_spells->GetSpell(test32)->m_bSpontaneouslyCast;
+	test33 = NWN_Rules->m_pSpellArray->GetSpell(test32)->m_bSpontaneouslyCast;
 
 	if(test33 > 0 && ((test1 == 2 && test33 == 1) || test33 == test1))
 	{
@@ -7370,7 +7401,7 @@ void Hook_SpellcasterType13b()//0x482D02 - CNWSCreatureStats::UnReadySpell - wit
 	__asm mov orig_edx, edx
 
 	test2 = stats->cs_classes[orig_ebx].cl_level-1;
-	hook_Class = &(NWN_Rules->ru_classes[test1]);
+	hook_Class = &(NWN_Rules->m_lstClasses[test1]);
 	
 	//fprintf(logFile, "o Hook_SpellcasterType13b: cls_id: %i, cls_pos: %i, cls_lvl: %i, sp_lvl: %i, spell_levels: %i\n",test1,orig_ebx,test2,orig_edx,hook_Class->NumSpellLevels[test2-1]);fflush(logFile);
 	if((cls_cast_type[test1] & CAST_TYPE_SPONTANEOUS) == CAST_TYPE_SPONTANEOUS || (cls_cast_unlimited[test1][test2] > 0 && (cls_cast_unlimited[test1][test2] & (1 << orig_edx))))//unlimited casting
