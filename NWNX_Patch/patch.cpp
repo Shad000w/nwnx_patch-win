@@ -8,8 +8,8 @@
 #pragma comment(lib, "madCHook.lib")
 
 const int   VERSION_MAJOR = 1;
-const int   VERSION_MINOR = 33;
-const char *VERSION_PATCH = "f";
+const int   VERSION_MINOR = 34;
+const char *VERSION_PATCH = "";
 DWORD *heapAddress = NULL;
 FILE *logFile;
 char logFileName[] = "logs.0/nwnx_patch.txt";
@@ -581,6 +581,7 @@ int (__fastcall *CNWSCreatureStats__GetFavoredEnemyBonus)(CNWSCreatureStats *pTh
 int (__fastcall *CNWSCreatureStats__GetSpellResistance)(CNWSCreatureStats *pThis, void*);
 int (__fastcall *CNWSCreature__AddPickPocketAction)(CNWSCreature *pThis, void*, unsigned long targetID);
 int (__fastcall *CNWSCreature__AddTauntActions)(CNWSCreature *pThis, void*, unsigned long targetID);
+int (__fastcall *CNWSCreature__AddAnimalEmpathyAction)(CNWSCreature *pThis, void*, unsigned long targetID);
 int (__fastcall *CNWSCreature__StartBarter)(CNWSCreature *pThis, void*, unsigned long targetID, unsigned long itemID, int arg1);
 int (__fastcall *CNWSCreature__EventHandler)(CNWSCreature *pThis, void*, int arg1, int arg2, void *arg3, int arg4, int arg5);
 void (__fastcall *CNWSCreatureStats__LevelDown)(CNWSCreatureStats *pThis, void*, CNWLevelStats *CNWLevelStats);
@@ -2066,7 +2067,7 @@ int __fastcall CNWSCreature__StartBarter_Hook(CNWSCreature *pThis, void*, unsign
 int __fastcall CNWSCreature__AddPickPocketAction_Hook(CNWSCreature *pThis, void*, unsigned long targetID)
 {
 	Log(2,"o CNWSCreature__AddPickPocketAction start\n");
-	if(pThis && pThis->cre_stats->GetCanUseSkill(13))
+	if(pThis && pThis->cre_stats->GetCanUseSkill(SKILL_PICK_POCKET))
 	{
 		CNWSObject* object = (CNWSObject*)(NWN_AppManager->app_server->srv_internal->GetGameObject(targetID));
 		if(object && object->obj_generic.obj_type2 == OBJECT_TYPE2_CREATURE)
@@ -2084,7 +2085,7 @@ int __fastcall CNWSCreature__AddPickPocketAction_Hook(CNWSCreature *pThis, void*
 int __fastcall CNWSCreature__AddTauntActions_Hook(CNWSCreature *pThis, void*, unsigned long targetID)
 {
 	Log(2,"o CNWSCreature__AddTauntActions start\n");
-	if(pThis && pThis->cre_stats->GetCanUseSkill(18))
+	if(pThis && pThis->cre_stats->GetCanUseSkill(SKILL_TAUNT))
 	{
 		CNWSObject* object = (CNWSObject*)(NWN_AppManager->app_server->srv_internal->GetGameObject(targetID));
 		if(object && object->obj_generic.obj_type2 == OBJECT_TYPE2_CREATURE)
@@ -2097,6 +2098,24 @@ int __fastcall CNWSCreature__AddTauntActions_Hook(CNWSCreature *pThis, void*, un
 		}
 	}
 	return CNWSCreature__AddTauntActions(pThis,NULL,targetID);
+}
+
+int __fastcall CNWSCreature__AddAnimalEmpathyAction_Hook(CNWSCreature *pThis, void*, unsigned long targetID)
+{
+	Log(2,"o CNWSCreature__AddAnimalEmpathyAction start\n");
+	if(pThis && pThis->cre_stats->GetCanUseSkill(SKILL_ANIMAL_EMPATHY))
+	{
+		CNWSObject* object = (CNWSObject*)(NWN_AppManager->app_server->srv_internal->GetGameObject(targetID));
+		if(object && object->obj_generic.obj_type2 == OBJECT_TYPE2_CREATURE)
+		{
+			pThis->cre_attempted_spell = targetID;
+			if(NWN_VirtualMachine->Runscript(&CExoString("70_s2_empathy"),pThis->obj.obj_generic.obj_id,1))
+			{
+				return 1;
+			}
+		}
+	}
+	return CNWSCreature__AddAnimalEmpathyAction(pThis,NULL,targetID);
 }
 
 int __fastcall CNWSEffectListHandler__OnApplyDefensiveStance_Hook(CNWSEffectListHandler *pThis, void*, CNWSObject *obj, CGameEffect *eff, int n)
@@ -5100,6 +5119,43 @@ void NWNXPatch_Funcs(CNWSScriptVarTable *pThis, int nFunc, char *Params)
 		}
 		pThis->SetInt(VarName,retVal,0);
 	}
+	else if(nFunc == 513)//GetSpellProgression
+	{
+		unsigned long oID = OBJECT_INVALID, cls_id = CLASS_TYPE_INVALID;
+		sscanf_s(Params,"%x|%i",&oID,&cls_id);
+		CNWSCreature *cre = NWN_AppManager->app_server->srv_internal->GetCreatureByGameObjectID(oID);
+		if(oID != OBJECT_INVALID && cre)
+		{
+			if(cls_id != CLASS_TYPE_INVALID)
+			{
+				unsigned char cls_pos = 0;
+				for(;cls_pos < cre->cre_stats->cs_classes_len;cls_pos++)
+				{
+					if(cre->cre_stats->cs_classes[cls_pos].cl_class == cls_id)
+					{
+						break;
+					}
+				}
+				if(cls_pos < cre->cre_stats->cs_classes_len)
+				{
+					retVal = GetSpellProgressionModifier(cre->cre_stats,cls_pos);
+				}
+				else
+				{
+					fprintf(logFile, "ERROR: GetSpellProgression(%08X,%i,%i) creature doesn't have this class!\n",oID,cls_id);
+				}
+			}
+			else
+			{
+				fprintf(logFile, "ERROR: GetSpellProgression(%08X,%i,%i) used with incorrect parameters!\n",oID,cls_id);
+			}
+		}
+		else
+		{
+			fprintf(logFile, "ERROR: GetSpellProgression(%08X,%i,%i) used on wrong object type!\n",oID,cls_id);
+		}
+		pThis->SetInt(VarName,retVal,0);
+	}
 	fflush(logFile);
 }
 
@@ -6652,6 +6708,7 @@ void HookFunctions()
 	CreateHook(0x489E50,CNWSCreatureStats__GetFavoredEnemyBonus_Hook,(PVOID*)&CNWSCreatureStats__GetFavoredEnemyBonus, "DisableFavoredEnemyHook", "Favored Enemy calculation");
 	CreateHook(0x493120,CNWSCreature__AddPickPocketAction_Hook,(PVOID*)&CNWSCreature__AddPickPocketAction, "DisableAddPickPocketAction", "Pickpocket skill softcoding");
 	CreateHook(0x4A5D90,CNWSCreature__AddTauntActions_Hook,(PVOID*)&CNWSCreature__AddTauntActions, "DisableAddTauntActions", "Taunt skill softcoding");
+	CreateHook(0x4A5CA0,CNWSCreature__AddAnimalEmpathyAction_Hook,(PVOID*)&CNWSCreature__AddAnimalEmpathyAction, "DisableAddAnimalEmpathyActions", "Animal empathy skill softcoding");
 	CreateHook(0x4B1F70,CNWSCreature__LearnScroll_Hook,(PVOID*)&CNWSCreature__LearnScroll, "DisableLearnScroll", "Learn scroll sofcoding");
 
 	CreateHook(0x47E020,CNWSCreatureStats__GetBaseReflexSavingThrow_Hook,(PVOID*)&CNWSCreatureStats__GetBaseReflexSavingThrow, "DisableSavingThrows", "Enabling modifications into reflex saving throw");
