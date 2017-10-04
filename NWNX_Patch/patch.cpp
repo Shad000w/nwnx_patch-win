@@ -765,7 +765,12 @@ int __fastcall CNWSCreature__GetTotalEffectBonus_Hook(CNWSCreature *pThis, void*
 		if(e->eff_type == 10 && e->eff_integers[5] == 1)
 		{
 			e->eff_type = 99;
-			bonus+= e->eff_integers[0];
+			if((e->eff_integers[2] == RACIAL_TYPE_INVALID || (target && target->cre_stats->cs_race == e->eff_integers[2])) && 
+				(!e->eff_integers[3] || (target && target->cre_stats->GetSimpleAlignmentLawChaos() == e->eff_integers[3])) &&
+				(!e->eff_integers[4] || (target && target->cre_stats->GetSimpleAlignmentGoodEvil() == e->eff_integers[4])))
+			{
+				bonus+= e->eff_integers[0];
+			}
 		}
 	}	
 	int retVal1 = CNWSCreature__GetTotalEffectBonus(pThis,NULL,a2,obj_a,a4,a5,a6,a7,a8,a9,a10);
