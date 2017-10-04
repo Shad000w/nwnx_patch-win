@@ -616,6 +616,20 @@ unsigned char (__fastcall *CNWSCreatureStats__GetFeatRemainingUses)(CNWSCreature
 int (__fastcall *CNWSObject__GetIsPCDying)(CNWSObject *pThis, void*);
 void (__fastcall *CNWSCreature__RestoreItemProperties)(CNWSCreature *pThis, void*);
 void (__fastcall *CNWSItem__RemoveItemProperties)(CNWSItem *pThis, void*, CNWSCreature *cre, unsigned long l);
+short (__fastcall *CNWSCreature__GetMaxHitPoints)(CNWSCreature *pThis, void*, int n);
+
+short __fastcall CNWSCreature__GetMaxHitPoints_Hook(CNWSCreature *pThis, void *, int n)
+{
+	short retVal = CNWSCreature__GetMaxHitPoints(pThis,NULL,n);
+	retVal+= pThis->obj.obj_vartable.GetInt(CExoString("HP_BONUS"));
+	int hp_percent = pThis->obj.obj_vartable.GetInt(CExoString("HP_%"));
+	if(hp_percent)
+	{
+	hp_percent = (retVal/100)*hp_percent;
+	retVal+= hp_percent;
+	}
+	return retVal > 1 ? retVal : 1;
+}
 
 void __fastcall CNWRules__ReloadAll_Hook(CNWRules *pThis, void *)
 {
@@ -4032,8 +4046,7 @@ void NWNXPatch_Funcs(CNWSScriptVarTable *pThis, int nFunc, char *Params)
 	}
 	else if(nFunc == 419)//SetAbilityScore
 	{
-		unsigned long oID = OBJECT_INVALID;
-		unsigned long nAbility = 255, nScore = 255;
+		unsigned long oID = OBJECT_INVALID, nAbility = 255, nScore = 255;
 		sscanf_s(Params,"%x|%i|%i",&oID,&nAbility,&nScore);
 		CNWSCreature *cre = NWN_AppManager->app_server->srv_internal->GetCreatureByGameObjectID(oID);
 		if(oID != OBJECT_INVALID && cre)
@@ -4105,8 +4118,7 @@ void NWNXPatch_Funcs(CNWSScriptVarTable *pThis, int nFunc, char *Params)
 	}
 	else if(nFunc == 424)//SetBodyBag
 	{
-		unsigned long oID = OBJECT_INVALID;
-		unsigned long BodyBag = 255;
+		unsigned long oID = OBJECT_INVALID, BodyBag = 255;
 		sscanf_s(Params,"%x|%i",&oID,&BodyBag);
 		CNWSCreature *cre = NWN_AppManager->app_server->srv_internal->GetCreatureByGameObjectID(oID);
 		if(oID != OBJECT_INVALID && cre)
@@ -4142,8 +4154,7 @@ void NWNXPatch_Funcs(CNWSScriptVarTable *pThis, int nFunc, char *Params)
 	}
 	else if(nFunc == 426)//SetFactionId
 	{
-		unsigned long oID = OBJECT_INVALID;
-		unsigned long faction_id = OBJECT_INVALID;
+		unsigned long oID = OBJECT_INVALID, faction_id = OBJECT_INVALID;
 		sscanf_s(Params,"%x|%i",&oID,&faction_id);
 		CNWSCreature *cre = NWN_AppManager->app_server->srv_internal->GetCreatureByGameObjectID(oID);
 		if(oID != OBJECT_INVALID && cre)
@@ -4164,8 +4175,7 @@ void NWNXPatch_Funcs(CNWSScriptVarTable *pThis, int nFunc, char *Params)
 	}
 	else if(nFunc == 427)//PossessCreature
 	{
-		unsigned long oID = OBJECT_INVALID;
-		unsigned long oTarget = OBJECT_INVALID;
+		unsigned long oID = OBJECT_INVALID, oTarget = OBJECT_INVALID;
 		sscanf_s(Params,"%x|%x",&oID,&oTarget);
 		CNWSCreature *cre = NWN_AppManager->app_server->srv_internal->GetCreatureByGameObjectID(oID);
 		CNWSCreature *target = NWN_AppManager->app_server->srv_internal->GetCreatureByGameObjectID(oTarget);
@@ -4212,8 +4222,7 @@ void NWNXPatch_Funcs(CNWSScriptVarTable *pThis, int nFunc, char *Params)
 	}
 	else if(nFunc == 429)//GetTotalDamageDealtByType
 	{
-		unsigned long oID = OBJECT_INVALID;
-		unsigned long type = OBJECT_INVALID;
+		unsigned long oID = OBJECT_INVALID, type = OBJECT_INVALID;
 		sscanf_s(Params,"%x|%i",&oID,&type);
 		CNWSCreature *cre = NWN_AppManager->app_server->srv_internal->GetCreatureByGameObjectID(oID);
 		if(oID != OBJECT_INVALID && cre && Params && type != OBJECT_INVALID)
@@ -4272,9 +4281,7 @@ void NWNXPatch_Funcs(CNWSScriptVarTable *pThis, int nFunc, char *Params)
 	}
 	else if(nFunc == 430)//SetTotalDamageDealtByType
 	{
-		unsigned long oID = OBJECT_INVALID;
-		unsigned long type = OBJECT_INVALID;
-		unsigned long damage = OBJECT_INVALID;
+		unsigned long oID = OBJECT_INVALID, type = OBJECT_INVALID, damage = OBJECT_INVALID;
 		sscanf_s(Params,"%x|%i|%i",&oID,&type,&damage);
 		CNWSCreature *cre = NWN_AppManager->app_server->srv_internal->GetCreatureByGameObjectID(oID);
 		if(oID != OBJECT_INVALID && cre && type != OBJECT_INVALID && damage != OBJECT_INVALID)
@@ -4332,9 +4339,7 @@ void NWNXPatch_Funcs(CNWSScriptVarTable *pThis, int nFunc, char *Params)
 	}
 	else if(nFunc == 431)//ActionUseSpecialAttack
 	{
-		unsigned long oID = OBJECT_INVALID;
-		unsigned long oTarget = OBJECT_INVALID;
-		unsigned long feat = OBJECT_INVALID;
+		unsigned long oID = OBJECT_INVALID, oTarget = OBJECT_INVALID, feat = OBJECT_INVALID;
 		sscanf_s(Params,"%x|%x|%i",&oID,&oTarget,&feat);
 		CNWSCreature *cre = NWN_AppManager->app_server->srv_internal->GetCreatureByGameObjectID(oID);
 		CNWSCreature *target = NWN_AppManager->app_server->srv_internal->GetCreatureByGameObjectID(oTarget);
@@ -4350,8 +4355,7 @@ void NWNXPatch_Funcs(CNWSScriptVarTable *pThis, int nFunc, char *Params)
 	}
 	else if(nFunc == 432)//SetAttackRoll
 	{
-		unsigned long oID = OBJECT_INVALID;
-		unsigned long nRoll = OBJECT_INVALID;
+		unsigned long oID = OBJECT_INVALID, nRoll = OBJECT_INVALID;
 		sscanf_s(Params,"%x|%i",&oID,&nRoll);
 		CNWSCreature *cre = NWN_AppManager->app_server->srv_internal->GetCreatureByGameObjectID(oID);
 		if(oID != OBJECT_INVALID && cre && nRoll != OBJECT_INVALID && nRoll > 0 && nRoll < 256)
@@ -4365,8 +4369,7 @@ void NWNXPatch_Funcs(CNWSScriptVarTable *pThis, int nFunc, char *Params)
 	}
 	else if(nFunc == 433)//SetAttackSneak
 	{
-		unsigned long oID = OBJECT_INVALID;
-		unsigned long nSneak = OBJECT_INVALID;
+		unsigned long oID = OBJECT_INVALID, nSneak = OBJECT_INVALID;
 		sscanf_s(Params,"%x|%i",&oID,&nSneak);
 		CNWSCreature *cre = NWN_AppManager->app_server->srv_internal->GetCreatureByGameObjectID(oID);
 		if(oID != OBJECT_INVALID && cre && nSneak != OBJECT_INVALID && nSneak >= 0 && nSneak <= 3)
@@ -4394,8 +4397,7 @@ void NWNXPatch_Funcs(CNWSScriptVarTable *pThis, int nFunc, char *Params)
 	}
 	else if(nFunc == 434)//SetAttackCriticalThreatRoll
 	{
-		unsigned long oID = OBJECT_INVALID;
-		unsigned long nRoll = OBJECT_INVALID;
+		unsigned long oID = OBJECT_INVALID, nRoll = OBJECT_INVALID;
 		sscanf_s(Params,"%x|%i",&oID,&nRoll);
 		CNWSCreature *cre = NWN_AppManager->app_server->srv_internal->GetCreatureByGameObjectID(oID);
 		if(oID != OBJECT_INVALID && cre && nRoll > 0 && nRoll < 256)
@@ -4409,8 +4411,7 @@ void NWNXPatch_Funcs(CNWSScriptVarTable *pThis, int nFunc, char *Params)
 	}
 	else if(nFunc == 435)//SetAttackKillingBlow
 	{
-		unsigned long oID = OBJECT_INVALID;
-		unsigned long nKill = OBJECT_INVALID;
+		unsigned long oID = OBJECT_INVALID, nKill = OBJECT_INVALID;
 		sscanf_s(Params,"%x|%i",&oID,&nKill);
 		CNWSCreature *cre = NWN_AppManager->app_server->srv_internal->GetCreatureByGameObjectID(oID);
 		if(oID != OBJECT_INVALID && cre && nKill >= 0 && nKill <= 1)
@@ -4424,8 +4425,7 @@ void NWNXPatch_Funcs(CNWSScriptVarTable *pThis, int nFunc, char *Params)
 	}
 	else if(nFunc == 436)//SetAttackCoupeDeGrace
 	{
-		unsigned long oID = OBJECT_INVALID;
-		unsigned long nValue = OBJECT_INVALID;
+		unsigned long oID = OBJECT_INVALID, nValue = OBJECT_INVALID;
 		sscanf_s(Params,"%x|%i",&oID,&nValue);
 		CNWSCreature *cre = NWN_AppManager->app_server->srv_internal->GetCreatureByGameObjectID(oID);
 		if(oID != OBJECT_INVALID && cre && nValue >= 0 && nValue <= 1)
@@ -4440,8 +4440,7 @@ void NWNXPatch_Funcs(CNWSScriptVarTable *pThis, int nFunc, char *Params)
 	}
 	else if(nFunc == 437)//SetAttackResult todo copy to server
 	{
-		unsigned long oID = OBJECT_INVALID;
-		unsigned long nValue = OBJECT_INVALID;
+		unsigned long oID = OBJECT_INVALID, nValue = OBJECT_INVALID;
 		sscanf_s(Params,"%x|%i",&oID,&nValue);
 		CNWSCreature *cre = NWN_AppManager->app_server->srv_internal->GetCreatureByGameObjectID(oID);
 		if(oID != OBJECT_INVALID && cre && nValue >= 0 && nValue <= 1)
@@ -4598,9 +4597,7 @@ void NWNXPatch_Funcs(CNWSScriptVarTable *pThis, int nFunc, char *Params)
 	}
 	else if(nFunc == 501)//GetKnowsSpell
 	{
-		unsigned long oID = OBJECT_INVALID;
-		unsigned long cls_id = CLASS_TYPE_INVALID;
-		unsigned long spell_id = OBJECT_INVALID;
+		unsigned long oID = OBJECT_INVALID, cls_id = CLASS_TYPE_INVALID, spell_id = OBJECT_INVALID;
 		sscanf_s(Params,"%x|%i|%i",&oID,&cls_id,&spell_id);
 		CNWSCreature *cre = NWN_AppManager->app_server->srv_internal->GetCreatureByGameObjectID(oID);
 		if(oID != OBJECT_INVALID && cre)
@@ -4655,9 +4652,7 @@ void NWNXPatch_Funcs(CNWSScriptVarTable *pThis, int nFunc, char *Params)
 	}
 	if(nFunc == 502)//AddKnownSpell
 	{
-		unsigned long oID = OBJECT_INVALID, spell_id = OBJECT_INVALID;
-		unsigned long cls_id = CLASS_TYPE_INVALID;
-		unsigned long ignore_limit = 0;
+		unsigned long oID = OBJECT_INVALID, spell_id = OBJECT_INVALID, cls_id = CLASS_TYPE_INVALID, ignore_limit = 0;
 		sscanf_s(Params,"%x|%i|%i|%i",&oID,&cls_id,&spell_id,&ignore_limit);
 		CNWSCreature *cre = NWN_AppManager->app_server->srv_internal->GetCreatureByGameObjectID(oID);
 		if(oID != OBJECT_INVALID && cre)
@@ -4727,9 +4722,7 @@ void NWNXPatch_Funcs(CNWSScriptVarTable *pThis, int nFunc, char *Params)
 	}
 	else if(nFunc == 503)//RemoveKnownSpell
 	{
-		unsigned long oID = OBJECT_INVALID;
-		unsigned long cls_id = CLASS_TYPE_INVALID;
-		unsigned long spell_id = OBJECT_INVALID;
+		unsigned long oID = OBJECT_INVALID, cls_id = CLASS_TYPE_INVALID, spell_id = OBJECT_INVALID;
 		sscanf_s(Params,"%x|%i|%i",&oID,&cls_id,&spell_id);
 		CNWSCreature *cre = NWN_AppManager->app_server->srv_internal->GetCreatureByGameObjectID(oID);
 		if(oID != OBJECT_INVALID && cre)
@@ -4773,10 +4766,7 @@ void NWNXPatch_Funcs(CNWSScriptVarTable *pThis, int nFunc, char *Params)
 	}
 	else if(nFunc == 504)//GetKnownSpell
 	{
-		unsigned long oID = OBJECT_INVALID;
-		unsigned long cls_id = CLASS_TYPE_INVALID;
-		unsigned long spell_lvl = 255;
-		unsigned long index = 255;
+		unsigned long oID = OBJECT_INVALID, cls_id = CLASS_TYPE_INVALID, spell_lvl = 255, index = 255;
 		sscanf_s(Params,"%x|%i|%i|%i",&oID,&cls_id,&spell_lvl,&index);
 		CNWSCreature *cre = NWN_AppManager->app_server->srv_internal->GetCreatureByGameObjectID(oID);
 		if(oID != OBJECT_INVALID && cre)
@@ -4813,8 +4803,7 @@ void NWNXPatch_Funcs(CNWSScriptVarTable *pThis, int nFunc, char *Params)
 	}
 	else if(nFunc == 505)//GetSpellSchoolSpecialization
 	{
-		unsigned long oID = OBJECT_INVALID;
-		unsigned long cls_id = CLASS_TYPE_INVALID;
+		unsigned long oID = OBJECT_INVALID, cls_id = CLASS_TYPE_INVALID;
 		sscanf_s(Params,"%x|%i",&oID,&cls_id);
 		CNWSCreature *cre = NWN_AppManager->app_server->srv_internal->GetCreatureByGameObjectID(oID);
 		if(oID != OBJECT_INVALID && cre)
@@ -4851,9 +4840,7 @@ void NWNXPatch_Funcs(CNWSScriptVarTable *pThis, int nFunc, char *Params)
 	}
 	else if(nFunc == 506)//SetSpellSchoolSpecialization
 	{
-		unsigned long oID = OBJECT_INVALID;
-		unsigned long cls_id = CLASS_TYPE_INVALID;
-		unsigned long school = 255;
+		unsigned long oID = OBJECT_INVALID, cls_id = CLASS_TYPE_INVALID, school = 255;
 		sscanf_s(Params,"%x|%i|%i",&oID,&cls_id,&school);
 		CNWSCreature *cre = NWN_AppManager->app_server->srv_internal->GetCreatureByGameObjectID(oID);
 		if(oID != OBJECT_INVALID && cre)
@@ -4889,9 +4876,7 @@ void NWNXPatch_Funcs(CNWSScriptVarTable *pThis, int nFunc, char *Params)
 	}
 	else if(nFunc == 507)//GetDomain
 	{
-		unsigned long oID = OBJECT_INVALID;
-		unsigned long cls_id = CLASS_TYPE_INVALID;
-		unsigned long th = 255;
+		unsigned long oID = OBJECT_INVALID, cls_id = CLASS_TYPE_INVALID, th = 255;
 		sscanf_s(Params,"%x|%i|%i",&oID,&cls_id,&th);
 		CNWSCreature *cre = NWN_AppManager->app_server->srv_internal->GetCreatureByGameObjectID(oID);
 		if(oID != OBJECT_INVALID && cre)
@@ -4928,10 +4913,7 @@ void NWNXPatch_Funcs(CNWSScriptVarTable *pThis, int nFunc, char *Params)
 	}
 	else if(nFunc == 508)//SetDomain
 	{
-		unsigned long oID = OBJECT_INVALID;
-		unsigned long cls_id = CLASS_TYPE_INVALID;
-		unsigned long th = 255;
-		unsigned long domain = 255;
+		unsigned long oID = OBJECT_INVALID, cls_id = CLASS_TYPE_INVALID, th = 255, domain = 255;
 		sscanf_s(Params,"%x|%i|%i|%i",&oID,&cls_id,&th,&domain);
 		CNWSCreature *cre = NWN_AppManager->app_server->srv_internal->GetCreatureByGameObjectID(oID);
 		if(oID != OBJECT_INVALID && cre)
@@ -4970,10 +4952,7 @@ void NWNXPatch_Funcs(CNWSScriptVarTable *pThis, int nFunc, char *Params)
 	}
 	else if(nFunc == 509)//GetMemorizedSpellSlot
 	{
-		unsigned long oID = OBJECT_INVALID;
-		unsigned long cls_id = CLASS_TYPE_INVALID;
-		unsigned long spell_lvl = 255;
-		unsigned long index = OBJECT_INVALID;
+		unsigned long oID = OBJECT_INVALID, cls_id = CLASS_TYPE_INVALID, spell_lvl = 255, index = OBJECT_INVALID;
 		sscanf_s(Params,"%x|%i|%i|%i",&oID,&cls_id,&spell_lvl,&index);
 		CNWSCreature *cre = NWN_AppManager->app_server->srv_internal->GetCreatureByGameObjectID(oID);
 		if(oID != OBJECT_INVALID && cre)
@@ -5014,11 +4993,7 @@ void NWNXPatch_Funcs(CNWSScriptVarTable *pThis, int nFunc, char *Params)
 	}
 	else if(nFunc == 510)//SetMemorizedSpellSlot
 	{
-		unsigned long oID = OBJECT_INVALID;
-		unsigned long cls_id = CLASS_TYPE_INVALID;
-		unsigned long spell_lvl = 255;
-		unsigned long index = OBJECT_INVALID;
-		unsigned long spell_data = OBJECT_INVALID;
+		unsigned long oID = OBJECT_INVALID, cls_id = CLASS_TYPE_INVALID, spell_lvl = 255, index = OBJECT_INVALID, spell_data = OBJECT_INVALID;
 		sscanf_s(Params,"%x|%i|%i|%i|%i",&oID,&cls_id,&spell_lvl,&index,&spell_data);
 		CNWSCreature *cre = NWN_AppManager->app_server->srv_internal->GetCreatureByGameObjectID(oID);
 		if(oID != OBJECT_INVALID && cre)
@@ -5082,9 +5057,7 @@ void NWNXPatch_Funcs(CNWSScriptVarTable *pThis, int nFunc, char *Params)
 	}
 	else if(nFunc == 511)//GetMaxSpellSlots
 	{
-		unsigned long oID = OBJECT_INVALID;
-		unsigned long cls_id = CLASS_TYPE_INVALID;
-		unsigned long spell_lvl = 255;
+		unsigned long oID = OBJECT_INVALID, cls_id = CLASS_TYPE_INVALID, spell_lvl = 255;
 		sscanf_s(Params,"%x|%i|%i",&oID,&cls_id,&spell_lvl);
 		CNWSCreature *cre = NWN_AppManager->app_server->srv_internal->GetCreatureByGameObjectID(oID);
 		if(oID != OBJECT_INVALID && cre)
@@ -6695,7 +6668,7 @@ void HookFunctions()
 	CreateHook(0x4E5A60,CNWSObject__GetIsPCDying_Hook,(PVOID*)&CNWSObject__GetIsPCDying, "DisablePCDying", "Enabling immunity to dying");
 	CreateHook(0x47F8C0,CNWSCreatureStats__GetFeatTotalUses_Hook,(PVOID*)&CNWSCreatureStats__GetFeatTotalUses, "DisableFeatUses", "Enabling Gruumsh rage stacking");
 	CreateHook(0x47EF10,CNWSCreatureStats__GetFeatRemainingUses_Hook,(PVOID*)&CNWSCreatureStats__GetFeatRemainingUses, "DisableFeatUses", "Enabling modify number of feat uses");
-
+	CreateHook(0x4A6ED0, CNWSCreature__GetMaxHitPoints_Hook,(PVOID*) &CNWSCreature__GetMaxHitPoints, "DisableHitPoints", "Enabling to modify hitpoints");
 	CreateHook(0x548220,CNWSCreature__GetAmmunitionAvailable_Hook, (PVOID*)&CNWSCreature__GetAmmunitionAvailable, "DisableRangedWeapons","Enabling custom ranged weapons");
 	CreateHook(0x548100,CNWSCreature__ResolveAmmunition_Hook, (PVOID*)&CNWSCreature__ResolveAmmunition, "DisableRangedWeapons","Enabling Boomerang item property");
 	CreateHook(0x490690,CNWSCreature__SetActivity_Hook, (PVOID*)&CNWSCreature__SetActivity, "DisableSetActivityHook","Defensive stance not canceling properly");
