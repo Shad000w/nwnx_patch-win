@@ -13,6 +13,7 @@ const char *VERSION_PATCH = "";
 DWORD *heapAddress = NULL;
 FILE *logFile;
 char logFileName[] = "logs.0/nwnx_patch.txt";
+volatile int8_t Hook_int8;
 volatile uint8_t Hook_uint8;
 volatile uint8_t test1;
 volatile uint8_t test2;
@@ -6863,7 +6864,7 @@ void Hook_SpecAttacks3()//CNWSCreature::ResolveAttackRoll
 	__asm leave
 	__asm mov test1, bl//tohitroll
 	__asm mov al, [esp+14h]
-	__asm mov test2, al//tohitmod
+	__asm mov Hook_int8, al//tohitmod
 	__asm mov [esi+10h], al
 	__asm mov al, [esp+18h]//ac
 	__asm mov test3, al
@@ -6877,7 +6878,7 @@ void Hook_SpecAttacks3()//CNWSCreature::ResolveAttackRoll
 	}
 	else __asm mov [esi+0Eh], bl
 
-	if(test1+test2 >= test3)
+	if(test1+Hook_int8 >= test3)
 	{
 		__asm mov ecx, 1
 	}
@@ -6891,7 +6892,7 @@ void Hook_SpecAttacks4()//CNWSCreature::ResolveAttackRoll
 	__asm leave
 	__asm mov test1, al//new threat roll
 	__asm mov al, [esp+14h]
-	__asm mov test2, al//tohitmod
+	__asm mov Hook_int8, al//tohitmod
 	__asm mov al, [esp+18h]//ac
 	__asm mov test3, al
 	__asm mov al, [esi+0Fh]//threat roll override
@@ -6909,7 +6910,7 @@ void Hook_SpecAttacks4()//CNWSCreature::ResolveAttackRoll
 		__asm mov [esi+0Fh], al
 	}
 
-	if(test1+test2 >= test3)
+	if(test1+Hook_int8 >= test3)
 	{
 		__asm mov eax, 0x54BB2B//crit
 		__asm jmp eax
