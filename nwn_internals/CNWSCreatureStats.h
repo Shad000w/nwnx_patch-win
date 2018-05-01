@@ -40,7 +40,7 @@ struct CNWSCreatureStats_s {
   unsigned int cs_faction_predom;
   float cs_cr;
   unsigned __int8 cs_starting_package;
-  char cs_classes_len;
+  unsigned __int8 cs_classes_len;
   unsigned __int8 field_9A;
   unsigned __int8 field_9B;
   CNWSCreatureStats_ClassInfo cs_classes[3];
