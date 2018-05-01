@@ -1105,50 +1105,48 @@ void __fastcall CNWSCreature__UnpossessFamiliar_Hook(CNWSCreature *pThis, void*)
 void __fastcall CNWSCreatureStats__LevelUp_Hook(CNWSCreatureStats *pThis, void*, CNWLevelStats *CNWLevelStats, unsigned char domain1, unsigned char domain2, unsigned char spellschool, int num_levels)
 {
 	Log(2,"o CNWSCreatureStats__LevelUp start\n");
-	unsigned char lvl_array[2];
-	for(unsigned char x=0;x < 3;x++)
-	{
-		lvl_array[x] = pThis->cs_classes[x].cl_level;
-	}
 	CNWSCreatureStats__LevelUp(pThis,NULL,CNWLevelStats,domain1,domain2,spellschool,num_levels);
-	for(unsigned char x=0;x<pThis->cs_classes_len;x++)//support for custom spontaneous non learner spellcaster
+	unsigned char cls_id = CNWLevelStats->m_nClass;
+	CNWClass *cClass = &(NWN_Rules->m_lstClasses[cls_id]);
+	if(cls_id != CLASS_TYPE_INVALID && cClass && cClass->m_bIsSpellCasterClass && ((cls_cast_type[cls_id] & CAST_TYPE_SPONTANEOUS) && !(cls_cast_type[cls_id] & CAST_TYPE_RESTRICTED_SPELLBOOK)))
 	{
-		if(pThis->cs_classes[x].cl_level != lvl_array[x])
+		unsigned char cls_pos = 3;
+		for(unsigned char x=0;x<pThis->cs_classes_len;x++)
 		{
-			unsigned char cls_id = pThis->cs_classes[x].cl_class;
-			CNWClass *cClass = &(NWN_Rules->m_lstClasses[cls_id]);
-			if(cls_id != CLASS_TYPE_INVALID && cClass && cClass->m_bIsSpellCasterClass && ((cls_cast_type[cls_id] & CAST_TYPE_SPONTANEOUS) && !(cls_cast_type[cls_id] & CAST_TYPE_RESTRICTED_SPELLBOOK)))
+			if(pThis->cs_classes[x].cl_class == cls_id)
 			{
-				unsigned char cls_lvl = pThis->cs_classes[x].cl_level;
-				unsigned char spell_lvl, lvl_max = 0;
-				while(lvl_max < 10 && cClass->GetSpellGain(cls_lvl,lvl_max+1) != 255)
+				cls_pos = x;
+				break;
+			}
+		}
+		if(cls_pos == 3) return;
+		unsigned char cls_lvl = pThis->cs_classes[cls_pos].cl_level;
+		unsigned char spell_lvl, lvl_max = 0;
+		while(lvl_max < 10 && cClass->GetSpellGain(cls_lvl,lvl_max+1) != 255)
+		{
+			lvl_max++;
+		}
+		unsigned long num_known, hidden;
+		for(unsigned long spell_id=0;spell_id < NWN_Rules->m_pSpellArray->spells_len;spell_id++)
+		{
+			spell_lvl = NWN_Rules->m_pSpellArray->GetSpell(spell_id)->GetSpellLevel(cls_id);					
+			if(spell_lvl <= lvl_max)
+			{
+				hidden = NWN_Rules->m_pSpellArray->GetSpell(spell_id)->Hidden;
+				if(hidden > 0 && (hidden == 255 || hidden == cls_id))//hidden spell
 				{
-					lvl_max++;
+					continue;
 				}
-				unsigned long num_known, hidden;
-				for(unsigned long spell_id=0;spell_id < NWN_Rules->m_pSpellArray->spells_len;spell_id++)
+				for(num_known=0;num_known < (unsigned long)pThis->cs_classes[cls_pos].cl_spells_known->len && num_known < 255;num_known++)
 				{
-					spell_lvl = NWN_Rules->m_pSpellArray->GetSpell(spell_id)->GetSpellLevel(cls_id);					
-					if(spell_lvl <= lvl_max)
+					if(pThis->GetKnownSpell(cls_pos,spell_lvl,(unsigned char)num_known) == spell_id)//already knows
 					{
-						//if(pThis->cs_original->obj.obj_vartable.MatchIndex //todo hidden local variable
-						hidden = NWN_Rules->m_pSpellArray->GetSpell(spell_id)->Hidden;
-						if(hidden > 0 && (hidden == 255 || hidden == cls_id))//hidden spell
-						{
-							continue;
-						}
-						for(num_known=0;num_known < (unsigned long)pThis->cs_classes[x].cl_spells_known->len && num_known < 255;num_known++)
-						{
-							if(pThis->GetKnownSpell(x,spell_lvl,(unsigned char)num_known) == spell_id)//already knows
-							{
-								continue;
-							}
-						}
-						if(num_known >= (unsigned long)pThis->cs_classes[x].cl_spells_known->len)
-						{
-							pThis->AddKnownSpell(x,spell_id);
-						}
+						continue;
 					}
+				}
+				if(num_known >= (unsigned long)pThis->cs_classes[cls_pos].cl_spells_known->len)
+				{
+					pThis->AddKnownSpell(cls_pos,spell_id);
 				}
 			}
 		}
