@@ -5606,7 +5606,7 @@ int __fastcall CNWSItemPropertyHandler__RemoveBonusSpellOfLevel_Hook(CNWSItemPro
 		if(cls_id != CLASS_TYPE_INVALID && cls_id == ip->m_nSubType)
 		{
 			unsigned char spell_lvl = (unsigned char)ip->m_nCostTableValue;
-			cre->cre_stats->SetNumberBonusSpells(cls_pos,spell_lvl,-1);			
+			cre->cre_stats->SetNumberBonusSpells(cls_pos,spell_lvl,-1);
 			CExoString varname = CExoString("BONUS_SPELL_SLOT_ACTIVE");
 			if(cls_cast_type[cls_id] & CAST_TYPE_SPONTANEOUS && (!item->obj.obj_vartable.MatchIndex(varname,VARIABLE_TYPE_INT,0) || item->obj.obj_vartable.GetInt(varname)))
 			{
@@ -6146,7 +6146,7 @@ int __fastcall CNWSEffectListHandler__OnApplyCurse_Hook(CNWSEffectListHandler *p
 int __fastcall CNWSEffectListHandler__OnApplyAbilityDecrease_Hook(CNWSEffectListHandler *pThis, void*, CNWSObject *obj, CGameEffect *eff, int i)
 {	//effect comes from an equipped item or it comes from a curse and the game difficulty is DnD rules or Very high
 	Log(2,"o CNWSEffectListHandler__OnApplyAbilityDecrease start\n");
-	if(eff && eff->eff_dursubtype == 3)
+	if(eff && eff->eff_dursubtype == 3)//ability decrease effect from itemproperty
 	{
 		int prev = helper;
 		helper = 32;
