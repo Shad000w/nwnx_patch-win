@@ -34,7 +34,7 @@ int CNWCCMessageData_s::SetInteger(int Nth, int Value) {
 void CNWCCMessageData_s::CopyTo(CNWCCMessageData *Dest) {
 	CNWCCMessageData__CopyTo(this, Dest);
 }
-
+/*
 void CNWCCMessageData_s::AddAttackerCombatMessage(CNWSCreature *Attacker) {
 	CNWSCombatAttackData *aData = Attacker->cre_combat_round->GetAttack(Attacker->cre_combat_round->CurrentAttack);
 	if (aData->Messages_count == aData->Messages_alloc) {
@@ -50,4 +50,4 @@ void CNWCCMessageData_s::AddAttackerCombatMessage(CNWSCreature *Attacker) {
 		aData->Messages = msgList;
 	}
 	aData->Messages[aData->Messages_count++] = this;
-}
+}*/

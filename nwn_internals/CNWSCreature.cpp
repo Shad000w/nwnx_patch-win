@@ -311,7 +311,7 @@ void CNWSCreature_s::SetPVPPlayerLikesMe(unsigned long oid_Player2, int a3, int 
 int CNWSCreature_s::GetDamageFlags() {
 	CNWSCombatRound *CRound = cre_combat_round;
 	CNWSCombatAttackData *AttackData = CRound->GetAttack(CRound->CurrentAttack);
-	CNWSItem *Weapon = CRound->GetCurrentAttackWeapon(AttackData->WeaponAttackType);
+	CNWSItem *Weapon = CRound->GetCurrentAttackWeapon(AttackData->m_nWeaponAttackType);
 
 	if (Weapon) {
 		return Weapon->GetDamageFlags();
