@@ -20,11 +20,12 @@
  *  $HeadURL$
  *
  */
+#include "CResStruct.h"
 
 #ifndef _NX_NWN_STRUCT_CRESLIST_
 #define _NX_NWN_STRUCT_CRESLIST_
 
-struct CResList {
+struct CResList : CResStruct {
      char m_pLabel[16];
 };
 
