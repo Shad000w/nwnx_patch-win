@@ -6126,6 +6126,38 @@ int __fastcall CNWSCreatureStats__GetEffectImmunity_Hook(CNWSCreatureStats *pThi
 	{
 		return 0;
 	}
+	else if(immunity_type == IMMUNITY_TYPE_CRITICAL_HIT)
+	{
+		if(pThis->HasFeat(896)) return true;
+	}
+	else if(immunity_type == IMMUNITY_TYPE_POISON)
+	{
+		if(pThis->HasFeat(214) || pThis->HasFeat(203) || pThis->HasFeat(747)) return true;
+	}
+	else if(immunity_type == IMMUNITY_TYPE_DISEASE)
+	{
+		if(pThis->HasFeat(219) || pThis->HasFeat(209) || pThis->HasFeat(747)) return true;
+	}
+	else if(immunity_type == IMMUNITY_TYPE_FEAR)
+	{
+		if(pThis->HasFeat(300) || pThis->HasFeat(216)) return true;
+	}
+	else if(immunity_type == IMMUNITY_TYPE_SLEEP)
+	{
+		if(pThis->HasFeat(235) || pThis->HasFeat(216)) return true;
+	}
+	else if(immunity_type == IMMUNITY_TYPE_PARALYSIS)
+	{
+		if(pThis->HasFeat(963) || pThis->HasFeat(894) || pThis->HasFeat(216)) return true;
+	}
+	else if(immunity_type == IMMUNITY_TYPE_STUN)
+	{
+		if(pThis->HasFeat(894) || pThis->HasFeat(216)) return true;
+	}
+	else if(immunity_type == IMMUNITY_TYPE_MIND_SPELLS || immunity_type == IMMUNITY_TYPE_DOMINATE || immunity_type == IMMUNITY_TYPE_CONFUSED || immunity_type == IMMUNITY_TYPE_CHARM || immunity_type == IMMUNITY_TYPE_DAZED)
+	{
+		if(pThis->HasFeat(216)) return true;
+	}
 	return CNWSCreatureStats__GetEffectImmunity(pThis,NULL,immunity_type,cre);
 }
 
@@ -6959,11 +6991,11 @@ void Hook_SneakAttackImmunity()
 
 	if(self != NULL && target != NULL)
 	{
-		if(!target->cre_stats->GetEffectImmunity(30,self))//sneak immunity
+		if(!target->cre_stats->GetEffectImmunity(IMMUNITY_TYPE_SNEAK_ATTACK,self))//sneak immunity
 		{
-			if(NoCriticalImmunity || !target->cre_stats->GetEffectImmunity(31,self))//critical immunity
+			if(NoCriticalImmunity || !target->cre_stats->GetEffectImmunity(IMMUNITY_TYPE_CRITICAL_HIT,self))//critical immunity
 			{
-				if(!target->cre_stats->HasFeat(896))//PM Deathless Mastery
+				//if(!target->cre_stats->HasFeat(896))//PM Deathless Mastery
 				{
 					__asm mov eax, 0x54C20D
 					__asm jmp eax
@@ -6984,11 +7016,11 @@ void Hook_DeathAttackImmunity()
 
 	if(self != NULL && target != NULL)
 	{
-		if(!target->cre_stats->GetEffectImmunity(30,self))//sneak immunity
+		if(!target->cre_stats->GetEffectImmunity(IMMUNITY_TYPE_SNEAK_ATTACK,self))//sneak immunity
 		{
-			if(NoCriticalImmunity || !target->cre_stats->GetEffectImmunity(31,self))//critical immunity
+			if(NoCriticalImmunity || !target->cre_stats->GetEffectImmunity(IMMUNITY_TYPE_CRITICAL_HIT,self))//critical immunity
 			{
-				if(!target->cre_stats->HasFeat(896))//PM Deathless Mastery
+				//if(!target->cre_stats->HasFeat(896))//PM Deathless Mastery
 				{
 					__asm mov eax, 0x54C750
 					__asm jmp eax
@@ -7355,30 +7387,134 @@ void Hook_FeatUses()//0x479CF6 - CNWSCreatureStats::ReadStatsFromGFF
 	__asm jmp Hook_ret
 }
 
-void Hook_ELC()//0x4336E6 - CNWSPlayer::ValidateCharacter
+void Hook_ImmunityMind1()//CNWSEffectListHandler::OnApplySetState
 {
 	__asm leave
-	__asm mov orig_eax, eax
+	Hook_ret = 0x4F15FD;
+	__asm jmp Hook_ret
+}
+
+void Hook_ImmunityMind2()//CNWSEffectListHandler::OnApplySetState
+{
+	__asm leave
+	Hook_ret = 0x4F1756;
+	__asm jmp Hook_ret
+}
+
+void Hook_ImmunityPoison()//CNWSEffectListHandler::OnApplyPoison
+{
+	__asm leave
+	__asm mov ebp, eax
+	Hook_ret = 0x4F36D1;
+	__asm jmp Hook_ret
+}
+
+void Hook_ImmunityDisease()//CNWSEffectListHandler::OnApplyDisease
+{
+	__asm leave
+	Hook_ret = 0x4F3FB2;
+	__asm jmp Hook_ret
+}
+
+void Hook_ImmunityCritical()//CNWSCreature::ResolveAttackRoll
+{
+	__asm leave
+	Hook_ret = 0x54BC7B;
+	__asm jmp Hook_ret
+}
+
+void Hook_ELC1()//0x434243 - CNWSPlayer::ValidateCharacter - number of spells learned
+{//todo change max spells learned value
+	__asm leave
 	__asm mov orig_ebx, ebx
 	__asm mov orig_ecx, ecx
 	__asm mov orig_edx, edx
-	__asm mov eax, [esp+60h]
-	__asm mov DWORD PTR stats, eax
-	__asm mov eax, esi
-	__asm mov test16, ax
+	__asm mov test1, al
+	__asm mov DWORD PTR stats, edi
 
-	fprintf_s(logFile, "o Hook_ELC, feat: %i, self: %x, eax: %i\n",test16,stats->cs_original->obj.obj_generic.obj_id,orig_eax);fflush(logFile);
+	fprintf_s(logFile, "o Hook_ELC1, cls_id: %i\n",test1);fflush(logFile);
 
-	if(orig_eax)
+	if(cls_cast_type[test1] & CAST_TYPE_RESTRICTED_SPELLBOOK)
 	{
-		Hook_ret = 0x4336EA;
+		hook_Class = &(NWN_Rules->m_lstClasses[test1]);
+		for(test2=0;test2<stats->cs_classes_len;test2++)
+		{
+			if(stats->cs_classes[test2].cl_class == test1) break;
+		}
+		test2 = stats->cs_classes[test2].cl_level-1;
+
+		test32 = !test2 ? 3 : 2;
+		test33 = !test2;
+		if(cls_spopt_2da[test1] && cls_spopt_2da[test1]->GetINTEntry_intcol(test2,1,&Hook_integer) && Hook_integer > -1 && (unsigned int)Hook_integer < test32)
+		{
+			test32 = Hook_integer;
+		}
+		if(cls_spopt_2da[test1] && cls_spopt_2da[test1]->GetINTEntry_intcol(test2,3,&Hook_integer) && Hook_integer > -1 && (unsigned int)Hook_integer < test33)
+		{
+			test33 = Hook_integer;
+		}
+		test3 = hook_Class->m_nPrimaryAbility;
+		if(test3 == ABILITY_STRENGTH)
+		{
+			test1 = stats->cs_str_mod;
+		}
+		else if(test3 == ABILITY_DEXTERITY)
+		{
+			test1 = stats->cs_dex_mod;
+		}
+		else if(test3 == ABILITY_CONSTITUTION)
+		{
+			test1 = stats->cs_con_mod;
+		}
+		else if(test3 == ABILITY_WISDOM)
+		{
+			test1 = stats->cs_wis_mod;
+		}
+		else if(test3 == ABILITY_CHARISMA)
+		{
+			test1 = stats->cs_cha_mod;
+		}
+		else
+		{
+			test1 = stats->cs_int_mod;
+		}
+
+		if(test33 && test1 > 0)
+		{
+			test32+= test1;
+		}
+		
+		__asm mov eax, test32
+		__asm mov [esp+5Ch], eax//push max number of spells learned
+	}
+
+	Hook_ret = 0x4342AD;
+
+	__asm mov ebx, orig_ebx
+	__asm mov ecx, orig_ecx
+	__asm mov edx, orig_edx
+	__asm jmp Hook_ret
+}
+
+void Hook_ELC2()//0x434440 - CNWSPlayer::ValidateCharacter - number of spells learned2
+{
+	__asm leave
+	__asm mov orig_ebx, ebx
+	__asm mov orig_ecx, ecx
+	__asm mov orig_edx, edx
+	__asm mov test1, cl
+
+	fprintf_s(logFile, "o Hook_ELC2, cls_id: %i\n",test1);fflush(logFile);
+
+	if(cls_cast_type[test1] & CAST_TYPE_RESTRICTED_SPELLBOOK)
+	{
+		Hook_ret = 0x434444;
 	}
 	else
 	{
-		Hook_ret = 0x433740;
+		Hook_ret = 0x43445D;
 	}
 
-	__asm mov eax, 0
 	__asm mov ebx, orig_ebx
 	__asm mov ecx, orig_ecx
 	__asm mov edx, orig_edx
@@ -8193,15 +8329,22 @@ void PatchImage()
 	VirtualProtect((DWORD*)pPatch, 1, DefaultPrivs, NULL);
 	fprintf(logFile, "o Removing automatic unpossess.\n");*/
 
-
-	/* TODO nefunguje
-	pPatch = (unsigned char *) 0x4336E6;//ValidateCharacter
+	/*
+	//TODO - crashing
+	pPatch = (unsigned char *) 0x434243;//ValidateCharacter
 	VirtualProtect((DWORD*)pPatch, 1, PAGE_EXECUTE_READWRITE, &DefaultPrivs);
 	memset((PVOID)pPatch, '\x90', 8);
 	pPatch[0] = 0xE9;
-	*((uint32_t *)(pPatch + 1)) = (uint32_t)Hook_ELC - (uint32_t)(pPatch + 5);
+	*((uint32_t *)(pPatch + 1)) = (uint32_t)Hook_ELC1 - (uint32_t)(pPatch + 5);
 	VirtualProtect((DWORD*)pPatch, 1, DefaultPrivs, NULL);
-	fprintf(logFile, "o ELC rage stacking.\n");*/
+	pPatch = (unsigned char *) 0x434440;//ValidateCharacter
+	VirtualProtect((DWORD*)pPatch, 1, PAGE_EXECUTE_READWRITE, &DefaultPrivs);
+	memset((PVOID)pPatch, '\x90', 8);
+	pPatch[0] = 0xE9;
+	*((uint32_t *)(pPatch + 1)) = (uint32_t)Hook_ELC2 - (uint32_t)(pPatch + 5);
+	VirtualProtect((DWORD*)pPatch, 1, DefaultPrivs, NULL);
+	fprintf(logFile, "o Fix for ELC number of spells learned.\n");
+	*/
 
 	pPatch = (unsigned char *) 0x576EBF;//SetCustomToken
 	VirtualProtect((DWORD*)pPatch, 1, PAGE_EXECUTE_READWRITE, &DefaultPrivs);
@@ -8293,6 +8436,55 @@ void PatchImage()
 	*((uint32_t *)(pPatch + 1)) = (uint32_t)Hook_FeatUses - (uint32_t)(pPatch + 5);
 	VirtualProtect((DWORD*)pPatch, 1, DefaultPrivs, NULL);
 	fprintf(logFile, "o Correcting feat uses when relogging.\n");
+
+	pPatch = (unsigned char *) 0x4F0E50;//CNWSEffectListHandler::OnApplySetState - sleep
+	VirtualProtect((DWORD*)pPatch, 1, PAGE_EXECUTE_READWRITE, &DefaultPrivs);
+	memset((PVOID)pPatch, '\x90', 8);
+	pPatch[0] = 0xE9;
+	*((uint32_t *)(pPatch + 1)) = (uint32_t)Hook_ImmunityMind1 - (uint32_t)(pPatch + 5);
+	VirtualProtect((DWORD*)pPatch, 1, DefaultPrivs, NULL);
+	pPatch = (unsigned char *) 0x4F0F17;//CNWSEffectListHandler::OnApplySetState - paralysis
+	VirtualProtect((DWORD*)pPatch, 1, PAGE_EXECUTE_READWRITE, &DefaultPrivs);
+	memset((PVOID)pPatch, '\x90', 8);
+	pPatch[0] = 0xE9;
+	*((uint32_t *)(pPatch + 1)) = (uint32_t)Hook_ImmunityMind1 - (uint32_t)(pPatch + 5);
+	VirtualProtect((DWORD*)pPatch, 1, DefaultPrivs, NULL);
+	pPatch = (unsigned char *) 0x4F100B;//CNWSEffectListHandler::OnApplySetState - stun
+	VirtualProtect((DWORD*)pPatch, 1, PAGE_EXECUTE_READWRITE, &DefaultPrivs);
+	memset((PVOID)pPatch, '\x90', 8);
+	pPatch[0] = 0xE9;
+	*((uint32_t *)(pPatch + 1)) = (uint32_t)Hook_ImmunityMind1 - (uint32_t)(pPatch + 5);
+	VirtualProtect((DWORD*)pPatch, 1, DefaultPrivs, NULL);
+	pPatch = (unsigned char *) 0x4F1531;//CNWSEffectListHandler::OnApplySetState - fear
+	VirtualProtect((DWORD*)pPatch, 1, PAGE_EXECUTE_READWRITE, &DefaultPrivs);
+	memset((PVOID)pPatch, '\x90', 8);
+	pPatch[0] = 0xE9;
+	*((uint32_t *)(pPatch + 1)) = (uint32_t)Hook_ImmunityMind1 - (uint32_t)(pPatch + 5);
+	VirtualProtect((DWORD*)pPatch, 1, DefaultPrivs, NULL);
+	pPatch = (unsigned char *) 0x4F160C;//CNWSEffectListHandler::OnApplySetState - mind spells
+	VirtualProtect((DWORD*)pPatch, 1, PAGE_EXECUTE_READWRITE, &DefaultPrivs);
+	memset((PVOID)pPatch, '\x90', 8);
+	pPatch[0] = 0xE9;
+	*((uint32_t *)(pPatch + 1)) = (uint32_t)Hook_ImmunityMind2 - (uint32_t)(pPatch + 5);
+	VirtualProtect((DWORD*)pPatch, 1, DefaultPrivs, NULL);
+	pPatch = (unsigned char *) 0x4F3687;//CNWSEffectListHandler::OnApplyPoison
+	VirtualProtect((DWORD*)pPatch, 1, PAGE_EXECUTE_READWRITE, &DefaultPrivs);
+	memset((PVOID)pPatch, '\x90', 8);
+	pPatch[0] = 0xE9;
+	*((uint32_t *)(pPatch + 1)) = (uint32_t)Hook_ImmunityPoison - (uint32_t)(pPatch + 5);
+	VirtualProtect((DWORD*)pPatch, 1, DefaultPrivs, NULL);
+	pPatch = (unsigned char *) 0x4F3F5C;//CNWSEffectListHandler::OnApplyDisease
+	VirtualProtect((DWORD*)pPatch, 1, PAGE_EXECUTE_READWRITE, &DefaultPrivs);
+	memset((PVOID)pPatch, '\x90', 8);
+	pPatch[0] = 0xE9;
+	*((uint32_t *)(pPatch + 1)) = (uint32_t)Hook_ImmunityDisease - (uint32_t)(pPatch + 5);
+	pPatch = (unsigned char *) 0x54BB93;//CNWSCreature::ResolveAttackRoll
+	VirtualProtect((DWORD*)pPatch, 1, PAGE_EXECUTE_READWRITE, &DefaultPrivs);
+	memset((PVOID)pPatch, '\x90', 8);
+	pPatch[0] = 0xE9;
+	*((uint32_t *)(pPatch + 1)) = (uint32_t)Hook_ImmunityCritical - (uint32_t)(pPatch + 5);
+	VirtualProtect((DWORD*)pPatch, 1, DefaultPrivs, NULL);VirtualProtect((DWORD*)pPatch, 1, DefaultPrivs, NULL);
+	fprintf(logFile, "o Removing hardcoded feat immunity.\n");
 
 	pPatch = (unsigned char *) 0x53F564;
 	VirtualProtect((DWORD*)pPatch, 1, PAGE_EXECUTE_READWRITE, &DefaultPrivs);
