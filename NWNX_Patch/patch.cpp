@@ -7584,17 +7584,22 @@ void Hook_SpellcasterType13b()//0x482D02 - CNWSCreatureStats::UnReadySpell - wit
 	__asm mov orig_ecx, ecx
 	__asm mov orig_edx, edx
 
-	test2 = stats->cs_classes[orig_ebx].cl_level-1;
-	hook_Class = &(NWN_Rules->m_lstClasses[test1]);
+	Hook_ret = 0x482DD4;
+
+	if(orig_ebx < stats->cs_classes_len)
+	{
+		test2 = stats->cs_classes[orig_ebx].cl_level-1;
+		hook_Class = &(NWN_Rules->m_lstClasses[test1]);
 	
-	//fprintf(logFile, "o Hook_SpellcasterType13b: cls_id: %i, cls_pos: %i, cls_lvl: %i, sp_lvl: %i, spell_levels: %i\n",test1,orig_ebx,test2,orig_edx,hook_Class->NumSpellLevels[test2-1]);fflush(logFile);
-	if((cls_cast_type[test1] & CAST_TYPE_SPONTANEOUS) == CAST_TYPE_SPONTANEOUS || (cls_cast_unlimited[test1][test2] > 0 && (cls_cast_unlimited[test1][test2] & (1 << orig_edx))))//unlimited casting
-	{
-		Hook_ret = 0x482EB7;
-	}
-	else
-	{
-		Hook_ret = 0x482D1A;
+		//fprintf(logFile, "o Hook_SpellcasterType13b: cls_id: %i, cls_pos: %i, cls_lvl: %i, sp_lvl: %i, spell_levels: %i\n",test1,orig_ebx,test2,orig_edx,hook_Class->NumSpellLevels[test2-1]);fflush(logFile);
+		if((cls_cast_type[test1] & CAST_TYPE_SPONTANEOUS) == CAST_TYPE_SPONTANEOUS || (cls_cast_unlimited[test1][test2] > 0 && (cls_cast_unlimited[test1][test2] & (1 << orig_edx))))//unlimited casting
+		{
+			Hook_ret = 0x482EB7;
+		}	
+		else
+		{
+			Hook_ret = 0x482D1A;
+		}
 	}
 
 	__asm mov eax, orig_eax
