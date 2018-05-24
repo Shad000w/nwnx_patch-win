@@ -9,7 +9,7 @@
 
 const int   VERSION_MAJOR = 1;
 const int   VERSION_MINOR = 34;
-const char *VERSION_PATCH = "";
+const char *VERSION_PATCH = "a_fixed";
 DWORD *heapAddress = NULL;
 FILE *logFile;
 char logFileName[] = "logs.0/nwnx_patch.txt";
@@ -84,7 +84,13 @@ C2DA *cls_spopt_2da[255],*cls_prog_2da[255];
 unsigned int cls_cast_type[255];
 unsigned int cls_cast_unlimited[255][60];
 
-void Log( int nDebugLevel, const char *pcMsg, ... );
+//Allocates size bytes and returns a pointer to its start location
+void *(__cdecl *nwnx_malloc)(unsigned int size);
+//Frees memory blocks allocated by nwnx_malloc/calloc/realloc
+void (__cdecl *nwnx_free)(void *ptr);
+//Allocates num*size bytes and sets all the bytes to zero
+void *nwnx_calloc(unsigned int num, unsigned int size);
+void Log(int nDebugLevel, const char *pcMsg, ... );
 
 void InitializeWeaponFeats2DA()
 {
@@ -5030,7 +5036,7 @@ void NWNXPatch_Funcs(CNWSScriptVarTable *pThis, int nFunc, char *Params)
 					{
 						if(cre->cre_stats->cs_classes[cls_pos].cl_spells_mem[spell_lvl].data[index] != NULL)
 						{
-							free(cre->cre_stats->cs_classes[cls_pos].cl_spells_mem[spell_lvl].data[index]);
+							nwnx_free(cre->cre_stats->cs_classes[cls_pos].cl_spells_mem[spell_lvl].data[index]);
 						}
 						cre->cre_stats->cs_classes[cls_pos].cl_spells_mem[spell_lvl].data[index] = NULL;
 					}
@@ -5038,7 +5044,7 @@ void NWNXPatch_Funcs(CNWSScriptVarTable *pThis, int nFunc, char *Params)
 					{
 						if((sp = ((CNWSStats_Spell *)cre->cre_stats->cs_classes[cls_pos].cl_spells_mem[spell_lvl].data[index])) == NULL)
 						{
-							if((sp = ((CNWSStats_Spell *)calloc(1, sizeof(*sp)))) != NULL)
+							if((sp = ((CNWSStats_Spell *)nwnx_calloc(1, sizeof(*sp)))) != NULL)
 							{
 								cre->cre_stats->cs_classes[cls_pos].cl_spells_mem[spell_lvl].data[index] = sp;
 							}
@@ -8508,6 +8514,8 @@ void InitPlugin()
 	DisallowAnimalCompanionPossessing = GetPrivateProfileInt("Server Options","Disallow Animal Companion Possessing",0,"./nwnplayer.ini");
 	DisableStickyCombatModes = GetPrivateProfileInt("Community Patch","Disable Sticky Combat Modes",0,"./nwnplayer.ini");
 
+	nwnx_malloc = (void *(__cdecl *)(unsigned int))0x40D550;
+	nwnx_free = (void (__cdecl *)(void *))0x40D560;
 	heapAddress = (DWORD *)0x5EEFF00;	
 	helper_backup = 0;
 	helper = 0;
@@ -8521,7 +8529,7 @@ void InitPlugin()
 	HookFunctions();
 }
 
-void Log(int nDebugLevel, const char *pcMsg, ...)
+void Log(int nDebugLevel, const char *pcMsg, ... )
 {
 	if(nDebugLevel <= DebugLvl && logFile)
 	{  
@@ -8540,6 +8548,18 @@ void Log(int nDebugLevel, const char *pcMsg, ...)
         va_end(argptr);
 		fflush(logFile);
 	}
+}
+
+void *nwnx_calloc(unsigned int num, unsigned int size)
+{
+	void *pArray = nwnx_malloc(num*size);
+
+	if(pArray == NULL)
+		return NULL;
+
+	memset(pArray, NULL, num*size);
+
+	return pArray;
 }
 
 BOOL APIENTRY DllMain(HMODULE, DWORD ul_reason_for_call, LPVOID)
