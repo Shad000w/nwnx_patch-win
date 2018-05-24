@@ -968,6 +968,8 @@ void __fastcall CNWSCreature__ReadItemsFromGff_Hook(CNWSCreature *pThis, void*, 
 			}
 		}
 	}
+	delete list_element;
+	delete list;
 }
 
 void __fastcall CNWSCreatureStats__ComputeFeatBonuses_Hook(CNWSCreatureStats *pThis, void*, int *a1, int a2, int a3)
