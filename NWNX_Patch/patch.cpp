@@ -627,7 +627,7 @@ short (__fastcall *CNWSCreature__GetMaxHitPoints)(CNWSCreature *pThis, void*, in
 
 short __fastcall CNWSCreature__GetMaxHitPoints_Hook(CNWSCreature *pThis, void *, int n)
 {
-	Log(2,"o CNWSCreature__GetMaxHitPoints start\n");
+	Log(3,"o CNWSCreature__GetMaxHitPoints start\n");
 	short retVal = CNWSCreature__GetMaxHitPoints(pThis,NULL,n);
 	retVal+= pThis->obj.obj_vartable.GetInt(CExoString("HP_BONUS"));
 	int hp_percent = pThis->obj.obj_vartable.GetInt(CExoString("HP_%"));
