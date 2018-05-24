@@ -767,18 +767,21 @@ int __fastcall CNWSCreatureStats__GetBaseAttackBonus_Hook(CNWSCreatureStats *pTh
 int __fastcall CNWSCreature__GetTotalEffectBonus_Hook(CNWSCreature *pThis, void*, char a2, CNWSObject *obj_a, int a4, int a5, unsigned __int8 a6, unsigned __int8 a7, unsigned __int8 a8, unsigned __int8 a9, int a10)
 {
 	Log(3,"o CNWSCreature__GetTotalEffectBonus start\n");
-	if(a2 != 1)
+	if(a2 != 1 || !obj_a)
 	{
 		return CNWSCreature__GetTotalEffectBonus(pThis,NULL,a2,obj_a,a4,a5,a6,a7,a8,a9,a10);
 	}
 	int bonus = 0;
+	char wpn_type = pThis->cre_combat_round->GetAttack(pThis->cre_combat_round->CurrentAttack)->m_nWeaponAttackType;
+	CNWSCreature *target = NWN_AppManager->app_server->srv_internal->GetCreatureByGameObjectID(obj_a->obj_generic.obj_id);
 	for(unsigned int nEffect = 0; nEffect < pThis->obj.obj_effects_len; nEffect++)
 	{
 		CGameEffect* e = *(pThis->obj.obj_effects+nEffect);
-		if(e->eff_type == 10 && e->eff_integers[5] == 1)
+		if(e->eff_type == EFFECT_TRUETYPE_ATTACK_INCREASE && e->eff_integers[5] == 1)
 		{
 			e->eff_type = 99;
-			if((e->eff_integers[2] == RACIAL_TYPE_INVALID || (target && target->cre_stats->cs_race == e->eff_integers[2])) && 
+			if((!e->eff_integers[1] || (e->eff_integers[1] == wpn_type || (e->eff_integers[1] == 6 && (wpn_type == 1 || wpn_type == 3)) || (wpn_type == 8 && e->eff_integers[1] == 7))) &&
+				(e->eff_integers[2] == RACIAL_TYPE_INVALID || (target && target->cre_stats->cs_race == e->eff_integers[2])) && 
 				(!e->eff_integers[3] || (target && target->cre_stats->GetSimpleAlignmentLawChaos() == e->eff_integers[3])) &&
 				(!e->eff_integers[4] || (target && target->cre_stats->GetSimpleAlignmentGoodEvil() == e->eff_integers[4])))
 			{
@@ -793,7 +796,6 @@ int __fastcall CNWSCreature__GetTotalEffectBonus_Hook(CNWSCreature *pThis, void*
 		if(e->eff_type == 99)
 		{
 			e->eff_type = 10;
-			//retVal+= e->GetInteger(0);//todo support versus and ATTACK_TYPE_*
 		}
 	}
 	return retVal1+bonus;
