@@ -9,7 +9,7 @@
 
 const int   VERSION_MAJOR = 1;
 const int   VERSION_MINOR = 35;
-const char *VERSION_PATCH = "";
+const char *VERSION_PATCH = "a";
 DWORD *heapAddress = NULL;
 FILE *logFile;
 char logFileName[] = "logs.0/nwnx_patch.txt";
@@ -6598,12 +6598,15 @@ int __fastcall CNWSCreature__GetAmmunitionAvailable_Hook(CNWSCreature *pThis, vo
     if(stacksize > 0 && stacksize < 20 && pThis->cre_last_ammo_warning >= stacksize + 5)
     {
         pThis->cre_last_ammo_warning = stacksize;
-		HANDLE sharedHeap = (HANDLE) *heapAddress;
-        CNWCCMessageData *msg;// = new CNWCCMessageData();
-		msg = (CNWCCMessageData *)HeapAlloc(sharedHeap, NULL, 0x34);
-		msg->SetInteger(0,stacksize);
-		pThis->SendFeedbackMessage(0x18,msg,0);
-		//delete msg;
+		CNWSPlayer *player = NWN_AppManager->app_server->GetClientObjectByObjectId(pThis->obj.obj_generic.obj_id);
+		if(player)
+		{
+			CNWCCMessageData *msg = new CNWCCMessageData();
+			msg->SetInteger(0,stacksize);
+			msg->SetInteger(9,0x18);
+			NWN_AppManager->app_server->GetNWSMessage()->SendServerToPlayerCCMessage(player->pl_id,11,msg,0);
+			delete msg;		
+		}
     }
     if(stacksize < (uint32_t) num_attacks) 
 	{
@@ -6616,12 +6619,14 @@ int __fastcall CNWSCreature__GetAmmunitionAvailable_Hook(CNWSCreature *pThis, vo
 			CNWSCreature *master = NWN_AppManager->app_server->srv_internal->GetCreatureByGameObjectID(pThis->cre_MasterID);
             if(master)
 			{
-				HANDLE sharedHeap = (HANDLE) *heapAddress;
-				CNWCCMessageData *msg;// = new CNWCCMessageData();
-				msg = (CNWCCMessageData *)HeapAlloc(sharedHeap, NULL, 0x34);
-				msg->SetObjectID(0,pThis->obj.obj_generic.obj_id);
-				master->SendFeedbackMessage(0xF1,msg,0);
-				//delete msg;
+				CNWSPlayer *player = NWN_AppManager->app_server->GetClientObjectByObjectId(master->obj.obj_generic.obj_id);
+				if(player)
+				{
+					CNWCCMessageData *msg = new CNWCCMessageData();
+					msg->SetInteger(9,0xF1);
+					NWN_AppManager->app_server->GetNWSMessage()->SendServerToPlayerCCMessage(player->pl_id,11,msg,0);
+					delete msg;		
+				}
             }
         }
 		num_attacks = stacksize;
