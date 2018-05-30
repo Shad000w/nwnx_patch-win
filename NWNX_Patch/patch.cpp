@@ -2626,6 +2626,77 @@ void NWNXPatch_Funcs(CNWSScriptVarTable *pThis, int nFunc, char *Params)
 			fprintf(logFile, "ERROR: SetSpellValue(%08X,%i,%i,%s) used with incorrect parameters!\n",oID,spell_id,spell_const,Params);
 		}
 	}
+	else if(nFunc == 14)//RegisterEffectEvent
+	{
+		unsigned long effect_type = OBJECT_INVALID, PCOnly = OBJECT_INVALID;
+		sscanf_s(Params,"%i|%i",&effect_type,&PCOnly);						
+		if(effect_type != OBJECT_INVALID && PCOnly != OBJECT_INVALID)
+		{	
+			if(effects_2da)
+			{
+				if(effects_2da->m_nNumColumns >= 2 && effect_type <= effects_2da->m_nNumRows)
+				{
+					if(effects_2da->m_pArrayData[effect_type][1] != NULL && effects_2da->m_pArrayData[effect_type][2] != NULL)
+					{
+						effects_2da->m_pArrayData[effect_type][1].text = "1";
+						effects_2da->m_pArrayData[effect_type][2].text = PCOnly ? "1" : "0";
+					}
+					else
+					{
+						fprintf(logFile, "ERROR: RegisterEffectEvent(%i,%i) unknown 2da error!\n",effect_type,PCOnly);
+					}
+				}
+				else
+				{
+					fprintf(logFile, "ERROR: RegisterEffectEvent(%i,%i) effects.2da has wrong number of columns or rows!\n",effect_type,PCOnly);
+				}
+			}
+			else
+			{
+				fprintf(logFile, "ERROR: RegisterEffectEvent(%i,%i) effects.2da is not initialized!\n",effect_type,PCOnly);
+			}
+
+		}
+		else
+		{
+			fprintf(logFile, "ERROR: RegisterEffectEvent(%i,%i) used with incorrect parameters!\n",effect_type,PCOnly);
+		}
+	}
+	else if(nFunc == 15)//UnregisterEffectEvent
+	{
+		unsigned long effect_type = OBJECT_INVALID;
+		sscanf_s(Params,"%i",&effect_type);						
+		if(effect_type != OBJECT_INVALID)
+		{		
+			if(effects_2da)
+			{
+				if(effects_2da->m_nNumColumns >= 2 && effect_type <= effects_2da->m_nNumRows)
+				{
+					if(effects_2da->m_pArrayData[effect_type][1] != NULL)
+					{
+						effects_2da->m_pArrayData[effect_type][1].text = "0";
+					}
+					else
+					{
+						fprintf(logFile, "ERROR: UnregisterEffectEvent(%i) unknown 2da error!\n",effect_type);
+					}
+				}
+				else
+				{
+					fprintf(logFile, "ERROR: UnregisterEffectEvent(%i) effects.2da has wrong number of columns or rows!\n",effect_type);
+				}
+			}
+			else
+			{
+				fprintf(logFile, "ERROR: UnregisterEffectEvent(%i) effects.2da is not initialized!\n",effect_type);
+			}
+
+		}
+		else
+		{
+			fprintf(logFile, "ERROR: UnregisterEffectEvent(%i) used with incorrect parameters!\n",effect_type);
+		}
+	}
 	else if(nFunc == 101)//GetNumAreas
 	{
 		CNWSModule *cModule = NWN_AppManager->app_server->srv_internal->GetModule();
