@@ -77,6 +77,8 @@ CExoString script_abort = "70_mod_def_abort";
 CExoString script_leave = "70_mod_def_leave";
 CExoString script_load = "70_mod_def_load";
 CExoString script_user = "70_mod_def_user";
+CExoString script_critical = "70_mod_crithit";
+CExoString sneak_attack = "SneakAttackModifier";
 
 bool pole[3][3];
 C2DA *weaponfeats_2da,*racialtypes_2da,*spells_2da,*spells_level_2da,*classes_2da,*effects_2da;
@@ -7473,6 +7475,8 @@ void Hook_ImmunityDisease()//CNWSEffectListHandler::OnApplyDisease
 void Hook_ImmunityCritical()//CNWSCreature::ResolveAttackRoll
 {
 	__asm leave
+	__asm mov DWORD PTR self, ebp
+	NWN_VirtualMachine->Runscript(&script_critical,self->obj.obj_generic.obj_id);
 	Hook_ret = 0x54BC7B;
 	__asm jmp Hook_ret
 }
