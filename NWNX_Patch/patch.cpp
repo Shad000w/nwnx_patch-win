@@ -3879,16 +3879,23 @@ void NWNXPatch_Funcs(CNWSScriptVarTable *pThis, int nFunc, char *Params)
 	else if(nFunc == 407)//GetMovementRateFactor
 	{
 		float fSpeed = -1.0;
-		unsigned long oID = OBJECT_INVALID;
-		sscanf_s(Params,"%x",&oID);
+		unsigned long oID = OBJECT_INVALID, nType = OBJECT_INVALID;
+		sscanf_s(Params,"%x|%i",&oID,&nType);
 		CNWSCreature *cre = NWN_AppManager->app_server->srv_internal->GetCreatureByGameObjectID(oID);
 		if(oID != OBJECT_INVALID && cre)
 		{
-			fSpeed = cre->GetMovementRateFactor();
+			if(nType == 1)
+			{
+				fSpeed = cre->m_fMovementRateFactor;
+			}
+			else
+			{
+				fSpeed = cre->GetMovementRateFactor();
+			}
 		}
 		else
 		{
-			fprintf(logFile, "ERROR: GetMovementRateFactor(%08X) used on wrong object type!\n",oID);
+			fprintf(logFile, "ERROR: GetMovementRateFactor(%08X,%i) used on wrong object type!\n",oID,nType);
 		}
 		pThis->SetFloat(VarName,fSpeed);
 	}
