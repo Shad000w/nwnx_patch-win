@@ -525,6 +525,7 @@ void (__fastcall *CNWRules__ReloadAll)(CNWRules *pThis, void *);
 int (__fastcall *CNWVirtualMachineCommands__ExecuteCommandGetAssociateType)(CVirtualMachineCommands *vm_cmds, void*, int arg1, int arg2);
 int (__fastcall *CNWVirtualMachineCommands__ExecuteCommandGetAssociate)(CVirtualMachineCommands *vm_cmds, void*, int arg1, int arg2);
 int (__fastcall *CNWVirtualMachineCommands__ExecuteCommandApplyEffectOnObject)(CVirtualMachineCommands *vm_cmds, void*, int cmd, int args);
+int (__fastcall *CNWVirtualMachineCommands__ExecuteCommandGetRacialType)(CVirtualMachineCommands *vm_cmds, void*, int cmd, int args);
 int (__fastcall *CNWVirtualMachineCommands__ExecuteCommandGetEffectSubType)(CVirtualMachineCommands *vm_cmds, void*, int cmd, int args);
 int (__fastcall *CNWVirtualMachineCommands__ExecuteCommandVersusEffect)(CVirtualMachineCommands *vm_cmds, void*, int cmd, int args);
 //effects
@@ -2057,6 +2058,30 @@ int __fastcall CNWVirtualMachineCommands__ExecuteCommandApplyEffectOnObject_Hook
 		eff->dtor();
 	}
 	return 0;
+}
+
+int __fastcall CNWVirtualMachineCommands__ExecuteCommandGetRacialType_Hook(CVirtualMachineCommands *, void*, int, int)
+{
+	Log(2,"o CNWVirtualMachineCommands__ExecuteCommandGetRacialType start\n");
+	uint32_t obj_id;
+	if(!NWN_VirtualMachine->StackPopObject(&obj_id))
+	{
+		return -639;
+	}
+	CNWSCreature *cre = (NWN_AppManager->app_server->srv_internal->GetCreatureByGameObjectID(obj_id));
+	if(cre)
+	{
+		unsigned short racial_type = cre->cre_stats->cs_race;
+		if(cre->obj.obj_vartable.MatchIndex(CExoString("RacialTypeOverride"),VARIABLE_TYPE_INT,0) != NULL)
+		{
+			racial_type = cre->obj.obj_vartable.GetInt(CExoString("RacialTypeOverride"));
+		}
+		if(NWN_VirtualMachine->StackPushInteger(racial_type))
+		{
+			return 0;
+		}
+	}
+	return -638;
 }
 
 int __fastcall CNWSCreature__EventHandler_Hook(CNWSCreature *pThis, void*, int arg1, int arg2, void *arg3, int arg4, int arg5)
@@ -6826,6 +6851,7 @@ void HookFunctions()
 	CreateHook(0x489890,CNWSCreatureStats__GetSpellResistance_Hook,(PVOID*)&CNWSCreatureStats__GetSpellResistance, "DisableSRHook", "Spell Resistance override");
 
 	CreateHook(0x577DF0,CNWVirtualMachineCommands__ExecuteCommandApplyEffectOnObject_Hook,(PVOID*)&CNWVirtualMachineCommands__ExecuteCommandApplyEffectOnObject, "DisableApplyEffectOnObject", "ApplyEffectToObject extension");
+	CreateHook(0x570D20,CNWVirtualMachineCommands__ExecuteCommandGetRacialType_Hook,(PVOID*)&CNWVirtualMachineCommands__ExecuteCommandGetRacialType, "DisableRacialType", "GetRacialType extension");
 	CreateHook(0x5700A0,CNWVirtualMachineCommands__ExecuteCommandGetEffectSubType_Hook,(PVOID*)&CNWVirtualMachineCommands__ExecuteCommandGetEffectSubType, "DisableEffects", "Enabling effect modifications and additional effect information functions");
 	CreateHook(0x57F5E0,CNWVirtualMachineCommands__ExecuteCommandVersusEffect_Hook,(PVOID*)&CNWVirtualMachineCommands__ExecuteCommandVersusEffect, "DisableEffects", "Enabling VersusEffect to work with EffectDamageShield");
 	CreateHook(0x4AB140,CNWSCreature__GetTotalEffectBonus_Hook,(PVOID*)&CNWSCreature__GetTotalEffectBonus, "DisableGetTotalEffectBonus", "Enabling uncapped EffectAttackIncrease");
