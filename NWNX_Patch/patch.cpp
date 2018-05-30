@@ -595,6 +595,7 @@ void (__fastcall *CNWSCreatureStats__LevelDown)(CNWSCreatureStats *pThis, void*,
 void (__fastcall *CNWSCreatureStats__LevelUp)(CNWSCreatureStats *pThis, void*, CNWLevelStats *CNWLevelStats, unsigned char domain1, unsigned char domain2, unsigned char spellschool, int num_levels);
 int (__fastcall *CNWSStore__SellItem)(CNWSStore *pThis, void *, CNWSItem *item, CNWSCreature *buyer, unsigned char a1, unsigned char a2);
 unsigned long (__fastcall *CServerExoAppInternal__ValidateCreateServerCharacter)(CServerExoAppInternal *pThis, void*, CNWSPlayer *player, void *, unsigned long l1);
+float (__fastcall *CNWSCreature__GetMovementRateFactor)(CNWSCreature *pThis, void*);
 //spellcasting
 int (__fastcall *CNWRules__IsArcaneClass)(CNWRules *pThis, void *, unsigned char cls_id);
 unsigned char (__fastcall *CNWSpell__GetSpellLevel)(CNWSpell *pThis, void *, unsigned char cls_id);
@@ -963,6 +964,17 @@ char __fastcall CNWSCreatureStats__GetBaseWillSavingThrow_Hook(CNWSCreatureStats
 		return nSave;
 	}
 	return CNWSCreatureStats__GetBaseWillSavingThrow(pThis,NULL)+nMod;
+}
+
+float __fastcall CNWSCreature__GetMovementRateFactor_Hook(CNWSCreature *pThis, void*)
+{
+	Log(3,"o CNWSCreature__GetMovementRateFactor start\n");
+	float fSpeed = CNWSCreature__GetMovementRateFactor(pThis,NULL);
+	if(pThis->obj.obj_vartable.MatchIndex(CExoString("MovementRateFactorModifier"),VARIABLE_TYPE_FLOAT,0) != NULL)
+	{
+		fSpeed+= pThis->obj.obj_vartable.GetFloat(CExoString("MovementRateFactorModifier"));
+	}
+	return fSpeed;
 }
 
 int __fastcall CNWSCreatureStats__CanLevelUp_Hook(CNWSCreatureStats *pThis, void*)
@@ -6774,6 +6786,7 @@ void HookFunctions()
 	CreateHook(0x4A5D90,CNWSCreature__AddTauntActions_Hook,(PVOID*)&CNWSCreature__AddTauntActions, "DisableAddTauntActions", "Taunt skill softcoding");
 	CreateHook(0x4A5CA0,CNWSCreature__AddAnimalEmpathyAction_Hook,(PVOID*)&CNWSCreature__AddAnimalEmpathyAction, "DisableAddAnimalEmpathyActions", "Animal empathy skill softcoding");
 	CreateHook(0x4B1F70,CNWSCreature__LearnScroll_Hook,(PVOID*)&CNWSCreature__LearnScroll, "DisableLearnScroll", "Learn scroll sofcoding");
+	CreateHook(0x49E180,CNWSCreature__GetMovementRateFactor_Hook,(PVOID*)&CNWSCreature__GetMovementRateFactor, "DisableSpeed", "Enabling modifications into speed");
 
 	CreateHook(0x47E020,CNWSCreatureStats__GetBaseReflexSavingThrow_Hook,(PVOID*)&CNWSCreatureStats__GetBaseReflexSavingThrow, "DisableSavingThrows", "Enabling modifications into reflex saving throw");
 	CreateHook(0x47DD90,CNWSCreatureStats__GetBaseFortSavingThrow_Hook,(PVOID*)&CNWSCreatureStats__GetBaseFortSavingThrow, "DisableSavingThrows", "Enabling modifications into fortitude saving throw");
