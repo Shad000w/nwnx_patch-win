@@ -624,6 +624,10 @@ int (__fastcall *CNWSCreatureStats__GetBaseAttackBonus)(CNWSCreatureStats *pThis
 int (__fastcall *CNWSCreature__GetFlanked)(CNWSCreature *pThis, void*, CNWSCreature *target);
 unsigned char (__fastcall *CNWSCreatureStats__GetFeatTotalUses)(CNWSCreatureStats *pThis, void *, unsigned short feat_id);
 unsigned char (__fastcall *CNWSCreatureStats__GetFeatRemainingUses)(CNWSCreatureStats *pThis, void *, unsigned short feat_id);
+void (__fastcall *CNWSCreatureStats__SetFeatRemainingUses)(CNWSCreatureStats *pThis, void *, unsigned short feat_id, unsigned char feat_uses);
+void (__fastcall *CNWSCreatureStats__ResetFeatRemainingUses)(CNWSCreatureStats *pThis, void *);
+void (__fastcall *CNWSCreatureStats__IncrementFeatRemainingUses)(CNWSCreatureStats *pThis, void *, unsigned short feat_id);
+void (__fastcall *CNWSCreatureStats__DecrementFeatRemainingUses)(CNWSCreatureStats *pThis, void *, unsigned short feat_id);
 int (__fastcall *CNWSObject__GetIsPCDying)(CNWSObject *pThis, void*);
 void (__fastcall *CNWSCreature__RestoreItemProperties)(CNWSCreature *pThis, void*);
 void (__fastcall *CNWSItem__RemoveItemProperties)(CNWSItem *pThis, void*, CNWSCreature *cre, unsigned long l);
@@ -637,8 +641,8 @@ short __fastcall CNWSCreature__GetMaxHitPoints_Hook(CNWSCreature *pThis, void *,
 	int hp_percent = pThis->obj.obj_vartable.GetInt(CExoString("HP_%"));
 	if(hp_percent)
 	{
-	hp_percent = (retVal/100)*hp_percent;
-	retVal+= hp_percent;
+		hp_percent = (retVal/100)*hp_percent;
+		retVal+= hp_percent;
 	}
 	if(retVal < 1) retVal = 1;
 	if(pThis->obj.obj_hp_cur > retVal)
@@ -673,19 +677,57 @@ unsigned char __fastcall CNWSCreatureStats__GetFeatRemainingUses_Hook(CNWSCreatu
 	CNWFeat *feat = NWN_Rules->GetFeat(feat_id);
 	if(!feat || !pThis->HasFeat(feat_id)) return 0;
 	unsigned int th = 0;
-	unsigned char used_times = 0;
 	CNWSStats_FeatUses *featuses = (CNWSStats_FeatUses*)(CExoArrayList_ptr_get(&(pThis->cs_featuses), th));
 	while(featuses)
 	{
 		if(featuses->m_nFeat == feat_id)
 		{
-			used_times = featuses->m_nUsedToday;
-			break;
+			return featuses->m_nUsedToday;
 		}
 		featuses = (CNWSStats_FeatUses*)(CExoArrayList_ptr_get(&(pThis->cs_featuses), ++th));
 	}
-	unsigned char newVal = pThis->GetFeatTotalUses(feat_id);
-	return used_times > newVal ? 0 : newVal-used_times;
+	return 0;
+}
+
+void __fastcall CNWSCreatureStats__SetFeatRemainingUses_Hook(CNWSCreatureStats *pThis, void *, unsigned short feat_id, unsigned char feat_uses)
+{
+	Log(2,"o CNWSCreatureStats__SetFeatRemainingUses start\n");
+	CNWFeat *feat = NWN_Rules->GetFeat(feat_id);
+	if(!feat || !pThis->HasFeat(feat_id)) return;
+	unsigned int th = 0;
+	CNWSStats_FeatUses *featuses = (CNWSStats_FeatUses*)(CExoArrayList_ptr_get(&(pThis->cs_featuses), th));
+	while(featuses)
+	{
+		if(featuses->m_nFeat == feat_id)
+		{
+			featuses->m_nUsedToday = feat_uses;
+			return;
+		}
+		featuses = (CNWSStats_FeatUses*)(CExoArrayList_ptr_get(&(pThis->cs_featuses), ++th));
+	}
+}
+
+void __fastcall CNWSCreatureStats__ResetFeatRemainingUses_Hook(CNWSCreatureStats *pThis, void *)
+{
+	unsigned int th = 0;
+	CNWSStats_FeatUses *featuses = (CNWSStats_FeatUses*)(CExoArrayList_ptr_get(&(pThis->cs_featuses), th));
+	while(featuses)
+	{
+		featuses->m_nUsedToday = pThis->GetFeatTotalUses(featuses->m_nFeat);
+		featuses = (CNWSStats_FeatUses*)(CExoArrayList_ptr_get(&(pThis->cs_featuses), ++th));
+	}
+}
+
+void __fastcall CNWSCreatureStats__IncrementFeatRemainingUses_Hook(CNWSCreatureStats *pThis, void *, unsigned short feat_id)
+{
+	Log(2,"o CNWSCreatureStats__IncrementFeatRemainingUses start\n");
+	CNWSCreatureStats__DecrementFeatRemainingUses(pThis,NULL,feat_id);
+}
+
+void __fastcall CNWSCreatureStats__DecrementFeatRemainingUses_Hook(CNWSCreatureStats *pThis, void *, unsigned short feat_id)
+{
+	Log(2,"o CNWSCreatureStats__DecrementFeatRemainingUses start\n");
+	CNWSCreatureStats__IncrementFeatRemainingUses(pThis,NULL,feat_id);
 }
 
 unsigned char __fastcall CNWSCreatureStats__GetFeatTotalUses_Hook(CNWSCreatureStats *pThis, void *, unsigned short feat_id)
@@ -5412,7 +5454,7 @@ int __fastcall CNWSMessage__HandlePlayerToServerMessage_Hook(CNWSMessage *pMessa
 					push len;
 					push txt;
 					mov ecx, message;
-					call writeexo;d
+					call writeexo;
 				}
 			}
 
@@ -6868,8 +6910,6 @@ void HookFunctions()
 	CreateHook(0x484F50,CNWSCreatureStats__LevelDown_Hook,(PVOID*) &CNWSCreatureStats__LevelDown, "DisableLevelDownHook", "Fixed combat info update after level down");
 	CreateHook(0x4847F0,CNWSCreatureStats__LevelUp_Hook,(PVOID*) &CNWSCreatureStats__LevelUp, "DisableLevelUpHook", "Support for spontaneous non-learner custom spellcaster class.");
 	CreateHook(0x4E5A60,CNWSObject__GetIsPCDying_Hook,(PVOID*)&CNWSObject__GetIsPCDying, "DisablePCDying", "Enabling immunity to dying");
-	CreateHook(0x47F8C0,CNWSCreatureStats__GetFeatTotalUses_Hook,(PVOID*)&CNWSCreatureStats__GetFeatTotalUses, "DisableFeatUses", "Enabling Gruumsh rage stacking");
-	CreateHook(0x47EF10,CNWSCreatureStats__GetFeatRemainingUses_Hook,(PVOID*)&CNWSCreatureStats__GetFeatRemainingUses, "DisableFeatUses", "Enabling modify number of feat uses");
 	CreateHook(0x4A6ED0, CNWSCreature__GetMaxHitPoints_Hook,(PVOID*) &CNWSCreature__GetMaxHitPoints, "DisableHitPoints", "Enabling to modify hitpoints");
 	CreateHook(0x548220,CNWSCreature__GetAmmunitionAvailable_Hook, (PVOID*)&CNWSCreature__GetAmmunitionAvailable, "DisableRangedWeapons","Enabling custom ranged weapons");
 	CreateHook(0x548100,CNWSCreature__ResolveAmmunition_Hook, (PVOID*)&CNWSCreature__ResolveAmmunition, "DisableRangedWeapons","Enabling Boomerang item property");
@@ -6920,15 +6960,18 @@ void HookFunctions()
 	ok+= CreateHook(0x59D610,CNWSItemPropertyHandler__RemoveBonusSpellOfLevel_Hook, (PVOID*)&CNWSItemPropertyHandler__RemoveBonusSpellOfLevel, "DisableSpellSlotsInPolymorphHook","RemoveBonusSpellOfLevel function");
 	ok+= CreateHook(0x498AB0,CNWSCreature__UpdateAttributesOnEffect_Hook, (PVOID*)&CNWSCreature__UpdateAttributesOnEffect, "DisableSpellSlotsInPolymorphHook","UpdateAttributtesOnEffect function");
 	ok+= CreateHook(0x46C630,CNWSCreatureStats_ClassInfo__SetNumberMemorizedSpellSlots_Hook, (PVOID*)&CNWSCreatureStats_ClassInfo__SetNumberMemorizedSpellSlots, "DisableSpellSlotsInPolymorphHook","SetNumberMemorizedSpellSlots function");
-	
-	if(ok < 6)
-	{
-		fprintf_s(logFile, "o Hooking neccessary functions to fix spell slots in polymorph: ERROR, %i Hooks failed, this feature might not work properly!\n");
-	}
-	else
-	{
-		fprintf_s(logFile, "o Hooking neccessary functions to fix spell slots in polymorph: SUCCESS.\n");
-	}
+	fprintf_s(logFile, ok == 6 ? "SUCCESS.\n" : "ERROR, %i Hooks failed, this feature might not work properly!\n");
+
+	//feat uses
+	fprintf_s(logFile, "o Hooking neccessary functions to fix feat uses after relogging/reloading: ");
+	ok = 0;
+	ok+= CreateHook(0x47F8C0,CNWSCreatureStats__GetFeatTotalUses_Hook,(PVOID*)&CNWSCreatureStats__GetFeatTotalUses, "DisableFeatUses", "Enabling Gruumsh rage stacking");
+	ok+= CreateHook(0x47EF10,CNWSCreatureStats__GetFeatRemainingUses_Hook,(PVOID*)&CNWSCreatureStats__GetFeatRemainingUses, "DisableFeatUses", "Enabling modify number of feat uses");
+	ok+= CreateHook(0x47EE20,CNWSCreatureStats__SetFeatRemainingUses_Hook,(PVOID*)&CNWSCreatureStats__SetFeatRemainingUses, "DisableFeatUses", "Enabling modify number of feat uses");
+	ok+= CreateHook(0x4801D0,CNWSCreatureStats__ResetFeatRemainingUses_Hook,(PVOID*)&CNWSCreatureStats__ResetFeatRemainingUses, "DisableFeatUses", "Enabling modify number of feat uses");	
+	ok+= CreateHook(0x480240,CNWSCreatureStats__IncrementFeatRemainingUses_Hook,(PVOID*)&CNWSCreatureStats__IncrementFeatRemainingUses, "DisableFeatUses", "Enabling modify number of feat uses");
+	ok+= CreateHook(0x480200,CNWSCreatureStats__DecrementFeatRemainingUses_Hook,(PVOID*)&CNWSCreatureStats__DecrementFeatRemainingUses, "DisableFeatUses", "Enabling modify number of feat uses");
+	fprintf_s(logFile, ok == 6 ? "SUCCESS.\n" : "ERROR, %i Hooks failed, this feature might not work properly!\n");
 
 	//development
 
@@ -8589,6 +8632,7 @@ void PatchImage()
 	VirtualProtect((DWORD*)pPatch, 1, DefaultPrivs, NULL);
 	fprintf(logFile, "o Fixing nDamagePower parameter in EffectDamage.\n");
 
+	/*
 	pPatch = (unsigned char *) 0x479CF6;//CNWSCreatureStats::ReadStatsFromGFF
 	VirtualProtect((DWORD*)pPatch, 1, PAGE_EXECUTE_READWRITE, &DefaultPrivs);
 	memset((PVOID)pPatch, '\x90', 8);
@@ -8596,6 +8640,7 @@ void PatchImage()
 	*((uint32_t *)(pPatch + 1)) = (uint32_t)Hook_FeatUses - (uint32_t)(pPatch + 5);
 	VirtualProtect((DWORD*)pPatch, 1, DefaultPrivs, NULL);
 	fprintf(logFile, "o Correcting feat uses when relogging.\n");
+	*/
 
 	pPatch = (unsigned char *) 0x4F0E50;//CNWSEffectListHandler::OnApplySetState - sleep
 	VirtualProtect((DWORD*)pPatch, 1, PAGE_EXECUTE_READWRITE, &DefaultPrivs);
