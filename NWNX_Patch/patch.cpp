@@ -686,7 +686,7 @@ unsigned char __fastcall CNWSCreatureStats__GetFeatRemainingUses_Hook(CNWSCreatu
 		}
 		featuses = (CNWSStats_FeatUses*)(CExoArrayList_ptr_get(&(pThis->cs_featuses), ++th));
 	}
-	return 0;
+	return 100;
 }
 
 void __fastcall CNWSCreatureStats__SetFeatRemainingUses_Hook(CNWSCreatureStats *pThis, void *, unsigned short feat_id, unsigned char feat_uses)
