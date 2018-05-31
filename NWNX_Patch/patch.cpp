@@ -1106,23 +1106,32 @@ int __fastcall CNWSEffectListHandler__OnEffectApplied_Hook(CNWSEffectListHandler
 {
 	Log(3,"o CNWSEffectListHandler__OnEffectApplied start\n");
 	int nRun = 0;
-	if(eff->eff_type >= 96 || (effects_2da && effects_2da->GetINTEntry_intcol(eff->eff_type,1,&nRun) && nRun == 1)) 
+	if(eff->eff_type < 96)
 	{
-		CNWSCreature *cre = NWN_AppManager->app_server->srv_internal->GetCreatureByGameObjectID(obj->obj_generic.obj_id);
-		if(eff->eff_type >= 96 || (cre && (cre->cre_is_pc || (effects_2da->GetINTEntry_intcol(eff->eff_type,2,&nRun) && nRun == 0))))
+		char *var = new char[20];
+		sprintf_s(var,20,"%i_EffectRegistered",eff->eff_type);
+		CExoString VarName = CExoString(var);
+		delete var;
+		nRun = obj->obj_vartable.GetInt(VarName);
+		if(nRun != 2 && (!effects_2da || !effects_2da->GetINTEntry_intcol(eff->eff_type,1,&nRun) || nRun != 1))
 		{
-			if(eff->eff_type == 96 && cre) cre->m_bUpdateCombatInformation = 1;	
-			obj->obj_vartable.SetInt(CExoString("EFFECT_EVENT_EVENT_TYPE"),1,1);
-			helper_effect = eff;
-			NWN_VirtualMachine->Runscript(&CExoString("70_mod_effects"),obj->obj_generic.obj_id,1);
-			helper_effect = NULL;
-			obj->obj_vartable.DestroyInt(CExoString("EFFECT_EVENT_EVENT_TYPE"));
-			if(eff->eff_type >= 96) return 0;
-			else if(obj->obj_vartable.GetInt(CExoString("EFFECT_EVENT_BYPASS")) > 0)
-			{
-				obj->obj_vartable.DestroyInt(CExoString("EFFECT_EVENT_BYPASS"));
-				return 0;
-			}
+			return CNWSEffectListHandler__OnEffectApplied(pThis,NULL,obj,eff,n);
+		}
+	}
+	CNWSCreature *cre = NWN_AppManager->app_server->srv_internal->GetCreatureByGameObjectID(obj->obj_generic.obj_id);
+	if(nRun == 2 || (cre && (cre->cre_is_pc || (effects_2da->GetINTEntry_intcol(eff->eff_type,2,&nRun) && nRun == 0))))
+	{
+		if(eff->eff_type == 96 && cre) cre->m_bUpdateCombatInformation = 1;	
+		obj->obj_vartable.SetInt(CExoString("EFFECT_EVENT_EVENT_TYPE"),1,1);
+		helper_effect = eff;
+		NWN_VirtualMachine->Runscript(&CExoString("70_mod_effects"),obj->obj_generic.obj_id,1);
+		helper_effect = NULL;
+		obj->obj_vartable.DestroyInt(CExoString("EFFECT_EVENT_EVENT_TYPE"));
+		if(eff->eff_type >= 96) return 0;
+		else if(obj->obj_vartable.GetInt(CExoString("EFFECT_EVENT_BYPASS")) > 0)
+		{
+			obj->obj_vartable.DestroyInt(CExoString("EFFECT_EVENT_BYPASS"));
+			return 0;
 		}
 	}
 	return CNWSEffectListHandler__OnEffectApplied(pThis,NULL,obj,eff,n);
@@ -1132,22 +1141,32 @@ int __fastcall CNWSEffectListHandler__OnEffectRemoved_Hook(CNWSEffectListHandler
 {
 	Log(3,"o CNWSEffectListHandler__OnEffectRemoved start\n");
 	int nRun = 0;
-	if(eff->eff_type >= 96 || (effects_2da && effects_2da->GetINTEntry_intcol(eff->eff_type,1,&nRun) && nRun == 1)) 
+	if(eff->eff_type < 96)
 	{
-		CNWSCreature *cre = NWN_AppManager->app_server->srv_internal->GetCreatureByGameObjectID(obj->obj_generic.obj_id);
-		if(eff->eff_type >= 96 || (cre && (cre->cre_is_pc || (effects_2da->GetINTEntry_intcol(eff->eff_type,2,&nRun) && nRun == 0))))
+		char *var = new char[20];
+		sprintf_s(var,20,"%i_EffectRegistered",eff->eff_type);
+		CExoString VarName = CExoString(var);
+		delete var;
+		nRun = obj->obj_vartable.GetInt(VarName);
+		if(nRun != 2 && (!effects_2da || !effects_2da->GetINTEntry_intcol(eff->eff_type,1,&nRun) || nRun != 1))
 		{
-			if(eff->eff_type == 96 && cre) cre->m_bUpdateCombatInformation = 1;	
-			obj->obj_vartable.SetInt(CExoString("EFFECT_EVENT_EVENT_TYPE"),2,1);
-			helper_effect = eff;
-			NWN_VirtualMachine->Runscript(&CExoString("70_mod_effects"),obj->obj_generic.obj_id,1);
-			helper_effect = NULL;
-			obj->obj_vartable.DestroyInt(CExoString("EFFECT_EVENT_EVENT_TYPE"));
-			if(obj->obj_vartable.GetInt(CExoString("EFFECT_EVENT_BYPASS")) > 0)
-			{
-				obj->obj_vartable.DestroyInt(CExoString("EFFECT_EVENT_BYPASS"));
-				return 0;
-			}
+			return CNWSEffectListHandler__OnEffectRemoved(pThis,NULL,obj,eff);
+		}
+	}
+	CNWSCreature *cre = NWN_AppManager->app_server->srv_internal->GetCreatureByGameObjectID(obj->obj_generic.obj_id);
+	if(nRun == 2 || (cre && (cre->cre_is_pc || (effects_2da->GetINTEntry_intcol(eff->eff_type,2,&nRun) && nRun == 0))))
+	{
+		if(eff->eff_type == 96 && cre) cre->m_bUpdateCombatInformation = 1;	
+		obj->obj_vartable.SetInt(CExoString("EFFECT_EVENT_EVENT_TYPE"),2,1);
+		helper_effect = eff;
+		NWN_VirtualMachine->Runscript(&CExoString("70_mod_effects"),obj->obj_generic.obj_id,1);
+		helper_effect = NULL;
+		obj->obj_vartable.DestroyInt(CExoString("EFFECT_EVENT_EVENT_TYPE"));
+		if(eff->eff_type >= 96) return 0;
+		else if(obj->obj_vartable.GetInt(CExoString("EFFECT_EVENT_BYPASS")) > 0)
+		{
+			obj->obj_vartable.DestroyInt(CExoString("EFFECT_EVENT_BYPASS"));
+			return 0;
 		}
 	}
 	return CNWSEffectListHandler__OnEffectRemoved(pThis,NULL,obj,eff);
