@@ -823,13 +823,14 @@ int __fastcall CNWSCreature__GetTotalEffectBonus_Hook(CNWSCreature *pThis, void*
 			CGameEffect* e = *(pThis->obj.obj_effects+nEffect);
 			if(e->eff_type == EFFECT_TRUETYPE_ATTACK_INCREASE && e->eff_integers[5] == 1)
 			{
-				e->eff_type = 99;
+				e->eff_integers[6] = e->eff_integers[0];
+				e->eff_integers[0] = 0;
 				if((!e->eff_integers[1] || (e->eff_integers[1] == wpn_type || (e->eff_integers[1] == 6 && (wpn_type == 1 || wpn_type == 3)) || (wpn_type == 8 && e->eff_integers[1] == 7))) &&
 					(e->eff_integers[2] == RACIAL_TYPE_INVALID || (target && target->cre_stats->cs_race == e->eff_integers[2])) && 
 					(!e->eff_integers[3] || (target && target->cre_stats->GetSimpleAlignmentLawChaos() == e->eff_integers[3])) &&
 					(!e->eff_integers[4] || (target && target->cre_stats->GetSimpleAlignmentGoodEvil() == e->eff_integers[4])))
 				{
-					bonus+= e->eff_integers[0];
+					bonus+= e->eff_integers[6];
 				}
 			}
 		}	
@@ -837,9 +838,10 @@ int __fastcall CNWSCreature__GetTotalEffectBonus_Hook(CNWSCreature *pThis, void*
 		for(unsigned int nEffect = 0; nEffect < pThis->obj.obj_effects_len; nEffect++)
 		{
 			CGameEffect* e = *(pThis->obj.obj_effects+nEffect);
-			if(e->eff_type == 99)
+			if(e->eff_type == EFFECT_TRUETYPE_ATTACK_INCREASE && e->eff_integers[6] > 0)
 			{
-				e->eff_type = EFFECT_TRUETYPE_ATTACK_INCREASE;
+				e->eff_integers[0] = e->eff_integers[6];
+				e->eff_integers[6] = 0;
 			}
 		}
 		return retVal+bonus;
