@@ -849,14 +849,14 @@ int __fastcall CNWSCreature__GetTotalEffectBonus_Hook(CNWSCreature *pThis, void*
 		int bonus = 0;
 		for(unsigned int nEffect = 0; nEffect < pThis->obj.obj_effects_len; nEffect++)
 		{
-			
 			CGameEffect* e = *(pThis->obj.obj_effects+nEffect);
 			if(e->eff_type == EFFECT_TRUETYPE_ABILITY_INCREASE && e->eff_integers[5] == 1)
 			{
-				e->eff_type = 99;
+				e->eff_integers[6] = e->eff_integers[1];
+				e->eff_integers[1] = 0;
 				if(e->eff_integers[0] == a9)
 				{
-					bonus+= e->eff_integers[1];	
+					bonus+= e->eff_integers[6];	
 				}
 			}
 		}	
@@ -864,9 +864,10 @@ int __fastcall CNWSCreature__GetTotalEffectBonus_Hook(CNWSCreature *pThis, void*
 		for(unsigned int nEffect = 0; nEffect < pThis->obj.obj_effects_len; nEffect++)
 		{
 			CGameEffect* e = *(pThis->obj.obj_effects+nEffect);
-			if(e->eff_type == 99)
+			if(e->eff_type == EFFECT_TRUETYPE_ABILITY_INCREASE && e->eff_integers[6] > 0)
 			{
-				e->eff_type = EFFECT_TRUETYPE_ABILITY_INCREASE;
+				e->eff_integers[1] = e->eff_integers[6];
+				e->eff_integers[6] = 0;
 			}
 		}
 		return retVal+bonus;	
