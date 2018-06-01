@@ -5962,27 +5962,32 @@ int __fastcall CNWSCreatureStats__GetCriticalHitRoll_Hook(CNWSCreatureStats *pTh
 		}
 		else
 		{
+			baseitem = 36;
 			weapon = pThis->cs_original->cre_equipment->GetItemInSlot(EQUIPMENT_SLOT_ARMS);
 		}
 	}	
 	if(baseitem > -1)
 	{
-		if(weapon->obj.obj_vartable.MatchIndex(CExoString("CriticalThreatOverride"),VARIABLE_TYPE_INT,0) != NULL)
+		if(baseitem != 36)
 		{
-			return weapon->obj.obj_vartable.GetInt(CExoString("CriticalThreatOverride"));
+			threat = NWN_Rules->m_pBaseItemArray->GetBaseItem(baseitem)->CritThreat;
+			if(weapon->obj.obj_vartable.MatchIndex(CExoString("CriticalThreatOverride"),VARIABLE_TYPE_INT,0) != NULL)
+			{
+				return weapon->obj.obj_vartable.GetInt(CExoString("CriticalThreatOverride"));
+			}
 		}
-		threat = NWN_Rules->m_pBaseItemArray->GetBaseItem(baseitem)->CritThreat;
+		else if(pThis->cs_original->obj.obj_vartable.MatchIndex(CExoString("CriticalThreatOverride"),VARIABLE_TYPE_INT,0) != NULL)
+		{
+			return pThis->cs_original->obj.obj_vartable.GetInt(CExoString("CriticalThreatOverride"));
+		}
+
 		if(threat < 1) threat = 1;
 		if(pThis->HasFeat(885) && pThis->GetIsWeaponOfChoice(baseitem))//ki critical
 		{
 			bonus+= 2;
 		}
 	}
-	else if(pThis->cs_original->obj.obj_vartable.MatchIndex(CExoString("CriticalThreatOverride"),VARIABLE_TYPE_INT,0) != NULL)
-	{
-		return pThis->cs_original->obj.obj_vartable.GetInt(CExoString("CriticalThreatOverride"));
-	}
-	if(pThis->GetWeaponImprovedCritical(baseitem > -1 ? weapon : NULL))
+	if(pThis->GetWeaponImprovedCritical(baseitem != 36 ? weapon : NULL))
 	{
 		bonus+= threat;
 	}
@@ -6035,16 +6040,24 @@ int __fastcall CNWSCreatureStats__GetCriticalHitMultiplier_Hook(CNWSCreatureStat
 		}
 		else
 		{
+			baseitem = 36;
 			weapon = pThis->cs_original->cre_equipment->GetItemInSlot(EQUIPMENT_SLOT_ARMS);
 		}
 	}	
 	if(baseitem > -1)
 	{
-		if(weapon->obj.obj_vartable.MatchIndex(CExoString("CriticalMultiplierOverride"),VARIABLE_TYPE_INT,0) != NULL)
+		if(baseitem != 36)
 		{
-			return weapon->obj.obj_vartable.GetInt(CExoString("CriticalMultiplierOverride"));
+			multiplier = NWN_Rules->m_pBaseItemArray->GetBaseItem(baseitem)->CritHitMult;
+			if(weapon->obj.obj_vartable.MatchIndex(CExoString("CriticalMultiplierOverride"),VARIABLE_TYPE_INT,0) != NULL)
+			{
+				return weapon->obj.obj_vartable.GetInt(CExoString("CriticalMultiplierOverride"));
+			}
 		}
-		multiplier = NWN_Rules->m_pBaseItemArray->GetBaseItem(baseitem)->CritHitMult;
+		else if(pThis->cs_original->obj.obj_vartable.MatchIndex(CExoString("CriticalMultiplierOverride"),VARIABLE_TYPE_INT,0) != NULL)
+		{
+			return pThis->cs_original->obj.obj_vartable.GetInt(CExoString("CriticalMultiplierOverride"));
+		}
 		if(multiplier < 1) multiplier = 1;
 		if(pThis->HasFeat(883) && pThis->GetIsWeaponOfChoice(baseitem))//ki critical
 		{
