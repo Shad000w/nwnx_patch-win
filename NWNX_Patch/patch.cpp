@@ -4880,6 +4880,21 @@ void NWNXPatch_Funcs(CNWSScriptVarTable *pThis, int nFunc, char *Params)
 			fprintf(logFile, "ERROR: RemoveFeat(%08X,%i,%i) used with incorrect parameters!\n",oID,nFeat,bRemoveFromLevel);
 		}
 	}
+	else if(nFunc == 445)//GetRoundStarted
+	{
+		unsigned long oID = OBJECT_INVALID;
+		sscanf_s(Params,"%x",&oID);
+		CNWSCreature *cre = NWN_AppManager->app_server->srv_internal->GetCreatureByGameObjectID(oID);
+		if(oID != OBJECT_INVALID && cre)
+		{
+			retVal = cre->cre_combat_round->m_bRoundStarted;
+		}
+		else
+		{
+			fprintf(logFile, "ERROR: GetRoundStarted(%08X) used with incorrect parameters!\n",oID);
+		}
+		pThis->SetInt(VarName,retVal,0);
+	}
 	else if(nFunc == 501)//GetKnowsSpell
 	{
 		unsigned long oID = OBJECT_INVALID, cls_id = CLASS_TYPE_INVALID, spell_id = OBJECT_INVALID;
