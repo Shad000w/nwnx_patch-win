@@ -6578,6 +6578,9 @@ int __fastcall CNWSCreature__CanUseItem_Hook(CNWSCreature *pThis, void*, CNWSIte
 			}
 		}
 	}
+	int nOverride = item->obj.obj_vartable.GetInt(CExoString("CanUse"));
+	if(nOverride > 0) return 1;
+	else if(nOverride < 0) return 0;
 	return CNWSCreature__CanUseItem(pThis,NULL,item,a1);
 }
 
