@@ -629,6 +629,7 @@ void (__fastcall *CNWSCreatureStats__SetFeatRemainingUses)(CNWSCreatureStats *pT
 void (__fastcall *CNWSCreatureStats__ResetFeatRemainingUses)(CNWSCreatureStats *pThis, void *);
 void (__fastcall *CNWSCreatureStats__IncrementFeatRemainingUses)(CNWSCreatureStats *pThis, void *, unsigned short feat_id);
 void (__fastcall *CNWSCreatureStats__DecrementFeatRemainingUses)(CNWSCreatureStats *pThis, void *, unsigned short feat_id);
+void (__fastcall *CNWSCreatureStats__AddFeat)(CNWSCreatureStats *pThis, void *, unsigned short feat_id);
 int (__fastcall *CNWSObject__GetIsPCDying)(CNWSObject *pThis, void*);
 void (__fastcall *CNWSCreature__RestoreItemProperties)(CNWSCreature *pThis, void*);
 void (__fastcall *CNWSItem__RemoveItemProperties)(CNWSItem *pThis, void*, CNWSCreature *cre, unsigned long l);
@@ -710,6 +711,7 @@ void __fastcall CNWSCreatureStats__SetFeatRemainingUses_Hook(CNWSCreatureStats *
 
 void __fastcall CNWSCreatureStats__ResetFeatRemainingUses_Hook(CNWSCreatureStats *pThis, void *)
 {
+	Log(2,"o CNWSCreatureStats__ResetFeatRemainingUses start\n");
 	unsigned int th = 0;
 	CNWSStats_FeatUses *featuses = (CNWSStats_FeatUses*)(CExoArrayList_ptr_get(&(pThis->cs_featuses), th));
 	while(featuses)
@@ -729,6 +731,25 @@ void __fastcall CNWSCreatureStats__DecrementFeatRemainingUses_Hook(CNWSCreatureS
 {
 	Log(2,"o CNWSCreatureStats__DecrementFeatRemainingUses start\n");
 	CNWSCreatureStats__IncrementFeatRemainingUses(pThis,NULL,feat_id);
+}
+
+void __fastcall CNWSCreatureStats__AddFeat_Hook(CNWSCreatureStats *pThis, void *, unsigned short feat_id)
+{
+	Log(2,"o CNWSCreatureStats__AddFeat start\n");
+	CNWSCreatureStats__AddFeat(pThis,NULL,feat_id);
+	CNWFeat *feat = NWN_Rules->GetFeat(feat_id);
+	if(!feat || !pThis->HasFeat(feat_id)) return;
+	unsigned int th = 0;
+	CNWSStats_FeatUses *featuses = (CNWSStats_FeatUses*)(CExoArrayList_ptr_get(&(pThis->cs_featuses), th));
+	while(featuses)
+	{
+		if(featuses->m_nFeat == feat_id)
+		{
+			featuses->m_nUsedToday = feat->m_nUsesPerDay;
+			return;
+		}
+		featuses = (CNWSStats_FeatUses*)(CExoArrayList_ptr_get(&(pThis->cs_featuses), ++th));
+	}
 }
 
 unsigned char __fastcall CNWSCreatureStats__GetFeatTotalUses_Hook(CNWSCreatureStats *pThis, void *, unsigned short feat_id)
@@ -6957,14 +6978,15 @@ void HookFunctions()
 	CreateHook(0x59FC80,CNWSItemPropertyHandler__RemoveHolyAvenger_Hook, (PVOID*)&CNWSItemPropertyHandler__RemoveHolyAvenger, "DisableHolyAvengerHook","Holy avenger weapon enhancement bug");
 	CreateHook(0x4A4F20,CNWSCreature__RestoreItemProperties_Hook,(PVOID*)&CNWSCreature__RestoreItemProperties, "DisableItemProperties", "Correcting losing spelluses when unequipping item with bonus spell slots #1");
 	CreateHook(0x4FE800,CNWSItem__RemoveItemProperties_Hook,(PVOID*)&CNWSItem__RemoveItemProperties, "DisableItemProperties", "Correcting losing spelluses when unequipping item with bonus spell slots #2");
-	
+
 	CreateHook(0x4A5080,CNWSCreature__ToggleMode_Hook, (PVOID*)&CNWSCreature__ToggleMode, "DisableToggleModeHook","ToggleMode function");
 	CreateHook(0x4BB4D0,CNWSCreature__SetCombatMode_Hook, (PVOID*)&CNWSCreature__SetCombatMode, "DisableToggleModeHook","Flurry of blows modification");
 
 	CreateHook(0x489890,CNWSCreatureStats__GetSpellResistance_Hook,(PVOID*)&CNWSCreatureStats__GetSpellResistance, "DisableSRHook", "Spell Resistance override");
 
+	//scripting commands
 	CreateHook(0x577DF0,CNWVirtualMachineCommands__ExecuteCommandApplyEffectOnObject_Hook,(PVOID*)&CNWVirtualMachineCommands__ExecuteCommandApplyEffectOnObject, "DisableApplyEffectOnObject", "ApplyEffectToObject extension");
-	CreateHook(0x570D20,CNWVirtualMachineCommands__ExecuteCommandGetRacialType_Hook,(PVOID*)&CNWVirtualMachineCommands__ExecuteCommandGetRacialType, "DisableRacialType", "GetRacialType extension");
+	CreateHook(0x5930F0,CNWVirtualMachineCommands__ExecuteCommandForceRest_Hook,(PVOID*)&CNWVirtualMachineCommands__ExecuteCommandForceRest, "DisableForceRest", "ForceRest extension");
 	CreateHook(0x5700A0,CNWVirtualMachineCommands__ExecuteCommandGetEffectSubType_Hook,(PVOID*)&CNWVirtualMachineCommands__ExecuteCommandGetEffectSubType, "DisableEffects", "Enabling effect modifications and additional effect information functions");
 	CreateHook(0x57F5E0,CNWVirtualMachineCommands__ExecuteCommandVersusEffect_Hook,(PVOID*)&CNWVirtualMachineCommands__ExecuteCommandVersusEffect, "DisableEffects", "Enabling VersusEffect to work with EffectDamageShield");
 	CreateHook(0x4AB140,CNWSCreature__GetTotalEffectBonus_Hook,(PVOID*)&CNWSCreature__GetTotalEffectBonus, "DisableGetTotalEffectBonus", "Enabling uncapped EffectAttackIncrease");
@@ -7042,9 +7064,11 @@ void HookFunctions()
 	ok+= CreateHook(0x4801D0,CNWSCreatureStats__ResetFeatRemainingUses_Hook,(PVOID*)&CNWSCreatureStats__ResetFeatRemainingUses, "DisableFeatUses", "Enabling modify number of feat uses");	
 	ok+= CreateHook(0x480240,CNWSCreatureStats__IncrementFeatRemainingUses_Hook,(PVOID*)&CNWSCreatureStats__IncrementFeatRemainingUses, "DisableFeatUses", "Enabling modify number of feat uses");
 	ok+= CreateHook(0x480200,CNWSCreatureStats__DecrementFeatRemainingUses_Hook,(PVOID*)&CNWSCreatureStats__DecrementFeatRemainingUses, "DisableFeatUses", "Enabling modify number of feat uses");
-	fprintf_s(logFile, ok == 6 ? "SUCCESS.\n" : "ERROR, %i Hooks failed, this feature might not work properly!\n");
+	ok+= CreateHook(0x47EBC0,CNWSCreatureStats__AddFeat_Hook,(PVOID*)&CNWSCreatureStats__AddFeat, "DisableFeatUses","AddFeat function");
+	fprintf_s(logFile, ok == 7 ? "SUCCESS.\n" : "ERROR, %i Hooks failed, this feature might not work properly!\n");
 
 	//development
+	//CreateHook(0x570D20,CNWVirtualMachineCommands__ExecuteCommandGetRacialType_Hook,(PVOID*)&CNWVirtualMachineCommands__ExecuteCommandGetRacialType, "DisableRacialType", "GetRacialType extension");
 
 	fprintf(logFile,"\n");
 	fflush(logFile);
