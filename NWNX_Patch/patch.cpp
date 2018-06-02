@@ -528,6 +528,7 @@ int (__fastcall *CNWVirtualMachineCommands__ExecuteCommandApplyEffectOnObject)(C
 int (__fastcall *CNWVirtualMachineCommands__ExecuteCommandGetRacialType)(CVirtualMachineCommands *vm_cmds, void*, int cmd, int args);
 int (__fastcall *CNWVirtualMachineCommands__ExecuteCommandGetEffectSubType)(CVirtualMachineCommands *vm_cmds, void*, int cmd, int args);
 int (__fastcall *CNWVirtualMachineCommands__ExecuteCommandVersusEffect)(CVirtualMachineCommands *vm_cmds, void*, int cmd, int args);
+int (__fastcall *CNWVirtualMachineCommands__ExecuteCommandForceRest)(CVirtualMachineCommands *vm_cmds, void*, int cmd, int args);
 //effects
 void (__fastcall *CGameEffect__SetCreator)(CGameEffect *pThis, void*, unsigned long creatorID);
 int (__fastcall *CNWSEffectListHandler__OnEffectApplied)(CNWSEffectListHandler *pThis, void*, CNWSObject *obj, CGameEffect *eff, int arg1);
@@ -2144,6 +2145,41 @@ int __fastcall CNWVirtualMachineCommands__ExecuteCommandGetRacialType_Hook(CVirt
 		{
 			return 0;
 		}
+	}
+	return -638;
+}
+
+int __fastcall CNWVirtualMachineCommands__ExecuteCommandForceRest_Hook(CVirtualMachineCommands *, void*, int, int)
+{
+	Log(2,"o CNWVirtualMachineCommands__ExecuteCommandForceRest start\n");
+	uint32_t obj_id;
+	if(!NWN_VirtualMachine->StackPopObject(&obj_id))
+	{
+		return -639;
+	}
+	CNWSCreature *cre = (NWN_AppManager->app_server->srv_internal->GetCreatureByGameObjectID(obj_id));
+	if(cre && !cre->obj.GetDead())
+	{
+		cre->obj.ClearAllActions();
+		cre->obj.ClearSpellEffectsOnOthers();
+		cre->RemoveBadEffects();
+		int nLevel = 0;
+		do
+		{
+			cre->cre_stats->ReadySpellLevel(nLevel++);
+		}
+		while(nLevel < 10);
+		cre->obj.obj_hp_cur = cre->GetMaxHitPoints(1);
+		cre->RestoreItemProperties();
+		cre->cre_stats->ResetFeatRemainingUses();
+		cre->cre_stats->ResetSpellLikeAbilities();
+		cre->UpdateEncumbranceState(1);
+		
+		CNWSModule *mod = NWN_AppManager->app_server->srv_internal->GetModule();
+		mod->m_nLastRestEventType = 4;
+		mod->m_oidLastRested = obj_id;
+		NWN_VirtualMachine->Runscript(&script_rest,mod->obj_id);
+		return 0;	
 	}
 	return -638;
 }
