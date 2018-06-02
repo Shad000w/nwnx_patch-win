@@ -25,6 +25,13 @@ void			(__thiscall *CNWSObject__UpdateEffectList)(CNWSObject *pThis, unsigned lo
 
 void 				(__thiscall *CNWSObject__UpdateEffectPointers)(CNWSObject *pThis) = (void (__thiscall*)(CNWSObject *pThis))0x46BDD0;
 
+void 			(__thiscall *CNWSObject__ClearAllActions)(CNWSObject *) = (void(__thiscall*)(CNWSObject *))0x4DF9A0;
+
+
+void CNWSObject_s::ClearAllActions() {
+	return CNWSObject__ClearAllActions(this);
+}
+
 void CNWSObject_s::UpdateEffectPointers( ) {
 	CNWSObject__UpdateEffectPointers(this);
 }

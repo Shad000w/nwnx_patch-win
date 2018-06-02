@@ -816,7 +816,7 @@ int __fastcall CNWSCreature__GetTotalEffectBonus_Hook(CNWSCreature *pThis, void*
 	if(a2 == 1)
 	{
 		int bonus = 0;
-		char wpn_type = pThis->cre_combat_round->GetAttack(pThis->cre_combat_round->CurrentAttack)->m_nWeaponAttackType;
+		char wpn_type = pThis->cre_combat_round->GetAttack(pThis->cre_combat_round->m_nCurrentAttack)->m_nWeaponAttackType;
 		CNWSCreature *target = !obj_a ? NULL : NWN_AppManager->app_server->srv_internal->GetCreatureByGameObjectID(obj_a->obj_generic.obj_id);
 		for(unsigned int nEffect = 0; nEffect < pThis->obj.obj_effects_len; nEffect++)
 		{
@@ -913,7 +913,7 @@ int __fastcall CNWSCreature__UseFeat_Hook(CNWSCreature *pThis, void*, unsigned s
 			pThis->obj.obj_vartable.SetObject(CExoString("SPECIAL_ATTACK_TARGET"),targetID);
 			if(!NWN_VirtualMachine->Runscript(&CExoString("70_s2_specattk"),pThis->obj.obj_generic.obj_id,1))
 			{
-				//this will happen if user doesn't have script 70_s2_stunfist which means he most likely uses plugin but not patch
+				//this will happen if user doesn't have script 70_s2_specattk which means he most likely uses plugin but not patch
 				break;
 			}
 			//cleanup
@@ -930,38 +930,38 @@ void __fastcall CNWSCombatRound__InitializeNumberOfAttacks_Hook(CNWSCombatRound 
 {
 	Log(2,"o CNWSCombatRound__InitializeNumberOfAttacks start\n");
 	CNWSCombatRound__InitializeNumberOfAttacks(pThis,NULL);
-	int attk_override = pThis->Creature->obj.obj_vartable.GetInt(CExoString("NUM_ONHAND"));
+	int attk_override = pThis->m_pBaseCreature->obj.obj_vartable.GetInt(CExoString("NUM_ONHAND"));
 	if(attk_override > 0)
-		pThis->OnHandAttacks = attk_override;
-	if(pThis->Creature->obj.obj_vartable.MatchIndex(CExoString("NUM_OFFHAND"),VARIABLE_TYPE_INT,0) != NULL)
-		pThis->OffHandAttacks = pThis->Creature->obj.obj_vartable.GetInt(CExoString("NUM_OFFHAND"));
-	if(pThis->Creature->obj.obj_vartable.MatchIndex(CExoString("NUM_EXTRA"),VARIABLE_TYPE_INT,0) != NULL)
-		pThis->AdditAttacks = pThis->Creature->obj.obj_vartable.GetInt(CExoString("NUM_EXTRA"));
+		pThis->m_nOnHandAttacks = attk_override;
+	if(pThis->m_pBaseCreature->obj.obj_vartable.MatchIndex(CExoString("NUM_OFFHAND"),VARIABLE_TYPE_INT,0) != NULL)
+		pThis->m_nOffHandAttacks = pThis->m_pBaseCreature->obj.obj_vartable.GetInt(CExoString("NUM_OFFHAND"));
+	if(pThis->m_pBaseCreature->obj.obj_vartable.MatchIndex(CExoString("NUM_EXTRA"),VARIABLE_TYPE_INT,0) != NULL)
+		pThis->m_nAdditionalAttacks = pThis->m_pBaseCreature->obj.obj_vartable.GetInt(CExoString("NUM_EXTRA"));
 }
 
 void __fastcall CNWSCombatRound__StartCombatRound_Hook(CNWSCombatRound *pThis, void *, unsigned long a1)
 {
 	Log(2,"o CNWSCombatRound__StartCombatRound start\n");
-	if(!pThis || !pThis->Creature) return;
+	if(!pThis || !pThis->m_pBaseCreature) return;
 /*	if(pThis->Creature->cre_is_pc)
 	{
 		NWN_VirtualMachine->Runscript(&CExoString("70_mod_cmbround"),pThis->Creature->obj.obj_generic.obj_id,1);//probably useless
 	}*/
 	CNWSCombatRound__StartCombatRound(pThis,NULL,a1);
-	if(pThis->Creature->obj.obj_vartable.MatchIndex(CExoString("NUM_ED"),VARIABLE_TYPE_INT,0) != NULL)
+	if(pThis->m_pBaseCreature->obj.obj_vartable.MatchIndex(CExoString("NUM_ED"),VARIABLE_TYPE_INT,0) != NULL)
 	{
-		pThis->Creature->obj.obj_vartable.SetInt(CExoString("NUM_ED_Used"),pThis->Creature->obj.obj_vartable.GetInt(CExoString("NUM_ED")),1);
+		pThis->m_pBaseCreature->obj.obj_vartable.SetInt(CExoString("NUM_ED_Used"),pThis->m_pBaseCreature->obj.obj_vartable.GetInt(CExoString("NUM_ED")),1);
 	}
-	if(pThis->Creature->obj.obj_vartable.MatchIndex(CExoString("NUM_DEFLECT"),VARIABLE_TYPE_INT,0) != NULL)
+	if(pThis->m_pBaseCreature->obj.obj_vartable.MatchIndex(CExoString("NUM_DEFLECT"),VARIABLE_TYPE_INT,0) != NULL)
 	{
-		pThis->Creature->obj.obj_vartable.SetInt(CExoString("NUM_DEFLECT_Used"),pThis->Creature->obj.obj_vartable.GetInt(CExoString("NUM_DEFLECT")),1);
+		pThis->m_pBaseCreature->obj.obj_vartable.SetInt(CExoString("NUM_DEFLECT_Used"),pThis->m_pBaseCreature->obj.obj_vartable.GetInt(CExoString("NUM_DEFLECT")),1);
 	}
-	if(pThis->Creature->obj.obj_vartable.MatchIndex(CExoString("NUM_AOO"),VARIABLE_TYPE_INT,0) != NULL)
+	if(pThis->m_pBaseCreature->obj.obj_vartable.MatchIndex(CExoString("NUM_AOO"),VARIABLE_TYPE_INT,0) != NULL)
 	{
-		int numAOOs = pThis->Creature->obj.obj_vartable.GetInt(CExoString("NUM_AOO"));
+		int numAOOs = pThis->m_pBaseCreature->obj.obj_vartable.GetInt(CExoString("NUM_AOO"));
 		if(numAOOs >= 0)
 		{
-			pThis->NumAOOs = numAOOs;
+			pThis->m_nAttacksOfOpportunity = numAOOs;
 		}
 	}
 }
@@ -4458,43 +4458,43 @@ void NWNXPatch_Funcs(CNWSScriptVarTable *pThis, int nFunc, char *Params)
 			switch(type)
 			{
 			case 1:
-				retVal = cre->cre_combat_round->GetAttack(cre->cre_combat_round->CurrentAttack)->m_nDamage[0];
+				retVal = cre->cre_combat_round->GetAttack(cre->cre_combat_round->m_nCurrentAttack)->m_nDamage[0];
 			break;
 			case 2:
-				retVal = cre->cre_combat_round->GetAttack(cre->cre_combat_round->CurrentAttack)->m_nDamage[1];
+				retVal = cre->cre_combat_round->GetAttack(cre->cre_combat_round->m_nCurrentAttack)->m_nDamage[1];
 			break;
 			case 4:
-				retVal = cre->cre_combat_round->GetAttack(cre->cre_combat_round->CurrentAttack)->m_nDamage[2];
+				retVal = cre->cre_combat_round->GetAttack(cre->cre_combat_round->m_nCurrentAttack)->m_nDamage[2];
 			break;
 			case 8:
-				retVal = cre->cre_combat_round->GetAttack(cre->cre_combat_round->CurrentAttack)->m_nDamage[3];
+				retVal = cre->cre_combat_round->GetAttack(cre->cre_combat_round->m_nCurrentAttack)->m_nDamage[3];
 			break;
 			case 16:
-				retVal = cre->cre_combat_round->GetAttack(cre->cre_combat_round->CurrentAttack)->m_nDamage[4];
+				retVal = cre->cre_combat_round->GetAttack(cre->cre_combat_round->m_nCurrentAttack)->m_nDamage[4];
 			break;
 			case 32:
-				retVal = cre->cre_combat_round->GetAttack(cre->cre_combat_round->CurrentAttack)->m_nDamage[5];
+				retVal = cre->cre_combat_round->GetAttack(cre->cre_combat_round->m_nCurrentAttack)->m_nDamage[5];
 			break;
 			case 64:
-				retVal = cre->cre_combat_round->GetAttack(cre->cre_combat_round->CurrentAttack)->m_nDamage[6];
+				retVal = cre->cre_combat_round->GetAttack(cre->cre_combat_round->m_nCurrentAttack)->m_nDamage[6];
 			break;
 			case 128:
-				retVal = cre->cre_combat_round->GetAttack(cre->cre_combat_round->CurrentAttack)->m_nDamage[7];
+				retVal = cre->cre_combat_round->GetAttack(cre->cre_combat_round->m_nCurrentAttack)->m_nDamage[7];
 			break;
 			case 256:
-				retVal = cre->cre_combat_round->GetAttack(cre->cre_combat_round->CurrentAttack)->m_nDamage[8];
+				retVal = cre->cre_combat_round->GetAttack(cre->cre_combat_round->m_nCurrentAttack)->m_nDamage[8];
 			break;
 			case 512:
-				retVal = cre->cre_combat_round->GetAttack(cre->cre_combat_round->CurrentAttack)->m_nDamage[9];
+				retVal = cre->cre_combat_round->GetAttack(cre->cre_combat_round->m_nCurrentAttack)->m_nDamage[9];
 			break;
 			case 1024:
-				retVal = cre->cre_combat_round->GetAttack(cre->cre_combat_round->CurrentAttack)->m_nDamage[10];
+				retVal = cre->cre_combat_round->GetAttack(cre->cre_combat_round->m_nCurrentAttack)->m_nDamage[10];
 			break;
 			case 2048:
-				retVal = cre->cre_combat_round->GetAttack(cre->cre_combat_round->CurrentAttack)->m_nDamage[11];
+				retVal = cre->cre_combat_round->GetAttack(cre->cre_combat_round->m_nCurrentAttack)->m_nDamage[11];
 			break;
 			case 4096:
-				retVal = cre->cre_combat_round->GetAttack(cre->cre_combat_round->CurrentAttack)->m_nDamage[12];
+				retVal = cre->cre_combat_round->GetAttack(cre->cre_combat_round->m_nCurrentAttack)->m_nDamage[12];
 			break;
 			default:
 				fprintf(logFile, "ERROR: SetTotalDamageDealtByType(%08X,%i) used with incorrect parameters!\n",oID,type);
@@ -4517,43 +4517,43 @@ void NWNXPatch_Funcs(CNWSScriptVarTable *pThis, int nFunc, char *Params)
 			switch(type)
 			{
 			case 1:
-				cre->cre_combat_round->GetAttack(cre->cre_combat_round->CurrentAttack)->m_nDamage[0] = (unsigned short)damage;
+				cre->cre_combat_round->GetAttack(cre->cre_combat_round->m_nCurrentAttack)->m_nDamage[0] = (unsigned short)damage;
 			break;
 			case 2:
-				cre->cre_combat_round->GetAttack(cre->cre_combat_round->CurrentAttack)->m_nDamage[1] = (unsigned short)damage;
+				cre->cre_combat_round->GetAttack(cre->cre_combat_round->m_nCurrentAttack)->m_nDamage[1] = (unsigned short)damage;
 			break;
 			case 4:
-				cre->cre_combat_round->GetAttack(cre->cre_combat_round->CurrentAttack)->m_nDamage[2] = (unsigned short)damage;
+				cre->cre_combat_round->GetAttack(cre->cre_combat_round->m_nCurrentAttack)->m_nDamage[2] = (unsigned short)damage;
 			break;
 			case 8:
-				cre->cre_combat_round->GetAttack(cre->cre_combat_round->CurrentAttack)->m_nDamage[3] = (unsigned short)damage;
+				cre->cre_combat_round->GetAttack(cre->cre_combat_round->m_nCurrentAttack)->m_nDamage[3] = (unsigned short)damage;
 			break;
 			case 16:
-				cre->cre_combat_round->GetAttack(cre->cre_combat_round->CurrentAttack)->m_nDamage[4] = (unsigned short)damage;
+				cre->cre_combat_round->GetAttack(cre->cre_combat_round->m_nCurrentAttack)->m_nDamage[4] = (unsigned short)damage;
 			break;
 			case 32:
-				cre->cre_combat_round->GetAttack(cre->cre_combat_round->CurrentAttack)->m_nDamage[5] = (unsigned short)damage;
+				cre->cre_combat_round->GetAttack(cre->cre_combat_round->m_nCurrentAttack)->m_nDamage[5] = (unsigned short)damage;
 			break;
 			case 64:
-				cre->cre_combat_round->GetAttack(cre->cre_combat_round->CurrentAttack)->m_nDamage[6] = (unsigned short)damage;
+				cre->cre_combat_round->GetAttack(cre->cre_combat_round->m_nCurrentAttack)->m_nDamage[6] = (unsigned short)damage;
 			break;
 			case 128:
-				cre->cre_combat_round->GetAttack(cre->cre_combat_round->CurrentAttack)->m_nDamage[7] = (unsigned short)damage;
+				cre->cre_combat_round->GetAttack(cre->cre_combat_round->m_nCurrentAttack)->m_nDamage[7] = (unsigned short)damage;
 			break;
 			case 256:
-				cre->cre_combat_round->GetAttack(cre->cre_combat_round->CurrentAttack)->m_nDamage[8] = (unsigned short)damage;
+				cre->cre_combat_round->GetAttack(cre->cre_combat_round->m_nCurrentAttack)->m_nDamage[8] = (unsigned short)damage;
 			break;
 			case 512:
-				cre->cre_combat_round->GetAttack(cre->cre_combat_round->CurrentAttack)->m_nDamage[9] = (unsigned short)damage;
+				cre->cre_combat_round->GetAttack(cre->cre_combat_round->m_nCurrentAttack)->m_nDamage[9] = (unsigned short)damage;
 			break;
 			case 1024:
-				cre->cre_combat_round->GetAttack(cre->cre_combat_round->CurrentAttack)->m_nDamage[10] = (unsigned short)damage;
+				cre->cre_combat_round->GetAttack(cre->cre_combat_round->m_nCurrentAttack)->m_nDamage[10] = (unsigned short)damage;
 			break;
 			case 2048:
-				cre->cre_combat_round->GetAttack(cre->cre_combat_round->CurrentAttack)->m_nDamage[11] = (unsigned short)damage;
+				cre->cre_combat_round->GetAttack(cre->cre_combat_round->m_nCurrentAttack)->m_nDamage[11] = (unsigned short)damage;
 			break;
 			case 4096:
-				cre->cre_combat_round->GetAttack(cre->cre_combat_round->CurrentAttack)->m_nDamage[12] = (unsigned short) damage;
+				cre->cre_combat_round->GetAttack(cre->cre_combat_round->m_nCurrentAttack)->m_nDamage[12] = (unsigned short) damage;
 			break;
 			default:
 				fprintf(logFile, "ERROR: SetTotalDamageDealtByType(%08X,%i,%i) used with incorrect parameters!\n",oID,type,damage);
@@ -4588,7 +4588,7 @@ void NWNXPatch_Funcs(CNWSScriptVarTable *pThis, int nFunc, char *Params)
 		CNWSCreature *cre = NWN_AppManager->app_server->srv_internal->GetCreatureByGameObjectID(oID);
 		if(oID != OBJECT_INVALID && cre && nRoll != OBJECT_INVALID && nRoll > 0 && nRoll < 256)
 		{
-			cre->cre_combat_round->GetAttack(cre->cre_combat_round->CurrentAttack)->m_nToHitRoll = (char) nRoll;
+			cre->cre_combat_round->GetAttack(cre->cre_combat_round->m_nCurrentAttack)->m_nToHitRoll = (char) nRoll;
 		}
 		else
 		{
@@ -4602,7 +4602,7 @@ void NWNXPatch_Funcs(CNWSScriptVarTable *pThis, int nFunc, char *Params)
 		CNWSCreature *cre = NWN_AppManager->app_server->srv_internal->GetCreatureByGameObjectID(oID);
 		if(oID != OBJECT_INVALID && cre && nSneak != OBJECT_INVALID && nSneak >= 0 && nSneak <= 3)
 		{
-			CNWSCombatAttackData *attack_data = cre->cre_combat_round->GetAttack(cre->cre_combat_round->CurrentAttack); 
+			CNWSCombatAttackData *attack_data = cre->cre_combat_round->GetAttack(cre->cre_combat_round->m_nCurrentAttack); 
 			if(nSneak == 0)
 			{
 				attack_data->m_bSneakAttack = false;
@@ -4630,7 +4630,7 @@ void NWNXPatch_Funcs(CNWSScriptVarTable *pThis, int nFunc, char *Params)
 		CNWSCreature *cre = NWN_AppManager->app_server->srv_internal->GetCreatureByGameObjectID(oID);
 		if(oID != OBJECT_INVALID && cre && nRoll > 0 && nRoll < 256)
 		{
-			cre->cre_combat_round->GetAttack(cre->cre_combat_round->CurrentAttack)->m_nThreatRoll = (char) nRoll;
+			cre->cre_combat_round->GetAttack(cre->cre_combat_round->m_nCurrentAttack)->m_nThreatRoll = (char) nRoll;
 		}
 		else
 		{
@@ -4644,7 +4644,7 @@ void NWNXPatch_Funcs(CNWSScriptVarTable *pThis, int nFunc, char *Params)
 		CNWSCreature *cre = NWN_AppManager->app_server->srv_internal->GetCreatureByGameObjectID(oID);
 		if(oID != OBJECT_INVALID && cre && nKill >= 0 && nKill <= 1)
 		{
-			cre->cre_combat_round->GetAttack(cre->cre_combat_round->CurrentAttack)->m_bKillingBlow = nKill;
+			cre->cre_combat_round->GetAttack(cre->cre_combat_round->m_nCurrentAttack)->m_bKillingBlow = nKill;
 		}
 		else
 		{
@@ -4658,8 +4658,8 @@ void NWNXPatch_Funcs(CNWSScriptVarTable *pThis, int nFunc, char *Params)
 		CNWSCreature *cre = NWN_AppManager->app_server->srv_internal->GetCreatureByGameObjectID(oID);
 		if(oID != OBJECT_INVALID && cre && nValue >= 0 && nValue <= 1)
 		{
-			cre->cre_combat_round->GetAttack(cre->cre_combat_round->CurrentAttack)->m_bCoupDeGrace = nValue;
-			cre->cre_combat_round->GetAttack(cre->cre_combat_round->CurrentAttack)->m_bKillingBlow = 1;
+			cre->cre_combat_round->GetAttack(cre->cre_combat_round->m_nCurrentAttack)->m_bCoupDeGrace = nValue;
+			cre->cre_combat_round->GetAttack(cre->cre_combat_round->m_nCurrentAttack)->m_bKillingBlow = 1;
 		}
 		else
 		{
@@ -4673,7 +4673,7 @@ void NWNXPatch_Funcs(CNWSScriptVarTable *pThis, int nFunc, char *Params)
 		CNWSCreature *cre = NWN_AppManager->app_server->srv_internal->GetCreatureByGameObjectID(oID);
 		if(oID != OBJECT_INVALID && cre && nValue >= 0 && nValue <= 1)
 		{
-			cre->cre_combat_round->GetAttack(cre->cre_combat_round->CurrentAttack)->m_nAttackResult = (unsigned char)nValue;
+			cre->cre_combat_round->GetAttack(cre->cre_combat_round->m_nCurrentAttack)->m_nAttackResult = (unsigned char)nValue;
 		}
 	}
 	else if(nFunc == 438)//GetStartingPackage
@@ -5563,7 +5563,7 @@ void __fastcall CNWSObject__ClearAllPartyInvalidActions_Hook(CNWSObject *pThis, 
 void __fastcall CNWSCreature__ResolveRangedSpecialAttack_Hook(CNWSCreature *pThis, void*, CNWSObject *target, int a1)
 {
 	Log(2,"o CNWSCreature__ResolveRangedSpecialAttack start\n");
-	CNWSCombatAttackData *attack = pThis->cre_combat_round->GetAttack(pThis->cre_combat_round->CurrentAttack);
+	CNWSCombatAttackData *attack = pThis->cre_combat_round->GetAttack(pThis->cre_combat_round->m_nCurrentAttack);
 	fprintf(logFile, "o ResolveRangedSpecialAttack: %x %i type %i ranged %i result %i\n",target->obj_generic.obj_id,a1,attack->m_nAttackType,attack->m_bRangedAttack,attack->m_nAttackResult);fflush(logFile);
 	//performs default attack subroutines
 	pThis->ResolveAttackRoll(target);
@@ -5615,7 +5615,7 @@ void __fastcall CNWSCreature__ResolveRangedSpecialAttack_Hook(CNWSCreature *pThi
 void __fastcall CNWSCreature__ResolveMeleeSpecialAttack_Hook(CNWSCreature *pThis, void*, int a1, int a2, CNWSObject *target, int a4)
 {
 	Log(2,"o CNWSCreature__ResolveMeleeSpecialAttack start\n");
-	CNWSCombatAttackData *attack = pThis->cre_combat_round->GetAttack(pThis->cre_combat_round->CurrentAttack);
+	CNWSCombatAttackData *attack = pThis->cre_combat_round->GetAttack(pThis->cre_combat_round->m_nCurrentAttack);
 	fprintf(logFile, "o ResolveMeleeSpecialAttack: %i %i %x %i type %i ranged %i result %i\n",a1,a2,target->obj_generic.obj_id,a4,attack->m_nAttackType,attack->m_bRangedAttack,attack->m_nAttackResult);fflush(logFile);
 	//performs default attack subroutines
 	pThis->ResolveAttackRoll(target);
@@ -5671,7 +5671,7 @@ int __fastcall CNWSCreatureStats__ResolveSpecialAttackAttackBonus_Hook(CNWSCreat
 	{
 		return 0;
 	}
-	CNWSCombatAttackData *attack_data = pThis->cs_original->cre_combat_round->GetAttack(pThis->cs_original->cre_combat_round->CurrentAttack);
+	CNWSCombatAttackData *attack_data = pThis->cs_original->cre_combat_round->GetAttack(pThis->cs_original->cre_combat_round->m_nCurrentAttack);
 	int attack_type = attack_data->m_nAttackType;//feat id
 	if(attack_type > 0)
 	{
@@ -5701,7 +5701,7 @@ int __fastcall CNWSCreatureStats__ResolveSpecialAttackDamageBonus_Hook(CNWSCreat
 	{
 		return 0;
 	}
-	CNWSCombatAttackData *attack_data = pThis->cs_original->cre_combat_round->GetAttack(pThis->cs_original->cre_combat_round->CurrentAttack);
+	CNWSCombatAttackData *attack_data = pThis->cs_original->cre_combat_round->GetAttack(pThis->cs_original->cre_combat_round->m_nCurrentAttack);
 	int attack_type = attack_data->m_nAttackType;//feat id
 	if(attack_type > 0)
 	{
@@ -6096,15 +6096,15 @@ void __fastcall CNWSCreature__ResolveAttack_Hook(CNWSCreature *pThis, void*, uns
 	if(cre)
 	{
 		int num_used = cre->obj.obj_vartable.GetInt(CExoString("NUM_ED_Used"));
-		if(cre->cre_combat_round->EpicDodgeUsed == 1 && num_used > 0)
+		if(cre->cre_combat_round->m_bEpicDodgeUsed == 1 && num_used > 0)
 		{
-			cre->cre_combat_round->EpicDodgeUsed = 0;
+			cre->cre_combat_round->m_bEpicDodgeUsed = 0;
 			cre->obj.obj_vartable.SetInt(CExoString("NUM_ED_Used"),num_used-1,1);
 		}
 		num_used = cre->obj.obj_vartable.GetInt(CExoString("NUM_DEFLECT_Used"));
-		if(cre->cre_combat_round->DeflectArrow == 0)
+		if(cre->cre_combat_round->m_bDeflectArrow == 0)
 		{
-			cre->cre_combat_round->DeflectArrow = 1;
+			cre->cre_combat_round->m_bDeflectArrow = 1;
 			cre->obj.obj_vartable.SetInt(CExoString("NUM_DEFLECT_Used"),num_used-1,1);
 		}
 	}
@@ -7203,8 +7203,19 @@ void Hook_SneakAttackCalculation()
 	__asm mov ebx, 0Ah
 	__asm mov DWORD PTR stats, esi
 
-	if(stats != NULL && (stats->cs_original->cre_combat_round->GetAttack(stats->cs_original->cre_combat_round->CurrentAttack)->m_bSneakAttack || (stats->HasFeat(834) && stats->cs_original->cre_combat_round->GetAttack(stats->cs_original->cre_combat_round->CurrentAttack)->m_bDeathAttack)))
+	if(stats != NULL && (stats->cs_original->cre_combat_round->GetAttack(stats->cs_original->cre_combat_round->m_nCurrentAttack)->m_bSneakAttack || (stats->HasFeat(834) && stats->cs_original->cre_combat_round->GetAttack(stats->cs_original->cre_combat_round->m_nCurrentAttack)->m_bDeathAttack)))
 	{
+		test32 = stats->cs_original->obj.obj_vartable.GetInt(sneak_attack);
+		/*
+		__asm
+		{
+		push    34Bh
+        mov     ecx, esi
+        xor     edi, edi
+		mov     edi, test32
+		mov eax, 0x476CEC//3
+		}
+		*/
 		__asm mov eax, 0x476CE3
 	}
 	else

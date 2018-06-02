@@ -179,7 +179,8 @@ void 				SaveVarTable(CResGFF *pResGFF, CResStruct *pResStruct);
 void				RemoveEffect(CGameEffect *eff);
 void				UpdateEffectList(unsigned long l, unsigned long l2);
 void				UpdateEffectPointers();
-
+		
+	void ClearAllActions();
 };
 
 #endif
