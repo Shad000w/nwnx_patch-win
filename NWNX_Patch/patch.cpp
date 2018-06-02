@@ -560,6 +560,10 @@ int (__fastcall *CNWSCreatureStats__GetUseMonkAttackTables)(CNWSCreatureStats *p
 int (__fastcall *CNWSCreatureStats__GetCriticalHitRoll)(CNWSCreatureStats *pThis, void*, int n);
 int (__fastcall *CNWSCreatureStats__GetCriticalHitMultiplier)(CNWSCreatureStats *pThis, void*, int n);
 int (__fastcall *CNWSCreature__GetRelativeWeaponSize)(CNWSCreature *pThis, void*, CNWSItem *weapon);
+//unarmed
+unsigned char (__fastcall *CNWSCreatureStats__GetUnarmedDamageDice)(CNWSCreatureStats *pThis, void*);
+unsigned char (__fastcall *CNWSCreatureStats__GetUnarmedDamageDie)(CNWSCreatureStats *pThis, void*);
+unsigned short (__fastcall *CNWSCreature__GetDamageFlags)(CNWSCreatureStats *pThis, void*);
 //other
 void (__fastcall *CNWSCreature__ResolveAttack)(CNWSCreature *pThis, void*, unsigned long target, int i, int i2);
 int (__fastcall *CNWSCreature__CanUseItem)(CNWSCreature *pThis, void*, CNWSItem *item, int a1);
@@ -6146,14 +6150,46 @@ int __fastcall CNWSCreatureStats__GetCriticalHitMultiplier_Hook(CNWSCreatureStat
 	return multiplier;
 }
 
+unsigned char __fastcall CNWSCreatureStats__GetUnarmedDamageDice_Hook(CNWSCreatureStats *pThis, void*)
+{
+	if(pThis->cs_original->obj.obj_vartable.GetInt(CExoString("UnarmedDiceOverride")) > 0)
+	{
+		return pThis->cs_original->obj.obj_vartable.GetInt(CExoString("UnarmedDiceOverride"));
+	}
+	return CNWSCreatureStats__GetUnarmedDamageDice(pThis,NULL);
+}
+
+unsigned char __fastcall CNWSCreatureStats__GetUnarmedDamageDie_Hook(CNWSCreatureStats *pThis, void*)
+{
+	if(pThis->cs_original->obj.obj_vartable.GetInt(CExoString("UnarmedDieOverride")) > 0)
+	{
+		return pThis->cs_original->obj.obj_vartable.GetInt(CExoString("UnarmedDieOverride"));
+	}
+	return CNWSCreatureStats__GetUnarmedDamageDice(pThis,NULL);
+}
+
+unsigned short __fastcall CNWSCreature__GetDamageFlags_Hook(CNWSCreatureStats *pThis, void*)
+{
+	CNWSItem *item = pThis->cs_original->cre_combat_round->GetCurrentAttackWeapon(pThis->cs_original->cre_combat_round->GetAttack(pThis->cs_original->cre_combat_round->m_nCurrentAttack)->m_nWeaponAttackType);
+	if(item)
+	{
+		return item->GetDamageFlags();
+	}
+	if(pThis->cs_original->obj.obj_vartable.GetInt(CExoString("UnarmedTypeOverride")) > 0)
+	{
+		return pThis->cs_original->obj.obj_vartable.GetInt(CExoString("UnarmedTypeOverride"));
+	}
+	return DAMAGE_TYPE_BLUDGEONING;
+}
+
 void __fastcall CNWSCreature__ResolveAttack_Hook(CNWSCreature *pThis, void*, unsigned long target, int i, int i2)
 {
 	Log(2,"o CNWSCreature__ResolveAttack start\n");
 	uint32_t target_prev = pThis->cre_attack_target;
 	CNWSCreature__ResolveAttack(pThis, NULL, target, i, i2);
-	if(pThis->cre_is_pc && pThis->cre_combat_round->NumCircleKicks == 0 && target_prev != OBJECT_INVALID && target_prev != target) 
+	if(pThis->cre_is_pc && pThis->cre_combat_round->m_nCircleKickAttacks == 0 && target_prev != OBJECT_INVALID && target_prev != target) 
 	{
-		pThis->cre_combat_round->NumCircleKicks = -1;
+		pThis->cre_combat_round->m_nCircleKickAttacks = -1;
 		CNWSObject* object = (CNWSObject*)(NWN_AppManager->app_server->srv_internal->GetGameObject(target_prev));
 		if(object != NULL && !object->GetDead())
 		{
@@ -6959,6 +6995,10 @@ void HookFunctions()
 	CreateHook(0x470730,CNWSCreatureStats__GetUseMonkAttackTables_Hook, (PVOID*)&CNWSCreatureStats__GetUseMonkAttackTables, "DisableWeaponHooks","GetUseMonkAttackTables function");
 	CreateHook(0x4778B0,CNWSCreatureStats__GetCriticalHitRoll_Hook, (PVOID*)&CNWSCreatureStats__GetCriticalHitRoll, "DisableWeaponHooks","Ki critical offhand bug");
 	CreateHook(0x477A20,CNWSCreatureStats__GetCriticalHitMultiplier_Hook, (PVOID*)&CNWSCreatureStats__GetCriticalHitMultiplier, "DisableWeaponHooks","Enabling critical hit multiplier modification");
+	//unarmed
+	CreateHook(0x4707B0,CNWSCreatureStats__GetUnarmedDamageDice_Hook, (PVOID*)&CNWSCreatureStats__GetUnarmedDamageDice, "DisableWeaponHooks","Enabling unarmed damage modifications #1");
+	CreateHook(0x470940,CNWSCreatureStats__GetUnarmedDamageDie_Hook, (PVOID*)&CNWSCreatureStats__GetUnarmedDamageDie, "DisableWeaponHooks","Enabling unarmed damage modifications #2");
+	CreateHook(0x4A7A40,CNWSCreature__GetDamageFlags_Hook, (PVOID*)&CNWSCreature__GetDamageFlags, "DisableWeaponHooks","Enabling unarmed damage modifications #3");
 
 	//other
 	CreateHook(0x551250,CNWSCreature__GetFlanked_Hook, (PVOID*)&CNWSCreature__GetFlanked, "DisableUncannyDodge", "Enabling hardcore DnD uncanny dodge 2 rule.");
@@ -6976,10 +7016,10 @@ void HookFunctions()
 	CreateHook(0x4CE920,CNWSCreature__GetIsPossessedFamiliar_Hook, (PVOID*)&CNWSCreature__GetIsPossessedFamiliar, "DisablePossessing","Possessing function #4");
 	CreateHook(0x4ECA70,CNWSEffectListHandler__OnApplyDeath_Hook, (PVOID*)&CNWSEffectListHandler__OnApplyDeath, "DisablePossessing","Possessing function #6");
 	CreateHook(0x483B00,CNWSCreatureStats__CanLevelUp_Hook,(PVOID*)&CNWSCreatureStats__CanLevelUp, "DisablePossessing", "Possessing function #7");
-	
+
 	CreateHook(0x4CE950,CNWSCreature__CanUseItem_Hook, (PVOID*)&CNWSCreature__CanUseItem, "DisableUseItemHook","CanUseItem function");
 	CreateHook(0x4A4CB0,CNWSCreature__UseItem_Hook, (PVOID*)&CNWSCreature__UseItem, "DisableUseItemHook","Use items in polymorph");
-	
+
 	CreateHook(0x48B770,CNWSCreatureStats__GetEffectImmunity_Hook, (PVOID*)&CNWSCreatureStats__GetEffectImmunity, "DisableEffectImmunityHook","GetEffectImmunity function");
 	CreateHook(0x4EDA30,CNWSEffectListHandler__OnApplyAbilityDecrease_Hook, (PVOID*)&CNWSEffectListHandler__OnApplyAbilityDecrease, "DisableEffectImmunityHook","Itemproperty ability decrease");
 	CreateHook(0x4F57D0,CNWSEffectListHandler__OnApplyCurse_Hook, (PVOID*)&CNWSEffectListHandler__OnApplyCurse, "DisableEffectImmunityHook","Curse ability decrease");
