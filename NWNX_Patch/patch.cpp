@@ -563,7 +563,7 @@ int (__fastcall *CNWSCreature__GetRelativeWeaponSize)(CNWSCreature *pThis, void*
 //unarmed
 unsigned char (__fastcall *CNWSCreatureStats__GetUnarmedDamageDice)(CNWSCreatureStats *pThis, void*);
 unsigned char (__fastcall *CNWSCreatureStats__GetUnarmedDamageDie)(CNWSCreatureStats *pThis, void*);
-unsigned short (__fastcall *CNWSCreature__GetDamageFlags)(CNWSCreatureStats *pThis, void*);
+unsigned short (__fastcall *CNWSCreature__GetDamageFlags)(CNWSCreature *pThis, void*);
 //other
 void (__fastcall *CNWSCreature__ResolveAttack)(CNWSCreature *pThis, void*, unsigned long target, int i, int i2);
 int (__fastcall *CNWSCreature__CanUseItem)(CNWSCreature *pThis, void*, CNWSItem *item, int a1);
@@ -6148,16 +6148,16 @@ unsigned char __fastcall CNWSCreatureStats__GetUnarmedDamageDie_Hook(CNWSCreatur
 	return CNWSCreatureStats__GetUnarmedDamageDice(pThis,NULL);
 }
 
-unsigned short __fastcall CNWSCreature__GetDamageFlags_Hook(CNWSCreatureStats *pThis, void*)
+unsigned short __fastcall CNWSCreature__GetDamageFlags_Hook(CNWSCreature *pThis, void*)
 {
-	CNWSItem *item = pThis->cs_original->cre_combat_round->GetCurrentAttackWeapon(pThis->cs_original->cre_combat_round->GetAttack(pThis->cs_original->cre_combat_round->m_nCurrentAttack)->m_nWeaponAttackType);
+	CNWSItem *item = pThis->cre_combat_round->GetCurrentAttackWeapon(pThis->cre_combat_round->GetAttack(pThis->cre_combat_round->m_nCurrentAttack)->m_nWeaponAttackType);
 	if(item)
 	{
 		return item->GetDamageFlags();
 	}
-	if(pThis->cs_original->obj.obj_vartable.GetInt(CExoString("UnarmedTypeOverride")) > 0)
+	if(pThis->obj.obj_vartable.GetInt(CExoString("UnarmedTypeOverride")) > 0)
 	{
-		return pThis->cs_original->obj.obj_vartable.GetInt(CExoString("UnarmedTypeOverride"));
+		return pThis->obj.obj_vartable.GetInt(CExoString("UnarmedTypeOverride"));
 	}
 	return DAMAGE_TYPE_BLUDGEONING;
 }
