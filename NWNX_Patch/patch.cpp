@@ -7934,7 +7934,11 @@ void Hook_SpellcasterType13b()//0x482D02 - CNWSCreatureStats::UnReadySpell - wit
 		hook_Class = &(NWN_Rules->m_lstClasses[test1]);
 	
 		//fprintf(logFile, "o Hook_SpellcasterType13b: cls_id: %i, cls_pos: %i, cls_lvl: %i, sp_lvl: %i, spell_levels: %i\n",test1,orig_ebx,test2,orig_edx,hook_Class->NumSpellLevels[test2-1]);fflush(logFile);
-		if((cls_cast_type[test1] & CAST_TYPE_SPONTANEOUS) == CAST_TYPE_SPONTANEOUS || (cls_cast_unlimited[test1][test2] > 0 && (cls_cast_unlimited[test1][test2] & (1 << orig_edx))))//unlimited casting
+		if(cls_cast_unlimited[test1][test2] > 0 && (cls_cast_unlimited[test1][test2] & (1 << orig_edx)))//unlimited casting
+		{
+			Hook_ret = 0x482EFA;
+		}
+		else if((cls_cast_type[test1] & CAST_TYPE_SPONTANEOUS) == CAST_TYPE_SPONTANEOUS)
 		{
 			Hook_ret = 0x482EB7;
 		}	
