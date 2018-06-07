@@ -818,23 +818,21 @@ int __fastcall CNWSCreature__GetFlanked_Hook(CNWSCreature *pThis, void*, CNWSCre
 int __fastcall CNWSCreatureStats__GetBaseAttackBonus_Hook(CNWSCreatureStats *pThis, void*, int bPreEpicOnly)
 {
 	Log(2,"o CNWSCreatureStats__GetBaseAttackBonus start\n");
-	if(bPreEpicOnly)
+	int retVal = CNWSCreatureStats__GetBaseAttackBonus(pThis,NULL,bPreEpicOnly);
+	int mod = 0;
+	for(unsigned int nEffect = 0; nEffect < pThis->cs_original->obj.obj_effects_len; nEffect++)
 	{
-		int orig = CNWSCreatureStats__GetBaseAttackBonus(pThis,NULL,bPreEpicOnly);
-		for(unsigned int nEffect = 0; nEffect < pThis->cs_original->obj.obj_effects_len; nEffect++)
+		CGameEffect* e = *(pThis->cs_original->obj.obj_effects+nEffect);
+		if(e->eff_type == 96 && e->eff_integers[0] > mod)
 		{
-			CGameEffect* e = *(pThis->cs_original->obj.obj_effects+nEffect);
-			if(e->eff_type == 96)
-			{
-				if(e->eff_integers[0] > 0)
-				{
-					orig = e->eff_integers[0];
-				}
-			}
-		}	
-		return orig;
+			mod = e->eff_integers[0];
+		}
+	}	
+	if(mod > 0)
+	{
+		return bPreEpicOnly ? mod : retVal-CNWSCreatureStats__GetBaseAttackBonus(pThis,NULL,true)+mod;
 	}
-	return CNWSCreatureStats__GetBaseAttackBonus(pThis,NULL,bPreEpicOnly);
+	return retVal;
 }
 
 int __fastcall CNWSCreature__GetTotalEffectBonus_Hook(CNWSCreature *pThis, void*, char a2, CNWSObject *obj_a, int a4, int a5, unsigned __int8 a6, unsigned __int8 a7, unsigned __int8 a8, unsigned __int8 a9, int a10)
