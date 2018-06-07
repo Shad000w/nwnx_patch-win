@@ -1190,8 +1190,7 @@ int __fastcall CNWSEffectListHandler__OnEffectRemoved_Hook(CNWSEffectListHandler
 		NWN_VirtualMachine->Runscript(&CExoString("70_mod_effects"),obj->obj_generic.obj_id,1);
 		helper_effect = NULL;
 		obj->obj_vartable.DestroyInt(CExoString("EFFECT_EVENT_EVENT_TYPE"));
-		if(eff->eff_type >= 96) return 0;
-		else if(obj->obj_vartable.GetInt(CExoString("EFFECT_EVENT_BYPASS")) > 0)
+		if(obj->obj_vartable.GetInt(CExoString("EFFECT_EVENT_BYPASS")) > 0)
 		{
 			obj->obj_vartable.DestroyInt(CExoString("EFFECT_EVENT_BYPASS"));
 			return 0;
