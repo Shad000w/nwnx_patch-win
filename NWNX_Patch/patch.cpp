@@ -1,3 +1,4 @@
+#define _CRT_SECURE_NO_WARNINGS
 #include "stdio.h"
 #include "stdlib.h"
 #include "nwn_internals.h"
@@ -106,7 +107,7 @@ void InitializeWeaponFeats2DA()
 	{
 		CResRef resref;
 		std::fill_n(resref.resref, 16, 0);
-		sprintf_s(resref.resref,16,"%s","weaponfeats");
+		strncpy(resref.resref, "weaponfeats", 16);
 		weaponfeats_2da = new C2DA();
 		weaponfeats_2da->C2DA(resref,0);
 	}
@@ -138,7 +139,7 @@ void InitializeEffects2DA()
 	{
 		CResRef resref;
 		std::fill_n(resref.resref, 16, 0);
-		sprintf_s(resref.resref,16,"%s","effects");
+		strncpy(resref.resref, "effects", 16);
 		effects_2da = new C2DA();
 		effects_2da->C2DA(resref,0);
 	}
@@ -170,7 +171,7 @@ void InitializeRacialTypes2DA()
 	{
 		CResRef resref;
 		std::fill_n(resref.resref, 16, 0);
-		sprintf_s(resref.resref,16,"%s","racialtypes");
+		strncpy(resref.resref, "racialtypes", 16);
 		racialtypes_2da = new C2DA();
 		racialtypes_2da->C2DA(resref,0);
 	}
@@ -208,7 +209,7 @@ void InitializeClasses2DA()
 	{
 		CResRef resref;
 		std::fill_n(resref.resref, 16, 0);
-		sprintf_s(resref.resref,16,"%s","classes");
+		strncpy(resref.resref, "classes", 16);
 		classes_2da = new C2DA();
 		classes_2da->C2DA(resref,0);
 	}
@@ -258,7 +259,7 @@ void InitializeClasses2DA()
 				{
 					CResRef resref;
 					std::fill_n(resref.resref, 16, 0);
-					sprintf_s(resref.resref,16,"%s",sVal);
+					strncpy(resref.resref, sVal.text, 16);
 					cls_spopt_2da[x] = new C2DA();
 					cls_spopt_2da[x]->C2DA(resref,0);
 				}
@@ -300,7 +301,7 @@ void InitializeClasses2DA()
 				{
 					CResRef resref;
 					std::fill_n(resref.resref, 16, 0);
-					sprintf_s(resref.resref,16,"%s",sVal);
+					strncpy(resref.resref, sVal.text, 16);
 					cls_prog_2da[x] = new C2DA();
 					cls_prog_2da[x]->C2DA(resref,0);
 				}
@@ -351,7 +352,7 @@ void InitializeSpells2DA()
 	{
 		CResRef resref;
 		std::fill_n(resref.resref, 16, 0);
-		sprintf_s(resref.resref,16,"%s","spells");
+		strncpy(resref.resref, "spells", 16);
 		spells_2da = new C2DA();
 		spells_2da->C2DA(resref,0);
 	}
@@ -391,7 +392,7 @@ void InitializeSpells_Level2DA()
 	{
 		CResRef resref;
 		std::fill_n(resref.resref, 16, 0);
-		sprintf_s(resref.resref,16,"%s","spells_level");
+		strncpy(resref.resref, "spells_level", 16);
 		spells_level_2da = new C2DA();
 		spells_level_2da->C2DA(resref,0);
 	}
