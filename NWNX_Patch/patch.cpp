@@ -2669,7 +2669,7 @@ void NWNXPatch_Funcs(CNWSScriptVarTable *pThis, int nFunc, char *Params)
 	else if(nFunc == 13)//SetSpellValue
 	{
 		unsigned long oID = OBJECT_INVALID, spell_id = OBJECT_INVALID, spell_const = OBJECT_INVALID, spell_value = OBJECT_INVALID;
-		sscanf_s(Params,"%x|%i|%i|%s",&oID,&spell_id,&spell_const,Params);
+		sscanf_s(Params, "%x|%i|%i|%s", &oID, &spell_id, &spell_const, Params, strlen(Params));
 		if(spell_id != OBJECT_INVALID && spell_const < 255 && Params)
 		{
 			CNWSpell *spell = NWN_Rules->m_pSpellArray->GetSpell(spell_id);
@@ -3076,17 +3076,17 @@ void NWNXPatch_Funcs(CNWSScriptVarTable *pThis, int nFunc, char *Params)
 				}
 				else
 				{
-					fprintf(logFile, "ERROR: SetTileAnimLoop(%08X,%f,%f,%f,%i,%i) invalid position!\n",oID,x,y,z,animloop);
+					fprintf(logFile, "ERROR: SetTileAnimLoop(%08X,%f,%f,%f,%i,%i) invalid position!\n", oID, x, y, z, animloop, animloop_val);
 				}
 			}
 			else
 			{
-				fprintf(logFile, "ERROR: SetTileAnimLoop(%08X,%f,%f,%f,%i,%i) invalid animloop number or value!\n",oID,x,y,z,animloop);
+				fprintf(logFile, "ERROR: SetTileAnimLoop(%08X,%f,%f,%f,%i,%i) invalid animloop number or value!\n", oID, x, y, z, animloop, animloop_val);
 			}
 		}
 		else
 		{
-			fprintf(logFile, "ERROR: SetTileAnimLoop(%08X,%f,%f,%f,%i,%i) must be called on area!\n",oID,x,y,z,animloop);
+			fprintf(logFile, "ERROR: SetTileAnimLoop(%08X,%f,%f,%f,%i,%i) must be called on area!\n", oID, x, y, z, animloop, animloop_val);
 		}
 	}
 	else if(nFunc == 110)//GetAreaWind
@@ -3625,7 +3625,7 @@ void NWNXPatch_Funcs(CNWSScriptVarTable *pThis, int nFunc, char *Params)
 				eff = object->obj_effects[i];
 				subtype = eff->eff_dursubtype & SUBTYPE_MASK;
 				durtype = eff->eff_dursubtype & DURATION_TYPE_MASK;
-				fprintf(logFile, "effect #no %i: id: %i, type: %i, subtype: %i, durtype: %i, creator: %i, spellid: %i, casterlvl: %i, value0: %i, value1: %i, value2: %i, exposed: %i, skip %i, iconshown %i\n",i,eff,eff->eff_type,subtype,durtype,eff->eff_creator,eff->eff_spellid,eff->eff_casterlvl,eff->eff_integers[0],eff->eff_integers[1],eff->eff_integers[2],eff->eff_is_exposed,eff->eff_skiponload,eff->eff_is_iconshown);
+				fprintf(logFile, "effect #no %i: id: %i, type: %i, subtype: %i, durtype: %i, creator: %i, spellid: %i, casterlvl: %i, value0: %i, value1: %i, value2: %i, exposed: %i, skip %i, iconshown %i\n", i, int(eff), eff->eff_type, subtype, durtype, eff->eff_creator, eff->eff_spellid, eff->eff_casterlvl, eff->eff_integers[0], eff->eff_integers[1], eff->eff_integers[2], eff->eff_is_exposed, eff->eff_skiponload, eff->eff_is_iconshown);
 			}
 		}
 		else
