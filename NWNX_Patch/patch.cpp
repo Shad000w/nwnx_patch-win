@@ -742,7 +742,7 @@ void __fastcall CNWSCreatureStats__AddFeat_Hook(CNWSCreatureStats *pThis, void *
 	Log(2,"o CNWSCreatureStats__AddFeat start\n");
 	CNWSCreatureStats__AddFeat(pThis,NULL,feat_id);
 	CNWFeat *feat = NWN_Rules->GetFeat(feat_id);
-	if(!feat || !pThis->HasFeat(feat_id)) return;
+	if(!feat || !pThis->HasFeat(feat_id) || feat->m_nUsesPerDay == 255) return;
 	unsigned int th = 0;
 	CNWSStats_FeatUses *featuses = (CNWSStats_FeatUses*)(CExoArrayList_ptr_get(&(pThis->cs_featuses), th));
 	while(featuses)
