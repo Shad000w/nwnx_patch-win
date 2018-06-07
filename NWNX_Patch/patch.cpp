@@ -7765,6 +7765,46 @@ void Hook_ImmunityCritical()//CNWSCreature::ResolveAttackRoll
 	__asm jmp Hook_ret
 }
 
+unsigned char GetArcaneSpellFailure(CNWSCreature *pThis, unsigned char cls_pos)
+{
+	unsigned char cls_id = pThis->cre_stats->GetClass(cls_pos);
+	int bIgnoreArmor = false, bIgnoreShield = false;
+	for(unsigned int nEffect = 0; nEffect < pThis->obj.obj_effects_len; nEffect++)
+	{
+		CGameEffect* e = *(pThis->obj.obj_effects+nEffect);
+		if(e->eff_type == 97 && (e->eff_integers[1] == 255 || e->eff_integers[1] == cls_id))//ignorearcanefailure
+		{
+			switch(e->eff_integers[0])
+			{
+				case 1: bIgnoreArmor = true; break;
+				case 2: bIgnoreShield = true; break;
+				default: bIgnoreArmor = true; bIgnoreShield = true;	break;
+			}
+		}
+	}	
+	unsigned char retval = pThis->cre_stats->m_nArcaneSpellFailure;
+	if(!bIgnoreArmor) retval+= pThis->cre_stats->m_nBaseArmorArcaneSpellFailure;
+	if(!bIgnoreShield) retval+= pThis->cre_stats->m_nBaseShieldArcaneSpellFailure;
+	
+	if(retval > 100) return 100;
+	else if(retval < 0) return 0;
+	return retval;
+}
+
+void Hook_ArcaneSpellFailure()//CNWSCreature::AIActionCastSpell
+{
+	__asm leave
+	__asm mov DWORD PTR self, eax
+	__asm mov eax, [esp+14h]
+	__asm mov test1, al
+	
+	test2 = GetArcaneSpellFailure(self,test1);
+
+	__asm mov bl, test2
+	Hook_ret = 0x4BDA8D;
+	__asm jmp Hook_ret
+}	
+
 void Hook_ELC1()//0x434243 - CNWSPlayer::ValidateCharacter - number of spells learned
 {//todo change max spells learned value
 	__asm leave
@@ -8790,6 +8830,14 @@ void PatchImage()
 	fprintf(logFile, "o Correcting feat uses when relogging.\n");
 	*/
 
+	pPatch = (unsigned char *) 0x53F564;
+	VirtualProtect((DWORD*)pPatch, 1, PAGE_EXECUTE_READWRITE, &DefaultPrivs);
+	memset((PVOID)pPatch, '\x90', 8);
+	pPatch[0] = 0xE9;
+	*((uint32_t *)(pPatch + 1)) = (uint32_t)Hook_SpontaneousSpell - (uint32_t)(pPatch + 5);
+	VirtualProtect((DWORD*)pPatch, 1, DefaultPrivs, NULL);
+	fprintf(logFile, "o Enabling spontaneous casting for other classes.\n");
+
 	pPatch = (unsigned char *) 0x4F0E50;//CNWSEffectListHandler::OnApplySetState - sleep
 	VirtualProtect((DWORD*)pPatch, 1, PAGE_EXECUTE_READWRITE, &DefaultPrivs);
 	memset((PVOID)pPatch, '\x90', 8);
@@ -8839,13 +8887,13 @@ void PatchImage()
 	VirtualProtect((DWORD*)pPatch, 1, DefaultPrivs, NULL);VirtualProtect((DWORD*)pPatch, 1, DefaultPrivs, NULL);
 	fprintf(logFile, "o Removing hardcoded feat immunity.\n");
 
-	pPatch = (unsigned char *) 0x53F564;
+	pPatch = (unsigned char *) 0x4BDA52;//CNWSCreature::AIActionCastSpell
 	VirtualProtect((DWORD*)pPatch, 1, PAGE_EXECUTE_READWRITE, &DefaultPrivs);
 	memset((PVOID)pPatch, '\x90', 8);
 	pPatch[0] = 0xE9;
-	*((uint32_t *)(pPatch + 1)) = (uint32_t)Hook_SpontaneousSpell - (uint32_t)(pPatch + 5);
-	VirtualProtect((DWORD*)pPatch, 1, DefaultPrivs, NULL);
-	fprintf(logFile, "o Enabling spontaneous casting for other classes.\n");
+	*((uint32_t *)(pPatch + 1)) = (uint32_t)Hook_ArcaneSpellFailure - (uint32_t)(pPatch + 5);
+	VirtualProtect((DWORD*)pPatch, 1, DefaultPrivs, NULL);VirtualProtect((DWORD*)pPatch, 1, DefaultPrivs, NULL);
+	fprintf(logFile, "o Enabling EffectIgnoreArcaneFailure.\n");
 
 	fflush(logFile);
 }
