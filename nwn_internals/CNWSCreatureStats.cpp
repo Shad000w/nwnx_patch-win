@@ -41,6 +41,7 @@ unsigned char 	(__thiscall *CNWSCreatureStats__GetINTStat)(CNWSCreatureStats *pT
 unsigned char 	(__thiscall *CNWSCreatureStats__GetIsClass)(CNWSCreatureStats *pThis, unsigned char) = (unsigned char(__thiscall*)(CNWSCreatureStats *pThis, unsigned char))0x004732D0;
 int 			(__thiscall *CNWSCreatureStats__GetIsWeaponOfChoice)(CNWSCreatureStats *pThis, uint32_t BaseItemType) = (int (__thiscall*)(CNWSCreatureStats *pThis, uint32_t BaseItemType))0x0048CB10;
 unsigned char	(__thiscall *CNWSCreatureStats__GetLevel)(CNWSCreatureStats *pThis, int bCountNegativeLevels) = (unsigned char (__thiscall*)(CNWSCreatureStats *pThis, int bCountNegativeLevels))0x0046DB40;
+unsigned char	(__thiscall *CNWSCreatureStats__GetClass)(CNWSCreatureStats*, unsigned char) = (unsigned char(__thiscall*)(CNWSCreatureStats *,unsigned char))0x473270;
 int				(__thiscall *CNWSCreatureStats__GetMeleeAttackBonus)(CNWSCreatureStats *, int, int, int) = (int (__thiscall *)(CNWSCreatureStats *, int, int, int))0x0046FB40;
 unsigned char 	(__thiscall *CNWSCreatureStats__GetFeatSourceClass)(CNWSCreatureStats *pThis, unsigned short nFeat) = (unsigned char(__thiscall*)(CNWSCreatureStats *pThis, unsigned short))0x48DF60;
 CNWSCreatureStats_ClassInfo* (__thiscall *CNWSCreatureStats__GetClassInfo)(CNWSCreatureStats *pTHIS, unsigned char cls) = (CNWSCreatureStats_ClassInfo* (__thiscall*)(CNWSCreatureStats*, unsigned char))0x4732A0;
@@ -202,6 +203,10 @@ char CNWSCreatureStats_s::GetTotalCHABonus() {
 	return CNWSCreatureStats__GetTotalCHABonus(this);
 }
 
+unsigned char CNWSCreatureStats::GetClass(unsigned char cls_pos) 
+{
+	return CNWSCreatureStats__GetClass(this,cls_pos);
+}
 
 signed int CNWSCreatureStats_s::GetEpicWeaponFocus(CNWSItem *weapon) {
 	return CNWSCreatureStats__GetEpicWeaponFocus(this, weapon);

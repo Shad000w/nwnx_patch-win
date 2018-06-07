@@ -44,7 +44,7 @@ struct CNWSCreatureStats_s {
   unsigned __int8 field_9A;
   unsigned __int8 field_9B;
   CNWSCreatureStats_ClassInfo cs_classes[3];
-  unsigned __int16 cs_race;
+  unsigned __int16 cs_race;//3EC
   unsigned __int16 field_3EE;
   CExoString cs_subrace;
   unsigned __int8 cs_str;
@@ -81,37 +81,45 @@ struct CNWSCreatureStats_s {
   unsigned int field_420;
   unsigned int field_424;
   CCombatinformation *cs_combat_info;
-  unsigned int field_42C;
-  unsigned int field_430;
-  unsigned int field_434;
-  unsigned int field_438;
+  char m_nArcaneSpellFailure;//42C
+  uint8_t m_nBaseArmorArcaneSpellFailure;//42D
+  uint8_t m_nBaseShieldArcaneSpellFailure;//42E
+  uint8_t m_pSpellFailure[9];//42F
+  char m_nSpellResistance;//438
+  char m_nSpellResistancePenalty;//439
   CExoArrayList_2<CNWSStats_SpellLikeAbility> *cs_specabil;
-  unsigned __int16 field_440;
-  unsigned __int16 effect_index_AC_INCREASE;
-  unsigned __int16 effect_index_ATTACK_INCREASE;
-  unsigned __int16 field_446;
-  unsigned __int16 effect_index_DAMAGE_RESISTANCE;
-  unsigned __int16 effect_index_DAMAGE_INCREASE;
-  unsigned int field_44C;
-  unsigned int field_450;
-  unsigned __int16 field_454;
-  unsigned __int16 effect_index_ABILITY_INCREASE;
-  unsigned int field_458;
-  unsigned int field_45C;
-  unsigned int field_460;
-  unsigned __int16 field_464;
-  unsigned __int16 field_466;
-  unsigned __int16 m_nDamageShieldPtr;
-  unsigned __int16 effect_index_SKILL_INCREASE;
-  unsigned __int16 effect_index_SAVINGTHROW_INCREASE;
-  unsigned __int16 field_46E;
-  unsigned int field_470;
-  unsigned __int16 field_474;
-  unsigned __int16 cs_skill_points;
-  unsigned __int8 *cs_skills;
-  char cs_acp_armor;
-  char cs_acp_shield;
-  char cs_portrait[16];
+ 	uint16_t m_nTempHitpointsPtr;
+	uint16_t m_nACVersusPtr;
+	uint16_t m_nAttackBonusPtr;
+	uint16_t m_nDamageReductionPtr;
+	uint16_t m_nDamageResistancePtr;
+	uint16_t m_nDamageBonusPtr;
+	uint16_t m_nAIStatePtr;
+	uint16_t m_nEffectIconPtr;
+	uint16_t m_nSanctuaryPtr;
+	uint16_t m_nInvisibilityPtr;
+	uint16_t m_nSpellResistancePtr;
+	uint16_t m_nAbilityPtr;
+	uint16_t m_nSeeInvisiblePtr;
+	uint16_t m_nUltraVisionPtr;
+	uint16_t m_nMissChancePtr;
+	uint16_t m_nConcealmentPtr;
+	uint16_t m_nBlindnessPtr;
+	uint16_t m_nWalkAnimationPtr;
+	uint16_t m_nSpellLevelAbsorptionPtr;
+	uint16_t m_nSpellImmunityPtr;
+	uint16_t m_nDamageShieldPtr;
+	uint16_t m_nSkillBonusPtr;
+	uint16_t m_nSavingThrowBonusPtr;
+	uint16_t m_nHastePtr;
+	uint16_t m_nEffectImmunityPtr;
+	uint16_t m_nLimitMovementSpeedPtr;
+	uint16_t m_nMovementSpeedDecreasePtr;
+	uint16_t m_nSkillPointsRemaining;
+	char* m_lstSkillRanks;
+	char m_nArmorCheckPenalty;
+	char m_nShieldCheckPenalty;
+	CResRef m_cPortrait;
   unsigned __int8 cs_al_goodevil;
   unsigned __int8 field_48F;
   unsigned __int8 cs_al_lawchaos;
@@ -232,6 +240,7 @@ char				GetTotalCHABonus();
 int16_t				GetDamageRoll(CNWSObject *Defender, int bOffHand, int AttackResult, int SneakAttack, int DeathAttack, int a7);
 CNWSCreatureStats_ClassInfo*	GetInfo(unsigned char cls);
 unsigned char		GetClassLevel(unsigned char cls_pos, int bCountNegativeLevels);
+unsigned char		GetClass(unsigned char cls_pos);
 int GetNumLevelsOfClass(unsigned char nClassType);
 int GetNumLevelsOfClass(unsigned char nClassType, int bPreEpicOnly); 
 unsigned char GetFeatTotalUses(unsigned short feat_id);

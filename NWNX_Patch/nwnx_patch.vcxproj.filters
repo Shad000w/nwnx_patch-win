@@ -323,9 +323,6 @@
     <ClInclude Include="..\nwn_internals\CNWSItem.h">
       <Filter>Source Files\nwn_internals</Filter>
     </ClInclude>
-    <ClInclude Include="..\nwn_internals\CNWSItemProperty.h">
-      <Filter>Source Files\nwn_internals</Filter>
-    </ClInclude>
     <ClInclude Include="..\nwn_internals\CNWSItemPropertyHandler.h">
       <Filter>Source Files\nwn_internals</Filter>
     </ClInclude>
@@ -489,6 +486,9 @@
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="..\nwn_internals\CNWSkill.h">
+      <Filter>Source Files\nwn_internals</Filter>
+    </ClInclude>
+    <ClInclude Include="..\nwn_internals\CNWItemProperty.h">
       <Filter>Source Files\nwn_internals</Filter>
     </ClInclude>
   </ItemGroup>

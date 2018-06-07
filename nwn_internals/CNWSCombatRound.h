@@ -49,7 +49,8 @@ struct CNWSCombatRound_s
 	int GetWeaponAttackType();
 	void UpdateAttackTargetForAllActions(unsigned long target);
 	void AddSpecialAttack(unsigned short nFeat);
-
+	void RemoveAllActions();
+	void ClearAllSpecialAttacks();
 };
 
 #endif

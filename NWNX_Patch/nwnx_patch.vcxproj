@@ -40,7 +40,7 @@
     <_ProjectFileVersion>10.0.30319.1</_ProjectFileVersion>
     <OutDir Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">.\Debug\</OutDir>
     <IntDir Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">$(Configuration)\</IntDir>
-    <OutDir Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">..\..\..\..\..\NeverwinterNights\NWN\</OutDir>
+    <OutDir Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">D:\NeverwinterNights\NWN\</OutDir>
     <IntDir Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">$(Configuration)\</IntDir>
   </PropertyGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
@@ -165,6 +165,7 @@
     <ClInclude Include="..\nwn_internals\CNWClass.h" />
     <ClInclude Include="..\nwn_internals\CNWDomain.h" />
     <ClInclude Include="..\nwn_internals\CNWFeat.h" />
+    <ClInclude Include="..\nwn_internals\CNWItemProperty.h" />
     <ClInclude Include="..\nwn_internals\CNWLevelStats.h" />
     <ClInclude Include="..\nwn_internals\CNWMessage.h" />
     <ClInclude Include="..\nwn_internals\CNWRace.h" />
@@ -186,7 +187,6 @@
     <ClInclude Include="..\nwn_internals\CNWSFaction.h" />
     <ClInclude Include="..\nwn_internals\CNWSInventory.h" />
     <ClInclude Include="..\nwn_internals\CNWSItem.h" />
-    <ClInclude Include="..\nwn_internals\CNWSItemProperty.h" />
     <ClInclude Include="..\nwn_internals\CNWSItemPropertyHandler.h" />
     <ClInclude Include="..\nwn_internals\CNWSkill.h" />
     <ClInclude Include="..\nwn_internals\CNWSMessage.h" />

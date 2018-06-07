@@ -90,7 +90,7 @@ unsigned long (__thiscall *CNWSCreature__GetAssociateId)(CNWSCreature *pThis, un
 void				(__thiscall *CNWSCreature__SetEffectSpellId)(CNWSCreature * pThis, unsigned long ID) = (void (__thiscall *)(CNWSCreature * pThis, unsigned long ID))0x4A11F0;
 float				(__thiscall *CNWSCreature__GetMovementRateFactor)(CNWSCreature *pThis)=(float(__thiscall*)(CNWSCreature*))0x49E180;
 int					(__thiscall *CNWSCreature__SetMovementRateFactor)(CNWSCreature * pThis, float fSpeed) = (int (__thiscall *)(CNWSCreature *, float))0x49E2B0;
-
+void				(__thiscall *CNWSCreature__ResolveMeleeAttack)(CNWSCreature*, CNWSObject *, int, int) = (void (__thiscall*)(CNWSCreature*, CNWSObject *, int, int))0x549E80;
 void				(__thiscall *CNWSCreature__ResolveAttackRoll)(CNWSCreature*, CNWSObject *) = (void (__thiscall*)(CNWSCreature*, CNWSObject *))0x54B790;
 void				(__thiscall *CNWSCreature__ResolveDamage)(CNWSCreature*, CNWSObject *) = (void (__thiscall*)(CNWSCreature*, CNWSObject *))0x54CA70;
 void				(__thiscall *CNWSCreature__ResolvePostMeleeDamage)(CNWSCreature*, CNWSObject *) = (void (__thiscall*)(CNWSCreature*, CNWSObject *))0x54D470;
@@ -98,27 +98,27 @@ void				(__thiscall *CNWSCreature__ResolvePostRangedDamage)(CNWSCreature*, CNWSO
 void				(__thiscall *CNWSCreature__ResolveMeleeAnimations)(CNWSCreature*, int, int, CNWSObject *, int) = (void (__thiscall*)(CNWSCreature*, int, int, CNWSObject *, int))0x54B0D0;
 void				(__thiscall *CNWSCreature__ResolveRangedAnimations)(CNWSCreature*, CNWSObject *, int) = (void (__thiscall*)(CNWSCreature*, CNWSObject *, int))0x548860;
 
-void CNWSCreature::ResolveAttackRoll(CNWSObject *obj)
+void CNWSCreature_s::ResolveAttackRoll(CNWSObject *obj)
 {
 	CNWSCreature__ResolveAttackRoll(this, obj);
 }
-void CNWSCreature::ResolveDamage(CNWSObject *obj)
+void CNWSCreature_s::ResolveDamage(CNWSObject *obj)
 {
 	CNWSCreature__ResolveDamage(this, obj);
 }
-void CNWSCreature::ResolvePostMeleeDamage(CNWSObject *obj)
+void CNWSCreature_s::ResolvePostMeleeDamage(CNWSObject *obj)
 {
 	CNWSCreature__ResolvePostMeleeDamage(this, obj);
 }
-void CNWSCreature::ResolvePostRangedDamage(CNWSObject *obj)
+void CNWSCreature_s::ResolvePostRangedDamage(CNWSObject *obj)
 {
 	CNWSCreature__ResolvePostRangedDamage(this, obj);
 }
-void CNWSCreature::ResolveMeleeAnimations(int a1, int a2, CNWSObject *obj, int a4)
+void CNWSCreature_s::ResolveMeleeAnimations(int a1, int a2, CNWSObject *obj, int a4)
 {
 	CNWSCreature__ResolveMeleeAnimations(this, a1,a2,obj,a4);
 }
-void CNWSCreature::ResolveRangedAnimations(CNWSObject *obj, int a1)
+void CNWSCreature_s::ResolveRangedAnimations(CNWSObject *obj, int a1)
 {
 	CNWSCreature__ResolveRangedAnimations(this,obj,a1);
 }
@@ -248,6 +248,11 @@ int CNWSCreature::RemoveItemFromRepository(CNWSItem *item, int a1) {
 	return CNWSCreature__RemoveItemFromRepository(this, item,a1);
 }
 
+void CNWSCreature::ResolveMeleeAttack(CNWSObject *target, int num_attacks, int time_animation)
+{
+	CNWSCreature__ResolveMeleeAttack(this, target, num_attacks, time_animation);
+}
+
 void CNWSCreature_s::ResolveAttack(int a2_target_oid, signed int a3, int a4) {
 	CNWSCreature__ResolveAttack(this, a2_target_oid, a3, a4);
 }
@@ -310,7 +315,7 @@ void CNWSCreature_s::SetPVPPlayerLikesMe(unsigned long oid_Player2, int a3, int 
 
 int CNWSCreature_s::GetDamageFlags() {
 	CNWSCombatRound *CRound = cre_combat_round;
-	CNWSCombatAttackData *AttackData = CRound->GetAttack(CRound->CurrentAttack);
+	CNWSCombatAttackData *AttackData = CRound->GetAttack(CRound->m_nCurrentAttack);
 	CNWSItem *Weapon = CRound->GetCurrentAttackWeapon(AttackData->m_nWeaponAttackType);
 
 	if (Weapon) {

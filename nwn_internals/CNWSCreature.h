@@ -945,6 +945,7 @@ struct CNWSCreature_s {
 	float				GetMovementRateFactor();
 	int					SetMovementRateFactor(float fSpeed);
 	//void				Destructor(char c);
+	void				ResolveMeleeAttack(CNWSObject *target, int num_attacks, int time_animation);
 	void				ResolveAttackRoll(CNWSObject *obj);
 	void				ResolveDamage(CNWSObject *obj);
 	void				ResolvePostMeleeDamage(CNWSObject *obj);
