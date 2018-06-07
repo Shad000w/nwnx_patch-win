@@ -9,8 +9,8 @@
 #pragma comment(lib, "madCHook.lib")
 
 const int   VERSION_MAJOR = 1;
-const int   VERSION_MINOR = 35;
-const char *VERSION_PATCH = "a";
+const int   VERSION_MINOR = 37;
+const char *VERSION_PATCH = "";
 DWORD *heapAddress = NULL;
 FILE *logFile;
 char logFileName[] = "logs.0/nwnx_patch.txt";
@@ -4878,6 +4878,97 @@ void NWNXPatch_Funcs(CNWSScriptVarTable *pThis, int nFunc, char *Params)
 			fprintf(logFile, "ERROR: GetRoundStarted(%08X) used with incorrect parameters!\n",oID);
 		}
 		pThis->SetInt(VarName,retVal,0);
+	}
+	else if(nFunc == 446)//NWNXPatch_PerformMeleeAttacks
+	{
+		unsigned long oID = OBJECT_INVALID, oTarget = OBJECT_INVALID, nNumAttacks = 255;
+		sscanf_s(Params,"%x|%x|%i",&oID,&oTarget,&nNumAttacks);
+		CNWSCreature *cre = NWN_AppManager->app_server->srv_internal->GetCreatureByGameObjectID(oID);
+		CNWSObject *target = (CNWSObject*)(NWN_AppManager->app_server->srv_internal->GetGameObject(oTarget));
+		if(oID != OBJECT_INVALID && cre && oTarget != OBJECT_INVALID && target && nNumAttacks < 50)
+		{	
+			cre->cre_attack_target = oTarget;
+			cre->cre_combat_round->StartCombatRound(0);
+			cre->ActivityManager(4);
+			cre->ResolveMeleeAttack(target,nNumAttacks,0);
+			retVal = cre->cre_combat_round->GetAttack(cre->cre_combat_round->m_nCurrentAttack-1)->m_nAttackResult;
+			cre->cre_combat_round->ClearAllSpecialAttacks();
+			cre->cre_combat_round->RemoveAllActions();
+			cre->cre_combat_round->ClearAllAttacks();
+		}
+		else
+		{
+			fprintf(logFile, "ERROR: NWNXPatch_PerformMeleeAttacks(%08X,%08X,%i) used on wrong object type!\n",oID,oTarget,nNumAttacks);
+		}
+		pThis->SetInt(VarName,retVal,0);
+	}
+	else if(nFunc == 447)//SetSpellFailure
+	{
+		unsigned long oID = OBJECT_INVALID, nType = OBJECT_INVALID, nFailure = OBJECT_INVALID;
+		sscanf_s(Params,"%x|%i|%i",&oID,&nFailure,&nType);
+		CNWSCreature *cre = NWN_AppManager->app_server->srv_internal->GetCreatureByGameObjectID(oID);
+		if(oID != OBJECT_INVALID && cre && nType <= 2 && nFailure <= 100)
+		{
+			if(nType == 1)
+			{
+				cre->cre_stats->m_nBaseArmorArcaneSpellFailure = (uint8_t)nFailure;
+				cre->cre_stats->UpdateCombatInformation();
+			}
+			else if(nType == 2)
+			{
+				cre->cre_stats->m_nBaseShieldArcaneSpellFailure = (uint8_t)nFailure;
+				cre->cre_stats->UpdateCombatInformation();
+			}
+			else
+			{
+				fprintf(logFile, "ERROR: SetSpellFailure(%08X,%i,%i) used with incorrect parameters!\n",oID,nFailure,nType);
+			}
+		}
+		else
+		{
+			fprintf(logFile, "ERROR: SetSpellFailure(%08X,%i,%i) used with incorrect parameters!\n",oID,nFailure,nType);
+		}
+	}
+	else if(nFunc == 448)//SetSkillCheckPenalty
+	{
+		unsigned long oID = OBJECT_INVALID, nType = OBJECT_INVALID, nPenalty = OBJECT_INVALID;
+		sscanf_s(Params,"%x|%i|%i",&oID,&nPenalty,&nType);
+		CNWSCreature *cre = NWN_AppManager->app_server->srv_internal->GetCreatureByGameObjectID(oID);
+		if(oID != OBJECT_INVALID && cre && nType <= 2 && nPenalty <= 100)
+		{
+			if(nType == 1)
+			{
+				cre->cre_stats->m_nArmorCheckPenalty = (uint8_t)nPenalty;
+				cre->cre_stats->UpdateCombatInformation();
+			}
+			else if(nType == 2)
+			{
+				cre->cre_stats->m_nShieldCheckPenalty = (uint8_t)nPenalty;
+				cre->cre_stats->UpdateCombatInformation();
+			}
+			else
+			{
+				fprintf(logFile, "ERROR: SetSkillCheckPenalty(%08X,%i,%i) used with incorrect parameters!\n",oID,nPenalty,nType);
+			}
+		}
+		else
+		{
+			fprintf(logFile, "ERROR: SetSkillCheckPenalty(%08X,%i,%i) used with incorrect parameters!\n",oID,nPenalty,nType);
+		}
+	}
+	else if(nFunc == 449)//SetSkillPointsRemaining
+	{
+		unsigned long oID = OBJECT_INVALID, skill_points = 65535;
+		sscanf_s(Params,"%x|%i",&oID,&skill_points);
+		CNWSCreature *cre = NWN_AppManager->app_server->srv_internal->GetCreatureByGameObjectID(oID);
+		if(oID != OBJECT_INVALID && cre && skill_points < 65535)
+		{
+			cre->cre_stats->m_nSkillPointsRemaining = (uint16_t)skill_points;
+		}
+		else
+		{
+			fprintf(logFile, "ERROR: SetSkillPointsRemaining(%08X,%i) used with incorrect parameters!\n",oID,skill_points);
+		}
 	}
 	else if(nFunc == 501)//GetKnowsSpell
 	{
