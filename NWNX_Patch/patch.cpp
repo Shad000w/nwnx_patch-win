@@ -19,7 +19,6 @@ volatile uint8_t Hook_uint8;
 volatile uint8_t test1;
 volatile uint8_t test2;
 volatile uint8_t test3;
-volatile uint16_t test16;
 volatile uint32_t test32;
 volatile uint32_t test33;
 volatile uint32_t Hook_ret;
@@ -2496,7 +2495,7 @@ void NWNXPatch_Funcs(CNWSScriptVarTable *pThis, int nFunc, char *Params)
 	else if(nFunc == 3)//PlayMovie
 	{
 		unsigned long oID = OBJECT_INVALID;
-		sscanf_s(Params,"%x|%s",&oID,Params);
+		sscanf_s(Params, "%x|%s", &oID, Params, strlen(Params));
 		CNWSPlayer *player = NWN_AppManager->app_server->srv_internal->GetClientObjectByObjectId(oID);
 		if(oID != OBJECT_INVALID && player && Params)
 		{
@@ -2543,7 +2542,7 @@ void NWNXPatch_Funcs(CNWSScriptVarTable *pThis, int nFunc, char *Params)
 	else if(nFunc == 6)//SetCanCastInPolymorph
 	{
 		unsigned long oID = OBJECT_INVALID, bAllowed = OBJECT_INVALID;
-		sscanf_s(Params,"%x|%i",&oID,bAllowed);
+		sscanf_s(Params, "%x|%i", &oID, &bAllowed);
 		CNWSPlayer *player = NWN_AppManager->app_server->srv_internal->GetClientObjectByObjectId(oID);
 		if(oID != OBJECT_INVALID && player && (bAllowed == 1 || bAllowed == 0))
 		{
@@ -3660,7 +3659,7 @@ void NWNXPatch_Funcs(CNWSScriptVarTable *pThis, int nFunc, char *Params)
 	else if(nFunc == 203)//SetTag
 	{
 		unsigned long oID = OBJECT_INVALID;
-		sscanf_s(Params,"%x|%s",&oID,Params);
+		sscanf_s(Params, "%x|%s", &oID, Params, strlen(Params));
 		CGenericObject *object = NWN_AppManager->app_server->srv_internal->GetGameObject(oID);
 		if(oID != OBJECT_INVALID && object && object->obj_type2 != OBJECT_TYPE2_MODULE && object->obj_type2 != OBJECT_TYPE2_AREA)
 		{
@@ -3826,7 +3825,7 @@ void NWNXPatch_Funcs(CNWSScriptVarTable *pThis, int nFunc, char *Params)
 	else if(nFunc == 207)//SetConversation
 	{
 		unsigned long oID = OBJECT_INVALID;
-		sscanf_s(Params,"%x|%s",&oID,Params);
+		sscanf_s(Params, "%x|%s", &oID, Params, strlen(Params));
 		CGenericObject *object = NWN_AppManager->app_server->srv_internal->GetGameObject(oID);
 		if(oID != OBJECT_INVALID && object && Params)
 		{
@@ -4488,25 +4487,7 @@ void NWNXPatch_Funcs(CNWSScriptVarTable *pThis, int nFunc, char *Params)
 	}
 	else if(nFunc == 428)//SetMovementRateFactor
 	{
-		unsigned long oID = OBJECT_INVALID;
-		float fSpeed = 0.0;
-		sscanf_s(Params,"%x|%f",&oID,&fSpeed);
-		CNWSCreature *cre = NWN_AppManager->app_server->srv_internal->GetCreatureByGameObjectID(oID);
-		if(oID != OBJECT_INVALID && cre)
-		{
-			if(fSpeed != 0.0)
-			{
-				cre->SetMovementRateFactor(fSpeed);
-			}
-			else
-			{
-				fprintf(logFile, "ERROR: SetMovementRateFactor(%08X,%f) used with incorrect parameters!\n",oID,fSpeed);
-			}
-		}
-		else
-		{
-			fprintf(logFile, "ERROR: SetMovementRateFactor(%08X,%f) used on wrong object type!\n",oID,fSpeed);
-		}
+		fprintf(logFile, "ERROR: function SetMovementRateFactor has been removed!\n");
 	}
 	else if(nFunc == 429)//GetTotalDamageDealtByType
 	{
@@ -5418,17 +5399,17 @@ void NWNXPatch_Funcs(CNWSScriptVarTable *pThis, int nFunc, char *Params)
 				}
 				else
 				{
-					fprintf(logFile, "ERROR: GetSpellProgression(%08X,%i,%i) creature doesn't have this class!\n",oID,cls_id);
+					fprintf(logFile, "ERROR: GetSpellProgression(%08X,%i) creature doesn't have this class!\n",oID,cls_id);
 				}
 			}
 			else
 			{
-				fprintf(logFile, "ERROR: GetSpellProgression(%08X,%i,%i) used with incorrect parameters!\n",oID,cls_id);
+				fprintf(logFile, "ERROR: GetSpellProgression(%08X,%i) used with incorrect parameters!\n",oID,cls_id);
 			}
 		}
 		else
 		{
-			fprintf(logFile, "ERROR: GetSpellProgression(%08X,%i,%i) used on wrong object type!\n",oID,cls_id);
+			fprintf(logFile, "ERROR: GetSpellProgression(%08X,%i) used on wrong object type!\n",oID,cls_id);
 		}
 		pThis->SetInt(VarName,retVal,0);
 	}
@@ -7230,7 +7211,7 @@ void Hook_AssassinDeathAttack()
 		target->cre_combat_state = 1;//disables multiple death attack onhits in first flurry
 		if(!NWN_VirtualMachine->Runscript(&script_dthattk,self->obj.obj_generic.obj_id,1))
 		{
-			//Hook_ret = 0x745840;//doesnt work anyway
+			//this will happen if user doesn't have script 70_s2_dthattk which means he most likely uses plugin but not patch
 		}
 	}
 	__asm mov eax, 0x54CD29
