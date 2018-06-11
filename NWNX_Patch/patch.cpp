@@ -31,6 +31,7 @@ volatile uint32_t orig_edx;
 CNWSCreature *self;
 CNWSCreature *target;
 CNWSCreatureStats *stats;
+CNWSItem *item;
 int DebugLvl = 0;
 int helper,helper_backup;
 CGameEffect *helper_effect,*Hook_effect;
@@ -7919,7 +7920,31 @@ void Hook_ArcaneSpellFailure()//CNWSCreature::AIActionCastSpell
 	__asm mov bl, test2
 	Hook_ret = 0x4BDA8D;
 	__asm jmp Hook_ret
-}	
+}
+
+void Hook_ItemCastSpell()//CNWSCreature::AIActionItemCastSpell
+{
+	__asm leave
+	__asm mov orig_ecx, ecx
+	__asm mov test32, edx
+	__asm mov DWORD PTR item, ebp
+	test33 = item->obj.obj_vartable.GetInt(item_casting);
+	if(test33 <= 0)
+	{
+		if(test32 == 49 || test32 == 104)
+		{
+			test33 = 3000;
+		}
+		else
+		{
+			test33 = 6000;
+		}	
+	}
+	__asm mov ecx, orig_ecx
+	__asm push test33
+	Hook_ret = 0x4BBD4C;
+	__asm jmp Hook_ret
+}
 
 void Hook_ELC1()//0x434243 - CNWSPlayer::ValidateCharacter - number of spells learned
 {//todo change max spells learned value
