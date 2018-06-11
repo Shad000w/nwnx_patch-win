@@ -9,7 +9,7 @@
 #pragma comment(lib, "madCHook.lib")
 
 const int   VERSION_MAJOR = 1;
-const int   VERSION_MINOR = 37;
+const int   VERSION_MINOR = 38;
 const char *VERSION_PATCH = "";
 DWORD *heapAddress = NULL;
 FILE *logFile;
@@ -1910,6 +1910,37 @@ int __fastcall CNWVirtualMachineCommands__ExecuteCommandGetEffectSubType_Hook(CV
 	{
 		Log(1,"NWNXPatch_Funcs DEBUG: func GetEffectInteger\n");
 		retVal = eff->eff_integers[mod->mod_vartable.GetInt(CExoString("GetEffectInteger"))];
+	}
+	else if(mod && mod->mod_vartable.MatchIndex(CExoString("TransferEffectValuesNth"),VARIABLE_TYPE_OBJECT,0) != NULL)
+	{
+		Log(1,"NWNXPatch_Funcs DEBUG: func TransferEffectValuesIntoNthEffect\n");
+		CNWSCreature *cre = NWN_AppManager->app_server->srv_internal->GetCreatureByGameObjectID(mod->mod_vartable.GetObjectA(CExoString("TransferEffectValuesNth")));
+		int nTh = mod->mod_vartable.GetInt(CExoString("TransferEffectValuesNth"));
+		if(cre && nTh > 0 && (uint32_t)nTh <= cre->obj.obj_effects_len)
+		{			
+			CGameEffect *e = cre->obj.obj_effects[nTh-1];			
+			if(e)
+			{
+				e->eff_casterlvl = eff->eff_casterlvl;
+				e->eff_creator = eff->eff_creator;
+				e->eff_duration = eff->eff_duration;
+				e->eff_dursubtype = eff->eff_dursubtype;
+				e->eff_expire_day = eff->eff_expire_day;
+				e->eff_expire_time = eff->eff_expire_time;
+				e->eff_is_iconshown = eff->eff_is_iconshown;
+				e->eff_is_exposed = eff->eff_is_exposed;
+				e->eff_spellid = eff->eff_spellid;
+				e->eff_type = eff->eff_type;
+				for(unsigned char x = 0;x<eff->eff_num_integers;x++)
+				{
+					e->SetInteger(x,eff->GetInteger(x));
+				}
+			}
+		}
+		else
+		{
+			Log(0,"ERROR: TransferEffectValuesIntoNthEffect used with incorrect values!\n");
+		}
 	}
 	else if(mod && mod->mod_vartable.MatchIndex(CExoString("TransferEffectValues"),VARIABLE_TYPE_INT,0) != NULL)
 	{
