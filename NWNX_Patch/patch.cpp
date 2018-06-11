@@ -1330,7 +1330,7 @@ int __fastcall CNWSCreature__LearnScroll_Hook(CNWSCreature *pThis, void *, unsig
 
 unsigned char __fastcall CNWSCreatureStats__GetSpellUsesLeft_Hook(CNWSCreatureStats *pThis, void *, unsigned long spell_id, unsigned char cls_pos, unsigned char domain_lvl, unsigned char metamagic)
 {
-	Log(2,"o CNWSCreatureStats__GetSpellUsesLeft start\n");
+	Log(3,"o CNWSCreatureStats__GetSpellUsesLeft start\n");
 	if(!classes_2da)
 	{
 		return CNWSCreatureStats__GetSpellUsesLeft(pThis,NULL,spell_id,cls_pos,domain_lvl,metamagic);
@@ -1496,7 +1496,7 @@ unsigned char __fastcall CNWSpell__GetSpellLevel_Hook(CNWSpell *pThis, void *, u
 	case CLASS_TYPE_INVALID:
 		return 255;
 	}
-	if(pThis->m_nInnateLevel != 255 && spells_level_2da)
+	if(spells_level_2da && pThis->m_nInnateLevel != 255)
 	{
 		if(NWN_Rules->m_pSpellArray->GetSpell(pThis->m_nMasterSpell) != pThis)//safety check whether current spell is really what it says it is
 		{
@@ -1682,7 +1682,7 @@ unsigned char __fastcall CNWSCreatureStats__GetSpellGainWithBonusAfterLevelUp_Ho
 
 int __fastcall CNWSCreatureStats__GetSpellMinAbilityMet_Hook(CNWSCreatureStats *pThis, void *, unsigned char cls_pos, unsigned char spell_lvl)
 {
-	Log(2,"o CNWSCreatureStats__GetSpellMinAbilityMet start\n");
+	Log(3,"o CNWSCreatureStats__GetSpellMinAbilityMet start\n");
 	if(cls_pos >= pThis->cs_classes_len) return 0;//sometimes engine passes 254/255 into class position, in this case we need to return 0
 	unsigned char cls_id = pThis->cs_classes[cls_pos].cl_class;
 	switch(cls_id)
@@ -7012,7 +7012,7 @@ int __fastcall CNWSCreature__GetAmmunitionAvailable_Hook(CNWSCreature *pThis, vo
 
 void __fastcall CNWSCreature__SetActivity_Hook(CNWSCreature *pThis, void*, int nActivity, int bOn)
 {
-	Log(2,"o CNWSCreature__SetActivity start\n");
+	Log(3,"o CNWSCreature__SetActivity start\n");
 	//Vanilla Defensive Stance deactivation call
 	if(nActivity & 0x100000 && !bOn && pThis->cre_is_pc)
 	{
