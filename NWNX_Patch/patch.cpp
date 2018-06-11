@@ -78,7 +78,8 @@ CExoString script_leave = "70_mod_def_leave";
 CExoString script_load = "70_mod_def_load";
 CExoString script_user = "70_mod_def_user";
 CExoString script_critical = "70_mod_crithit";
-CExoString sneak_attack = "SneakAttackModifier";
+CExoString sneak_attack = "SneakAttackBonus";
+CExoString item_casting = "ItemCastSpeedOverride";
 
 bool pole[3][3];
 C2DA *weaponfeats_2da,*racialtypes_2da,*spells_2da,*spells_level_2da,*classes_2da,*effects_2da;
@@ -7386,7 +7387,27 @@ void Hook_SpecAttacks4()//CNWSCreature::ResolveAttackRoll
 	}
 }
 
-void Hook_SneakAttackCalculation()
+void Hook_SneakAttackCalculation1()
+{
+	__asm leave
+	__asm mov orig_ebx, ebx
+	__asm mov test1, al
+	__asm mov DWORD PTR stats, esi
+
+	if(test1 || stats->cs_original->obj.obj_vartable.GetInt(sneak_attack) > 0)
+	{
+		Hook_ret = 0x54BFBF;
+	}
+	else
+	{
+		Hook_ret = 0x54C2E6;
+	}
+
+	__asm mov ebx, orig_ebx
+	__asm jmp Hook_ret
+}
+
+void Hook_SneakAttackCalculation2()
 {
 	__asm leave
 	__asm mov ebx, 0Ah
@@ -7395,17 +7416,21 @@ void Hook_SneakAttackCalculation()
 	if(stats != NULL && (stats->cs_original->cre_combat_round->GetAttack(stats->cs_original->cre_combat_round->m_nCurrentAttack)->m_bSneakAttack || (stats->HasFeat(834) && stats->cs_original->cre_combat_round->GetAttack(stats->cs_original->cre_combat_round->m_nCurrentAttack)->m_bDeathAttack)))
 	{
 		test32 = stats->cs_original->obj.obj_vartable.GetInt(sneak_attack);
-		/*
-		__asm
+		if(test32 > 0)
 		{
-		push    34Bh
-        mov     ecx, esi
-        xor     edi, edi
-		mov     edi, test32
-		mov eax, 0x476CEC//3
+			__asm
+			{
+			push    34Bh
+			mov     ecx, esi
+			xor     edi, edi
+			mov     edi, test32
+			mov eax, 0x476CEC
+			}
 		}
-		*/
-		__asm mov eax, 0x476CE3
+		else
+		{
+			__asm mov eax, 0x476CE3
+		}
 	}
 	else
 	{
