@@ -8758,9 +8758,16 @@ void PatchImage()
 	VirtualProtect(pPatch, 1, PAGE_EXECUTE_READWRITE, &DefaultPrivs);
 	memset((PVOID)pPatch, '\x90', 8);
 	pPatch[0] = 0xE9;
-	*((uint32_t *)(pPatch + 1)) = (uint32_t)Hook_SneakAttackCalculation - (uint32_t)(pPatch + 5);
+	*((uint32_t *)(pPatch + 1)) = (uint32_t)Hook_SneakAttackCalculation2 - (uint32_t)(pPatch + 5);
 	VirtualProtect(pPatch, 1, DefaultPrivs, NULL);
 	fprintf(logFile, "o Fixing Improved sneak attack issue.\n");
+	pPatch = (unsigned char *) 0x54BFB7;
+	VirtualProtect(pPatch, 1, PAGE_EXECUTE_READWRITE, &DefaultPrivs);
+	memset((PVOID)pPatch, '\x90', 8);
+	pPatch[0] = 0xE9;
+	*((uint32_t *)(pPatch + 1)) = (uint32_t)Hook_SneakAttackCalculation1 - (uint32_t)(pPatch + 5);
+	VirtualProtect(pPatch, 1, DefaultPrivs, NULL);
+	fprintf(logFile, "o Enabling to modify sneak attack damage.\n");
 
 	pPatch = (unsigned char *) 0x54C1CA;
 	VirtualProtect(pPatch, 1, PAGE_EXECUTE_READWRITE, &DefaultPrivs);
@@ -9025,7 +9032,7 @@ void PatchImage()
 	memset((PVOID)pPatch, '\x90', 8);
 	pPatch[0] = 0xE9;
 	*((uint32_t *)(pPatch + 1)) = (uint32_t)Hook_ImmunityCritical - (uint32_t)(pPatch + 5);
-	VirtualProtect((DWORD*)pPatch, 1, DefaultPrivs, NULL);VirtualProtect((DWORD*)pPatch, 1, DefaultPrivs, NULL);
+	VirtualProtect((DWORD*)pPatch, 1, DefaultPrivs, NULL);
 	fprintf(logFile, "o Removing hardcoded feat immunity.\n");
 
 	pPatch = (unsigned char *) 0x4BDA52;//CNWSCreature::AIActionCastSpell
@@ -9033,8 +9040,16 @@ void PatchImage()
 	memset((PVOID)pPatch, '\x90', 8);
 	pPatch[0] = 0xE9;
 	*((uint32_t *)(pPatch + 1)) = (uint32_t)Hook_ArcaneSpellFailure - (uint32_t)(pPatch + 5);
-	VirtualProtect((DWORD*)pPatch, 1, DefaultPrivs, NULL);VirtualProtect((DWORD*)pPatch, 1, DefaultPrivs, NULL);
+	VirtualProtect((DWORD*)pPatch, 1, DefaultPrivs, NULL);
 	fprintf(logFile, "o Enabling EffectIgnoreArcaneFailure.\n");
+
+	pPatch = (unsigned char *) 0x4BBD36;//CNWSCreature::AIActionItemCastSpell
+	VirtualProtect((DWORD*)pPatch, 1, PAGE_EXECUTE_READWRITE, &DefaultPrivs);
+	memset((PVOID)pPatch, '\x90', 8);
+	pPatch[0] = 0xE9;
+	*((uint32_t *)(pPatch + 1)) = (uint32_t)Hook_ItemCastSpell - (uint32_t)(pPatch + 5);
+	VirtualProtect((DWORD*)pPatch, 1, DefaultPrivs, NULL);
+	fprintf(logFile, "o Enabling to modify item casting speed.\n");
 
 	fflush(logFile);
 }
